@@ -1,0 +1,16 @@
+Alias MyD0       D0
+Alias Myanti-D0  anti-D0
+ChargeConj MyD0  Myanti-D0
+
+
+Decay B0
+1.0   Myanti-D0 pi+ pi-              PHSP;
+Enddecay
+CDecay anti-B0
+
+Decay MyD0
+1.0   K-  pi+                        PHSP;
+Enddecay
+CDecay Myanti-D0
+
+End

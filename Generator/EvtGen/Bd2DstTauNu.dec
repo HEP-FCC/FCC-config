@@ -1,0 +1,35 @@
+# Tauola steering options
+Define TauolaCurrentOption 0
+Define TauolaBR1 1.0
+#
+Alias         MyD0       D0
+Alias         anti-MyD0  anti-D0
+ChargeConj    MyD0       anti-MyD0
+Alias         MyD*+      D*+
+Alias         MyD*-      D*-
+ChargeConj    MyD*+      MyD*-
+Alias         MyTau+     tau+
+Alias         MyTau-     tau-
+ChargeConj    MyTau+     MyTau-
+#
+Decay B0
+  1.000       MyD*-      MyTau+   nu_tau   ISGW2;
+Enddecay
+CDecay anti-B0
+#
+Decay MyD*+
+  1.000       MyD0       pi+      VSS;
+Enddecay
+CDecay MyD*-
+#
+Decay MyD0
+  1.0000      K-         pi+      PHSP;
+Enddecay
+CDecay anti-MyD0
+#
+Decay MyTau-
+  1.00        TAUOLA 5;
+Enddecay
+CDecay MyTau+
+#
+End

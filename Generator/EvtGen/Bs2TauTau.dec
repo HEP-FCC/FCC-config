@@ -1,0 +1,19 @@
+# Tauola steering options
+Define TauolaCurrentOption 0
+Define TauolaBR1 1.0
+#
+Alias         Mytau+     tau+
+Alias         Mytau-     tau-
+ChargeConj    Mytau+     Mytau-
+#
+Decay B_s0
+  1.000       Mytau+    Mytau-       PHSP;
+Enddecay
+CDecay anti-B_s0
+#
+Decay Mytau-
+  1.00        TAUOLA 5;
+Enddecay
+CDecay Mytau+
+#
+End

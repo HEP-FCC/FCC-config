@@ -1,0 +1,19 @@
+Alias   MyKs    K_S0
+ChargeConj MyKs MyKs
+Alias   Mypi0   pi0
+ChargeConj Mypi0    Mypi0
+
+Decay B0
+ 1.000  MyKs    Mypi0   PHSP;
+Enddecay
+CDecay anti-B0
+
+Decay MyKs
+ 1.000  pi+ pi- PHSP;
+Enddecay
+
+Decay Mypi0
+ 1.000  gamma   gamma   PHSP;
+Enddecay
+
+End

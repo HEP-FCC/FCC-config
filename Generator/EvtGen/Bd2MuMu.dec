@@ -1,0 +1,6 @@
+Decay B0
+  1.000       mu+     mu-              PHSP;
+Enddecay
+CDecay anti-B0
+#
+End
