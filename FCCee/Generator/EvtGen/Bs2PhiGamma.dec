@@ -1,0 +1,13 @@
+Alias      MyPhi   phi
+ChargeConj MyPhi   MyPhi
+#
+Decay B_s0
+  1.0000       MyPhi     gamma              SVP_HELAMP 1.0 0.0 1.0 0.0;
+Enddecay
+CDecay anti-B_s0
+#
+Decay MyPhi
+  1.000        K+        K-                 VSS;
+Enddecay
+#
+End

@@ -1,0 +1,7 @@
+#
+Decay tau-
+  1.000       mu- gamma              PHSP;
+Enddecay
+CDecay tau+
+#
+End
