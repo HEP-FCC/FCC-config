@@ -1,0 +1,21 @@
+Alias   Lb_SIGNAL   Lambda_b0
+Alias   Lbbar_SIGNAL    anti-Lambda_b0
+ChargeConj Lb_SIGNAL  Lbbar_SIGNAL
+
+Decay Lb_SIGNAL
+    0.0049    Lambda_c+ pi-   PHSP;
+    0.011   Lambda_c+ D_s-    PHSP;
+    0.005544    a_1- Lambda_c+     PHSP;
+    0.001001    Lambda_c+ rho0 pi-   PHSP;
+    0.00077    Lambda_c+ f_2 pi-    PHSP;
+    0.000385    Lambda_c+ pi- pi+ pi-    PHSP;
+    0.0545   Lambda_c+ mu- anti-nu_mu    BaryonPCR  1 1 1 1;
+    0.0545   Lambda_c+ e- anti-nu_e    BaryonPCR  1 1 1 1;
+    0.0327   Lambda_c+ tau- anti-nu_tau    BaryonPCR  1 1 1 1;
+    0.0545   Lambda_c(2625)+ mu- anti-nu_mu    BaryonPCR  1 1 1 1;
+    0.0545   Lambda_c(2625)+ e- anti-nu_e    BaryonPCR  1 1 1 1;
+    0.0327   Lambda_c(2625)+ tau- anti-nu_tau    BaryonPCR  1 1 1 1;
+Enddecay
+CDecay Lbbar_SIGNAL
+
+End

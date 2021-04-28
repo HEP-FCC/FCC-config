@@ -1,0 +1,13 @@
+Alias   Bs_SIGNAL   B_s0
+Alias   Bsbar_SIGNAL    anti-B_s0
+ChargeConj Bs_SIGNAL  Bsbar_SIGNAL
+
+Decay Bsbar_SIGNAL
+    0.00432    a_1- D_s+     SVS;
+    0.00078    D_s+ rho0 pi-   PHSP;
+    0.0006    D_s+ f_2 pi-    PHSP;
+    0.0003    D_s+ pi- pi+ pi-    PHSP;
+Enddecay
+CDecay Bs_SIGNAL
+
+End

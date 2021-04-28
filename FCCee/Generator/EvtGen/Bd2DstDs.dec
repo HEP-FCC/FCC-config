@@ -3,7 +3,7 @@ Alias   Bdbar_SIGNAL    anti-B0
 ChargeConj Bd_SIGNAL  Bdbar_SIGNAL
 
 Decay Bdbar_SIGNAL
-    1.0    D+ tau- anti-nu_tau   ISGW2;
+    1.0    D*+ D_s-   SVS;
 Enddecay
 CDecay Bd_SIGNAL
 

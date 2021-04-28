@@ -1,0 +1,10 @@
+Alias   Bu_SIGNAL   B+
+Alias   Bubar_SIGNAL    B-
+ChargeConj Bu_SIGNAL  Bubar_SIGNAL
+
+Decay Bubar_SIGNAL
+    1.0    D*0 D_s-   SVS;
+Enddecay
+CDecay Bu_SIGNAL
+
+End

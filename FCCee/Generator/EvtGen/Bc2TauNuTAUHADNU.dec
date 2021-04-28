@@ -1,18 +1,18 @@
-# Tauola steering options
-Define TauolaCurrentOption 0
-Define TauolaBR1 1.0
+Alias   Bc_SIGNAL   B_c+
+Alias   Bcbar_SIGNAL    B_c-
+ChargeConj    Bc_SIGNAL   Bcbar_SIGNAL
 #
-Alias		MyTau+	tau+
-Alias		MyTau-	tau-
-ChargeConj	MyTau+	MyTau-
+Alias   MyTau+    tau+
+Alias   MyTau-    tau-
+ChargeConj    MyTau+    MyTau-
 #
-Decay B_c+
-      1.0	MyTau+	nu_tau	PHSP;
+Decay Bc_SIGNAL
+    1.0   MyTau+    nu_tau    SLN;
 Enddecay
-CDecay B_c-
+CDecay    Bcbar_SIGNAL
 #
 Decay MyTau-
-      1.0    pi-    pi-     pi+     nu_tau                  TAUHADNU -0.108 0.775 0.149 1.364 0.400 1.23 0.4;
+    1.0   pi-   pi-   pi+   nu_tau    TAUHADNU -0.108 0.775 0.149 1.364 0.400 1.23 0.4;
 Enddecay
 CDecay MyTau+
 #

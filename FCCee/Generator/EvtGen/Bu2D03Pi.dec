@@ -1,0 +1,13 @@
+Alias   Bu_SIGNAL   B+
+Alias   Bubar_SIGNAL    B-
+ChargeConj Bu_SIGNAL  Bubar_SIGNAL
+
+Decay Bubar_SIGNAL
+    0.004032    a_1- D0     SVS;
+    0.000728    D0 rho0 pi-   PHSP;
+    0.00056    D0 f_2 pi-    PHSP;
+    0.00028    D0 pi- pi+ pi-    PHSP;
+Enddecay
+CDecay Bu_SIGNAL
+
+End

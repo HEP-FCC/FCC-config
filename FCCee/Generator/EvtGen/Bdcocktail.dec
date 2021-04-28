@@ -1,0 +1,42 @@
+Alias   Bd_SIGNAL   B0
+Alias   Bdbar_SIGNAL    anti-B0
+ChargeConj Bd_SIGNAL  Bdbar_SIGNAL
+
+Decay Bdbar_SIGNAL
+    0.00432    a_1- D+     SVS;
+    0.00078    D+ rho0 pi-   PHSP;
+    0.0006    D+ f_2 pi-    PHSP;
+    0.0003    D+ pi- pi+ pi-    PHSP;
+    0.0051912   D*+ a_1-    SVV_HELAMP 0.200 0.0 0.866 0.0 0.458 0.0;
+    0.0009373   D*+ rho0 pi-    PHSP;
+    0.000721   D*+ f_2 pi-   PHSP;
+    0.0003605   D*+ pi- pi+ pi-   PHSP;
+    0.015   D*+ pi- pi0   PHSP;
+    0.0176    D*+ pi- pi- pi+ pi0   PHSP;
+    0.0047    D*+ pi- pi- pi- pi+ pi+   PHSP;
+    0.0072    D+ D_s-   PHSP;
+    0.008   D*+ D_s-    SVS;
+    0.0074    D_s*- D+    SVS;
+    0.0177    D*+ D_s*-   SVV_HELAMP 0.620 0.0 0.760 0.0 0.195 0.0;
+    0.0035    D_s0*- D+   PHSP;
+    0.0093    D*+ D_s0*-    SVS;
+    0.0027    D*0 pi+ pi+ pi- pi-   PHSP;
+    0.00107   D+ anti-D0 K-   PHSP;
+    0.0035    D+ anti-D*0 K-    PHSP;
+    0.00247   D*+ anti-D0 K-    PHSP;
+    0.0106    D*+ anti-D*0 K-   PHSP;
+    0.0081    D*- D*+ K0    PHSP;
+    0.00247   D*0 anti-D*0 K0   PHSP;
+    0.01155    D+ mu- anti-nu_mu   ISGW2;
+    0.01155    D+ e- anti-nu_e   ISGW2;
+    0.0108    D+ tau- anti-nu_tau   ISGW2;
+    0.02525    D*+ mu- anti-nu_mu   ISGW2;
+    0.02525    D*+ e- anti-nu_e   ISGW2;
+    0.0157    D*+ tau- anti-nu_tau    ISGW2;
+    0.0029    D*0 pi+ mu- anti-nu_mu    PHSP;
+    0.0029    D*0 pi+ e- anti-nu_e    PHSP;
+    0.00174   D*0 pi+ tau- anti-nu_tau    PHSP;
+Enddecay
+CDecay Bd_SIGNAL
+
+End
