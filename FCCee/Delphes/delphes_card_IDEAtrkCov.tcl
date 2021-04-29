@@ -7,7 +7,9 @@
 #        m.antonello@uninsubria.it,
 #        michele.selvaggi@cern.ch
 #####################################################################
-#
+
+set B 2.0
+
 #######################################
 # Order of execution of various modules
 #######################################
@@ -59,7 +61,6 @@ set ExecutionPath {
   TreeWriter
 }
 
-
 #################################
 # Propagate particles in cylinder
 #################################
@@ -79,7 +80,7 @@ module ParticlePropagator ParticlePropagator {
   set HalfLength 2.5
 
   # magnetic field, in T
-  set Bz 2.0
+  set Bz $B
 }
 
 ####################################
@@ -162,15 +163,55 @@ module TrackCovariance TrackSmearing {
     set InputArray TrackMergerPre/tracks
     set OutputArray tracks
 
+
+    set InputArray TrackMergerPre/tracks
+    set OutputArray tracks
+
+    set Bz 2.0
+
+    ## minimum number of hits to accept a track
+    set NMinHits 6
+
     ## uses https://raw.githubusercontent.com/selvaggi/FastTrackCovariance/master/GeoIDEA_BASE.txt
     set DetectorGeometry {
 
-      1 PIPE -100 100 0.015 0.0012 0.35276 0 0 0 0 0 0
-      1 VTXLOW -0.12 0.12 0.017 0.00028 0.0937 2 0 1.5708 3e-006 3e-006 1
-      1 VTXLOW -0.16 0.16 0.023 0.00028 0.0937 2 0 1.5708 3e-006 3e-006 1
-      1 VTXLOW -0.16 0.16 0.031 0.00028 0.0937 2 0 1.5708 3e-006 3e-006 1
-      1 VTXHIGH -1 1 0.32 0.00047 0.0937 2 0 1.5708 7e-006 7e-006 1
-      1 VTXHIGH -1.05 1.05 0.34 0.00047 0.0937 2 0 1.5708 7e-006 7e-006 1
+
+      # Layer type 1 = R (barrel) or 2 = z (forward/backward)
+      # Layer label
+      # Minimum dimension z for barrel or R for forward
+      # Maximum dimension z for barrel or R for forward
+      # R/z location of layer
+      # Thickness (meters)
+      # Radiation length (meters)
+      # Number of measurements in layers (1D or 2D)
+      # Stereo angle (rad) - 0(pi/2) = axial(z) layer - Upper side
+      # Stereo angle (rad) - 0(pi/2) = axial(z) layer - Lower side
+      # Resolution Upper side (meters) - 0 = no measurement
+      # Resolution Lower side (meters) - 0 = no measurement
+      # measurement flag = T, scattering only = F
+
+      # barrel  name       zmin   zmax   r        w (m)      X0        n_meas  th_up (rad) th_down (rad)    reso_up (m)   reso_down (m)  flag
+
+      # barrel  name       zmin   zmax   r        w (m)      X0        n_meas  th_up (rad) th_down (rad)    reso_up (m)   reso_down (m)  flag
+
+      1        PIPE       -100    100    0.015    0.001655  0.2805     0        0          0                0             0              0
+      1        VTXLOW     -0.12   0.12   0.017    0.00028   0.0937     2        0          1.5708           3e-006        3e-006         1
+      1        VTXLOW     -0.16   0.16   0.023    0.00028   0.0937     2        0          1.5708           3e-006        3e-006         1
+      1        VTXLOW     -0.16   0.16   0.031    0.00028   0.0937     2        0          1.5708           3e-006        3e-006         1
+      1        VTXHIGH    -1      1      0.32     0.00047   0.0937     2        0          1.5708           7e-006        7e-006         1
+      1        VTXHIGH    -1.05   1.05   0.34     0.00047   0.0937     2        0          1.5708           7e-006        7e-006         1
+
+      # endcap  name       rmin   rmax   z        w (m)      X0        n_meas   th_up (rad)  th_down (rad)   reso_up (m)   reso_down (m) flag
+
+      2        VTXDSK      0.141  0.3   -0.92     0.00028   0.0937     2        0          1.5708           7e-006        7e-006         1
+      2        VTXDSK      0.138  0.3   -0.9      0.00028   0.0937     2        0          1.5708           7e-006        7e-006         1
+      2        VTXDSK      0.065  0.3   -0.42     0.00028   0.0937     2        0          1.5708           7e-006        7e-006         1
+      2        VTXDSK      0.062  0.3   -0.4      0.00028   0.0937     2        0          1.5708           7e-006        7e-006         1
+      2        VTXDSK      0.062  0.3    0.4      0.00028   0.0937     2        0          1.5708           7e-006        7e-006         1
+      2        VTXDSK      0.065  0.3    0.42     0.00028   0.0937     2        0          1.5708           7e-006        7e-006         1
+      2        VTXDSK      0.138  0.3    0.9      0.00028   0.0937     2        0          1.5708           7e-006        7e-006         1
+      2        VTXDSK      0.141  0.3    0.92     0.00028   0.0937     2        0          1.5708           7e-006        7e-006         1
+
       1 DCHCANI -2.125 2.125 0.345 0.0002 0.237223 0 0 0 0 0 0
       1 DCH -2 2 0.36 0.0147748 1400 1 0.0203738 0 0.0001 0 1
       1 DCH -2 2 0.374775 0.0147748 1400 1 -0.0212097 0 0.0001 0 1
@@ -289,14 +330,6 @@ module TrackCovariance TrackSmearing {
       1 BSILWRP -2.35 2.35 2.06 0.00047 0.0937 2 0 1.5708 7e-006 9e-005 1
       1 MAG -2.5 2.5 2.25 0.05 0.0658 0 0 0 0 0 0
       1 BPRESH -2.55 2.55 2.45 0.02 1 2 0 1.5708 7e-005 0.01 1
-      2 VTXDSK 0.141 0.3 -0.92 0.00028 0.0937 2 0 1.5708 7e-006 7e-006 1
-      2 VTXDSK 0.138 0.3 -0.9 0.00028 0.0937 2 0 1.5708 7e-006 7e-006 1
-      2 VTXDSK 0.065 0.3 -0.42 0.00028 0.0937 2 0 1.5708 7e-006 7e-006 1
-      2 VTXDSK 0.062 0.3 -0.4 0.00028 0.0937 2 0 1.5708 7e-006 7e-006 1
-      2 VTXDSK 0.062 0.3 0.4 0.00028 0.0937 2 0 1.5708 7e-006 7e-006 1
-      2 VTXDSK 0.065 0.3 0.42 0.00028 0.0937 2 0 1.5708 7e-006 7e-006 1
-      2 VTXDSK 0.138 0.3 0.9 0.00028 0.0937 2 0 1.5708 7e-006 7e-006 1
-      2 VTXDSK 0.141 0.3 0.92 0.00028 0.0937 2 0 1.5708 7e-006 7e-006 1
       2 DCHWALL 0.345 2.02 2.125 0.25 5.55 0 0 0 0 0 0
       2 DCHWALL 0.345 2.02 -2.125 0.25 5.55 0 0 0 0 0 0
       2 FSILWRP 0.354 2.02 -2.32 0.00047 0.0937 2 0 1.5708 7e-006 9e-005 1
@@ -309,9 +342,8 @@ module TrackCovariance TrackSmearing {
       2 FPRESH 0.39 2.43 2.55 0.02 1 2 0 1.5708 7e-005 0.01 1
     }
 
-    set Bz 2.0
+    set Bz $B
 }
-
 
 ##############
 # Track merger
@@ -766,4 +798,7 @@ module TreeWriter TreeWriter {
 
     add Branch MissingET/momentum MissingET MissingET
     add Branch ScalarHT/energy ScalarHT ScalarHT
+
+    # add Info InfoName InfoValue
+    add Info Bz $B
 }
