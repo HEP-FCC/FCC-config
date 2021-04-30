@@ -20,16 +20,16 @@ Next:numberShowEvent = 0           ! print event record n times
 Beams:idA = 11                   ! first beam, e = 2212, pbar = -2212
 Beams:idB = -11                   ! second beam, e = 2212, pbar = -2212
 
-! Beam energy spread: 0.165% x 120 GeV = 0.198 GeV
+! Beam energy spread: 0.132% x 45.594 GeV = 0.0602 GeV
 Beams:allowMomentumSpread  = on
-Beams:sigmaPzA = 0.198
-Beams:sigmaPzB = 0.198
+Beams:sigmaPzA = 0.0602
+Beams:sigmaPzB = 0.0602
 
 ! Vertex smearing :
 Beams:allowVertexSpread = on
-Beams:sigmaVertexX = 9.70e-3   !  13.7 mum / sqrt2
-Beams:sigmaVertexY = 25.5E-6   !  36.1 nm / sqrt2
-Beams:sigmaVertexZ = 0.64      !  0.64 mm
+Beams:sigmaVertexX = 4.50e-3   !  6.4 mum / sqrt2
+Beams:sigmaVertexY = 20.0E-6   !  28.3 nm / sqrt2
+Beams:sigmaVertexZ = 0.30      !  0.30 mm
 
 
 ! 4) Hard process : Z->qqbar at Ecm=91 GeV
