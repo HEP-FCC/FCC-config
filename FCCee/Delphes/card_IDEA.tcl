@@ -792,6 +792,7 @@ module TreeWriter TreeWriter {
     add Branch UniqueObjectFinder/electrons Electron Electron
     add Branch UniqueObjectFinder/photons Photon Photon
     add Branch UniqueObjectFinder/muons Muon Muon
+    add Branch MuonEfficiency/muons  AllMuon Muon
 
     add Branch JetEnergyScale/jets AntiKtJet Jet
 
