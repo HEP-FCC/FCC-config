@@ -167,7 +167,6 @@ module TrackCovariance TrackSmearing {
     set InputArray TrackMergerPre/tracks
     set OutputArray tracks
 
-    set Bz 2.0
 
     ## minimum number of hits to accept a track
     set NMinHits 6
