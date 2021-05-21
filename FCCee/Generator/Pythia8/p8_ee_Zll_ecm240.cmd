@@ -37,4 +37,4 @@ PartonLevel:FSR = on               ! final-state radiation
 ! Decays
 !Z0
 23:onMode = off
-23:onIfAny = 1 2 3 4 5 6
+23:onIfAny = 11 13 15

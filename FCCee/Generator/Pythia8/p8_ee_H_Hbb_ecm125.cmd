@@ -13,6 +13,17 @@ Next:numberShowEvent = 0           ! print event record n times
 Beams:idA = 11                   ! first beam, e+ = 11
 Beams:idB = -11                   ! second beam, e- = -11
 
+! Beam energy spread: 0.132% x 62.5 GeV = 0.0825 GeV
+Beams:allowMomentumSpread  = on
+Beams:sigmaPzA = 0.0825
+Beams:sigmaPzB = 0.0825
+
+! Vertex smearing :
+Beams:allowVertexSpread = on
+Beams:sigmaVertexX = 4.50e-3   !  6.4 mum / sqrt2
+Beams:sigmaVertexY = 20.0E-6   !  28.3 nm / sqrt2
+Beams:sigmaVertexZ = 0.30      !  0.30 mm
+
 ! 3) Hard process : ttbar pair production at 100TeV
 Beams:eCM = 125  ! CM energy of collision
 HiggsSM:ffbar2H = on
