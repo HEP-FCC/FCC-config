@@ -1,0 +1,29 @@
+{
+  "creators": [
+    {
+      "affiliation": "CERN",
+      "name": "Helsens, Clement",
+      "orcid": "0000-0002-9243-7554"
+    },
+    {
+      "affiliation": "CERN",
+      "name": "Perez, Emmanuel",
+      "orcid": ""
+    },
+    {
+      "affiliation": "EPFL",
+      "name": "Hill, Donal",
+      "orcid": ""
+    }
+
+  ],
+    "keywords": [
+	"monte carlo",
+	"generator",
+	"event production",
+	"fcc"
+    ],
+    "license": "Apache-2.0",
+    "upload_type": "software"
+}
+
