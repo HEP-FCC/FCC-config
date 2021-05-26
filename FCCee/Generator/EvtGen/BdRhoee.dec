@@ -1,0 +1,17 @@
+Alias      MyRho0       rho0
+Alias      Myanti-Rho0  anti-Rho0
+ChargeConj Myanti-Rho0  MyRho0
+#
+Decay B0
+  1.000        MyRho0     e+     e-               PHSP;
+Enddecay
+CDecay anti-B0
+#
+Decay MyRho0
+  1.000        pi+        pi-                    VSS;
+Enddecay
+CDecay Myanti-Rho0
+#
+End
+#
+
