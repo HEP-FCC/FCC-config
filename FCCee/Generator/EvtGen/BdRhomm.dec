@@ -1,11 +1,13 @@
+alias B0_SIGNAL B0
+alias anti-B0_SIGNAL anti-B0
 Alias      MyRho0       rho0
 Alias      Myanti-Rho0  anti-Rho0
 ChargeConj Myanti-Rho0  MyRho0
 #
-Decay B0
+Decay B0_SIGNAL
   1.000        MyRho0     mu+     mu-               PHSP;
 Enddecay
-CDecay anti-B0
+CDecay anti-B0_SIGNAL
 #
 Decay MyRho0
   1.000        pi+        pi-                    VSS;
@@ -14,4 +16,3 @@ CDecay Myanti-Rho0
 #
 End
 #
-
