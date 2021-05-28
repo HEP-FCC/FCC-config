@@ -1,0 +1,9 @@
+alias Bu_SIGNAL B+
+alias anti-Bu_SIGNAL anti-B+
+Decay Bu_SIGNAL
+ 1.0     pi+       mu+    mu- PHSP;
+Enddecay
+CDecay anti-Bu_SIGNAL
+#
+End
+#

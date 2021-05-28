@@ -1,0 +1,18 @@
+alias B0_SIGNAL B0
+alias anti-B0_SIGNAL anti-B0
+Alias      MyK*0       K*0
+Alias      Myanti-K*0  anti-K*0
+ChargeConj Myanti-K*0  MyK*0
+#
+Decay B0_SIGNAL
+  1.000        MyK*0     mu+     mu-               PHSP;
+Enddecay
+CDecay anti-B0_SIGNAL
+#
+Decay MyK*0
+  1.000        K+        pi-                    VSS;
+Enddecay
+CDecay Myanti-K*0
+#
+End
+#
