@@ -1,13 +1,13 @@
-alias B0_SIGNAL B0
-alias anti-B0_SIGNAL anti-B0
+alias Bd_SIGNAL B0
+alias Bdbar_SIGNAL anti-B0
 Alias      MyK*0       K*0
 Alias      Myanti-K*0  anti-K*0
 ChargeConj Myanti-K*0  MyK*0
 #
-Decay B0_SIGNAL
+Decay Bd_SIGNAL
   1.000        MyK*0     e+     e-                BTOSLLBALL;
 Enddecay
-CDecay anti-B0_SIGNAL
+CDecay Bdbar_SIGNAL
 #
 Decay MyK*0
   1.000        K+        pi-                    VSS;
