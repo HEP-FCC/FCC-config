@@ -1,5 +1,7 @@
-alias Bu_SIGNAL B+
-alias Bubar_SIGNAL anti-B+
+alias      Bu_SIGNAL     B+
+alias      Bubar_SIGNAL  anti-B+
+ChargeConj Bu_SIGNAL     Bubar_SIGNAL
+
 Decay Bu_SIGNAL
  1.0     pi+       e+    e- PHSP;
 Enddecay

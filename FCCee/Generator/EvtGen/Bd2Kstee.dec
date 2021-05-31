@@ -1,5 +1,7 @@
-alias Bd_SIGNAL B0
-alias Bdbar_SIGNAL anti-B0
+alias       Bd_SIGNAL     B0
+alias       Bdbar_SIGNAL  anti-B0
+ChargeConj  Bd_SIGNAL     Bdbar_SIGNAL
+
 Alias      MyK*0       K*0
 Alias      Myanti-K*0  anti-K*0
 ChargeConj Myanti-K*0  MyK*0
