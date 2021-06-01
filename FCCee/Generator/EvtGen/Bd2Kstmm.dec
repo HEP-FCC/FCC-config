@@ -6,7 +6,7 @@ Alias      MyK*0       K*0
 Alias      Myanti-K*0  anti-K*0
 ChargeConj Myanti-K*0  MyK*0
 #
-Decay Bb_SIGNAL
+Decay Bd_SIGNAL
   1.000        MyK*0     mu+     mu-               PHSP;
 Enddecay
 CDecay Bdbar_SIGNAL
