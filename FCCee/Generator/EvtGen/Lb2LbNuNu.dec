@@ -13,7 +13,7 @@ Enddecay
 CDecay Lbbar_SIGNAL
 #
 Decay MyLambda0
-  1.000        p+       pi-              VSS;
+  1.000        p+       pi-              PHSP;
 Enddecay
 CDecay Myanti-Lambda0
 #
