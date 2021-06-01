@@ -8,7 +8,7 @@ ChargeConj MyLambda0      Myanti-Lambda0
 
 #
 Decay Lb_SIGNAL
-  1.000        MyLambda    nu_e    anti-nu_e           PHSP;
+  1.000        MyLambda0    nu_e    anti-nu_e           PHSP;
 Enddecay
 CDecay Lbbar_SIGNAL
 #
