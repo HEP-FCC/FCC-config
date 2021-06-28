@@ -1,6 +1,10 @@
-Decay B0
-  1.000       mu+     mu-              PHSP;
+Alias Bd_SIGNAL     B0
+Alias Bdbar_SIGNAL     anti-B0
+ChargeConj Bd_SIGNAL Bdbar_SIGNAL
+#
+Decay Bd_SIGNAL
+      1.000	mu+ mu- PHSP;
 Enddecay
-CDecay anti-B0
+CDecay Bdbar_SIGNAL
 #
 End
