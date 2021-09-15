@@ -1,0 +1,47 @@
+# Descriptor: {[[B0]nos -> (tau+ -> pi+ pi- pi+ anti-nu_tau) (tau- -> pi+ pi- pi- nu_tau) (K*(892)0 -> K+ pi-)]cc, [[B0]os -> (tau- -> pi+ pi- pi- nu_tau)(tau+ -> pi+ pi- pi+ anti-nu_tau) (K*(892)~0 -> K- pi+)]cc}
+#
+# Documentation: B to K* tautau decay, with  taus decaying into 3 pions . 
+# EndDocumentation
+#
+# CPUTime: < 
+# Tested: No
+# Responsible: Stephane Monteil
+# Email: stephane.monteil@cern.ch
+# Date: 20210910
+#
+Alias         Mytau+  tau+
+Alias         Mytau-  tau-
+ChargeConj    Mytau+  Mytau-
+#
+Alias      MyK*0      K*0
+Alias      Myanti-K*0 anti-K*0
+ChargeConj MyK*0      Myanti-K*0
+
+# -----------------
+# Decay of the B0
+# -----------------
+Decay B0sig
+  1.000        MyK*0    Mytau+    Mytau-           BTOSLLBALL;
+Enddecay
+CDecay anti-B0sig
+
+
+# -----------------
+# Decay of the K*0 anti-K*0
+# -----------------
+Decay MyK*0
+  1.000        K+       pi-              VSS;
+Enddecay
+CDecay Myanti-K*0
+
+# -----------------
+# Decay of the tau+-
+# -----------------
+Decay Mytau-
+  1.00      pi-     pi-      pi+     nu_tau                TAUHADNU -0.108 0.775 0.149 1.364 0.400 1.23 0.4;
+Enddecay
+CDecay Mytau+
+
+#
+End
+
