@@ -9,6 +9,10 @@
 # Date:   20210913
 # Responsible: Stephane Monteil
 # Email: monteil@in2p3.fr
+Alias Bd_SIGNAL     B0
+Alias Bdbar_SIGNAL  anti-B0
+ChargeConj Bd_SIGNAL Bdbar_SIGNAL
+
 Alias MyDs+    D_s+
 Alias MyDs-    D_s-
 Alias MyK*0    K*0
@@ -16,15 +20,15 @@ Alias Myanti-K*0    anti-K*0
 Alias Mypi0    pi0
 ChargeConj Mypi0     Mypi0
 ChargeConj MyDs+   MyDs- 
-ChargeConj MyK*0  My_anti-K*0
+ChargeConj MyK*0  Myanti-K*0
 
 #-----------
 # Decay of the B0
 #-----------
-Decay B0sig
+Decay Bd_SIGNAL
   1.000 MyDs+ MyDs- MyK*0 PHSP;
 Enddecay
-CDecay anti-B0sig
+CDecay Bdbar_SIGNAL
 
 #-----------
 # Decay of the Ds+-
