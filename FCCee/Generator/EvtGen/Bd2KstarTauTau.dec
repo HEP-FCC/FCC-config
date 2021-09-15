@@ -9,6 +9,10 @@
 # Email: stephane.monteil@cern.ch
 # Date: 20210910
 #
+Alias Bd_SIGNAL     B0
+Alias Bdbar_SIGNAL  anti-B0
+ChargeConj Bd_SIGNAL Bdbar_SIGNAL
+#
 Alias         Mytau+  tau+
 Alias         Mytau-  tau-
 ChargeConj    Mytau+  Mytau-
@@ -20,10 +24,10 @@ ChargeConj MyK*0      Myanti-K*0
 # -----------------
 # Decay of the B0
 # -----------------
-Decay B0sig
+Decay Bd_SIGNAL
   1.000        MyK*0    Mytau+    Mytau-           BTOSLLBALL;
 Enddecay
-CDecay anti-B0sig
+CDecay Bdbar_SIGNAL
 
 
 # -----------------
