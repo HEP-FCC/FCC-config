@@ -1,5 +1,4 @@
  1 1 0 0 0 0 0 0         KAT1-KAT8        <- Input for the main program
-*    100000      NEVT number of events
 N_EVENTS           NEVT number of events
 ----------cccccccccccccccccccccccccccccommentttttttttttttttttttttttttttttttttttt
 
