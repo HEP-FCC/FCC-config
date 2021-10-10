@@ -29,6 +29,7 @@ Beams:sigmaVertexZ = 0.64      !  0.64 mm
 
 PDF:lepton = off
 Check:epTolErr = 1   !  Because of BES, need to relax the E-p conservation check
+LesHouches:matchInOut = off
 
 ! 4) Settings for the event generation process in the Pythia8 library.
 PartonLevel:ISR = off               ! initial-state radiation
