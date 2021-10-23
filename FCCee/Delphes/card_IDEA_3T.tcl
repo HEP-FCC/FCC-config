@@ -8,7 +8,7 @@
 #        michele.selvaggi@cern.ch
 #####################################################################
 
-set B 3.0
+set B 2.0
 
 #######################################
 # Order of execution of various modules
@@ -56,6 +56,9 @@ set ExecutionPath {
   TauTagging
 
   UniqueObjectFinder
+  JetsNoMuons
+  JetsNoPhotons
+  JetsNoElectrons
 
   ScalarHT
   TreeWriter
@@ -92,17 +95,15 @@ module Efficiency ChargedHadronTrackingEfficiency {
     set OutputArray chargedHadrons
     # We use only one efficiency, we set only 0 effincency out of eta bounds:
 
+    set UseMomentumVector True 
+
     set EfficiencyFormula {
-        (abs(eta) > 3.0)                                       * (0.000) +
-        (energy >= 0.5) * (abs(eta) <= 3.0)                    * (0.997) +
-        (energy < 0.5 && energy >= 0.3) * (abs(eta) <= 3.0)    * (0.65) +
-        (energy < 0.3) * (abs(eta) <= 3.0)                     * (0.06)
+         (pt <= 0.1)                                     * (0.00) +
+         (abs(eta) <= 3.0)               * (pt > 0.1)    * (1.00) +
+         (abs(eta) > 3)                                  * (0.00)
     }
 }
 
-#	(pt <= 0.1)                                     * (0.00) +
-#	(abs(eta) <= 3.0)               * (pt > 0.1)    * (1.00) +
-#	(abs(eta) > 3)                                  * (0.00)
 
 
 
@@ -114,13 +115,13 @@ module Efficiency ElectronTrackingEfficiency {
     set InputArray ParticlePropagator/electrons
     set OutputArray electrons
 
+    set UseMomentumVector True
 
     # Current full simulation with CLICdet provides for electrons:
     set EfficiencyFormula {
-        (abs(eta) > 3.0)                                       * (0.000) +
-        (energy >= 0.5) * (abs(eta) <= 3.0)                    * (0.997) +
-        (energy < 0.5 && energy >= 0.3) * (abs(eta) <= 3.0)    * (0.65) +
-        (energy < 0.3) * (abs(eta) <= 3.0)                     * (0.06)
+         (pt <= 0.1)                                     * (0.00) +
+         (abs(eta) <= 3.0)               * (pt > 0.1)    * (1.00) +
+         (abs(eta) > 3)                                  * (0.00)
     }
 }
 
@@ -133,12 +134,13 @@ module Efficiency MuonTrackingEfficiency {
     set InputArray ParticlePropagator/muons
     set OutputArray muons
 
+    set UseMomentumVector True
+
     # Current full simulation with CLICdet provides for muons:
     set EfficiencyFormula {
-        (abs(eta) > 3.0)                                       * (0.000) +
-        (energy >= 0.5) * (abs(eta) <= 3.0)                    * (0.997) +
-        (energy < 0.5 && energy >= 0.3) * (abs(eta) <= 3.0)    * (0.65) +
-        (energy < 0.3) * (abs(eta) <= 3.0)                     * (0.06)
+         (pt <= 0.1)                                     * (0.00) +
+         (abs(eta) <= 3.0)               * (pt > 0.1)    * (1.00) +
+         (abs(eta) > 3)                                  * (0.00)
     }
 }
 
@@ -492,7 +494,8 @@ module Isolation PhotonIsolation {
 
   set PTMin 0.5
 
-  set PTRatioMax 999.
+  #set PTRatioMax 999.
+  set PTRatioMax 0.25
 }
 
 #################
@@ -759,6 +762,24 @@ module UniqueObjectFinder UniqueObjectFinder {
   add InputArray JetEnergyScale/jets jets
 }
 
+module UniqueObjectFinder JetsNoMuons {
+  add InputArray MuonIsolation/muons muons
+  add InputArray JetEnergyScale/jets jets
+}
+
+module UniqueObjectFinder JetsNoPhotons {
+  add InputArray PhotonIsolation/photons photons
+  add InputArray JetEnergyScale/jets jets
+}
+
+module UniqueObjectFinder JetsNoElectrons {
+  add InputArray ElectronIsolation/electrons electrons
+  add InputArray JetEnergyScale/jets jets
+}
+
+
+
+
 
 
 ##################
@@ -795,6 +816,10 @@ module TreeWriter TreeWriter {
     add Branch MuonEfficiency/muons  AllMuon Muon
 
     add Branch JetEnergyScale/jets AntiKtJet Jet
+
+    add Branch JetsNoMuons/jets JetsNoMuons Jet
+    add Branch JetsNoPhotons/jets JetsNoPhotons Jet
+    add Branch JetsNoElectrons/jets JetsNoElectrons Jet
 
     add Branch MissingET/momentum MissingET MissingET
     add Branch ScalarHT/energy ScalarHT ScalarHT
