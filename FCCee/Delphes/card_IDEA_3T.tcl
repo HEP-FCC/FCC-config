@@ -8,7 +8,7 @@
 #        michele.selvaggi@cern.ch
 #####################################################################
 
-set B 2.0
+set B 3.0
 
 #######################################
 # Order of execution of various modules
@@ -56,9 +56,6 @@ set ExecutionPath {
   TauTagging
 
   UniqueObjectFinder
-  JetsNoMuons
-  JetsNoPhotons
-  JetsNoElectrons
 
   ScalarHT
   TreeWriter
@@ -762,21 +759,6 @@ module UniqueObjectFinder UniqueObjectFinder {
   add InputArray JetEnergyScale/jets jets
 }
 
-module UniqueObjectFinder JetsNoMuons {
-  add InputArray MuonIsolation/muons muons
-  add InputArray JetEnergyScale/jets jets
-}
-
-module UniqueObjectFinder JetsNoPhotons {
-  add InputArray PhotonIsolation/photons photons
-  add InputArray JetEnergyScale/jets jets
-}
-
-module UniqueObjectFinder JetsNoElectrons {
-  add InputArray ElectronIsolation/electrons electrons
-  add InputArray JetEnergyScale/jets jets
-}
-
 
 
 
@@ -817,9 +799,6 @@ module TreeWriter TreeWriter {
 
     add Branch JetEnergyScale/jets AntiKtJet Jet
 
-    add Branch JetsNoMuons/jets JetsNoMuons Jet
-    add Branch JetsNoPhotons/jets JetsNoPhotons Jet
-    add Branch JetsNoElectrons/jets JetsNoElectrons Jet
 
     add Branch MissingET/momentum MissingET MissingET
     add Branch ScalarHT/energy ScalarHT ScalarHT
