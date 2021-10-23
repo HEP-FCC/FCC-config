@@ -98,10 +98,11 @@ module Efficiency ChargedHadronTrackingEfficiency {
     set UseMomentumVector True 
 
     set EfficiencyFormula {
-         (pt <= 0.1)                                     * (0.00) +
-         (abs(eta) <= 3.0)               * (pt > 0.1)    * (1.00) +
-         (abs(eta) > 3)                                  * (0.00)
+        (abs(eta) > 2.56)                                  * (0.000) +
+        (pt < 0.1) * (abs(eta) <= 2.56)                    * (0.000) +
+        (pt >= 0.1) * (abs(eta) <= 2.56)                   * (1.000)
     }
+
 }
 
 
@@ -117,12 +118,12 @@ module Efficiency ElectronTrackingEfficiency {
 
     set UseMomentumVector True
 
-    # Current full simulation with CLICdet provides for electrons:
     set EfficiencyFormula {
-         (pt <= 0.1)                                     * (0.00) +
-         (abs(eta) <= 3.0)               * (pt > 0.1)    * (1.00) +
-         (abs(eta) > 3)                                  * (0.00)
+        (abs(eta) > 2.56)                                  * (0.000) +
+        (pt < 0.1) * (abs(eta) <= 2.56)                    * (0.000) +
+        (pt >= 0.1) * (abs(eta) <= 2.56)                   * (1.000)
     }
+
 }
 
 
@@ -136,11 +137,10 @@ module Efficiency MuonTrackingEfficiency {
 
     set UseMomentumVector True
 
-    # Current full simulation with CLICdet provides for muons:
     set EfficiencyFormula {
-         (pt <= 0.1)                                     * (0.00) +
-         (abs(eta) <= 3.0)               * (pt > 0.1)    * (1.00) +
-         (abs(eta) > 3)                                  * (0.00)
+        (abs(eta) > 2.56)                                  * (0.000) +
+        (pt < 0.1) * (abs(eta) <= 2.56)                    * (0.000) +
+        (pt >= 0.1) * (abs(eta) <= 2.56)                   * (1.000)
     }
 }
 
