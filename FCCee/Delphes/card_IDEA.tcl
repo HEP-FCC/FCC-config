@@ -92,17 +92,16 @@ module Efficiency ChargedHadronTrackingEfficiency {
     set OutputArray chargedHadrons
     # We use only one efficiency, we set only 0 effincency out of eta bounds:
 
+    set UseMomentumVector True 
+
     set EfficiencyFormula {
-        (abs(eta) > 3.0)                                       * (0.000) +
-        (energy >= 0.5) * (abs(eta) <= 3.0)                    * (0.997) +
-        (energy < 0.5 && energy >= 0.3) * (abs(eta) <= 3.0)    * (0.65) +
-        (energy < 0.3) * (abs(eta) <= 3.0)                     * (0.06)
+        (abs(eta) > 2.56)                                  * (0.000) +
+        (pt < 0.1) * (abs(eta) <= 2.56)                    * (0.000) +
+        (pt >= 0.1) * (abs(eta) <= 2.56)                   * (1.000)
     }
+
 }
 
-#	(pt <= 0.1)                                     * (0.00) +
-#	(abs(eta) <= 3.0)               * (pt > 0.1)    * (1.00) +
-#	(abs(eta) > 3)                                  * (0.00)
 
 
 
@@ -114,14 +113,14 @@ module Efficiency ElectronTrackingEfficiency {
     set InputArray ParticlePropagator/electrons
     set OutputArray electrons
 
+    set UseMomentumVector True
 
-    # Current full simulation with CLICdet provides for electrons:
     set EfficiencyFormula {
-        (abs(eta) > 3.0)                                       * (0.000) +
-        (energy >= 0.5) * (abs(eta) <= 3.0)                    * (0.997) +
-        (energy < 0.5 && energy >= 0.3) * (abs(eta) <= 3.0)    * (0.65) +
-        (energy < 0.3) * (abs(eta) <= 3.0)                     * (0.06)
+        (abs(eta) > 2.56)                                  * (0.000) +
+        (pt < 0.1) * (abs(eta) <= 2.56)                    * (0.000) +
+        (pt >= 0.1) * (abs(eta) <= 2.56)                   * (1.000)
     }
+
 }
 
 
@@ -133,12 +132,12 @@ module Efficiency MuonTrackingEfficiency {
     set InputArray ParticlePropagator/muons
     set OutputArray muons
 
-    # Current full simulation with CLICdet provides for muons:
+    set UseMomentumVector True
+
     set EfficiencyFormula {
-        (abs(eta) > 3.0)                                       * (0.000) +
-        (energy >= 0.5) * (abs(eta) <= 3.0)                    * (0.997) +
-        (energy < 0.5 && energy >= 0.3) * (abs(eta) <= 3.0)    * (0.65) +
-        (energy < 0.3) * (abs(eta) <= 3.0)                     * (0.06)
+        (abs(eta) > 2.56)                                  * (0.000) +
+        (pt < 0.1) * (abs(eta) <= 2.56)                    * (0.000) +
+        (pt >= 0.1) * (abs(eta) <= 2.56)                   * (1.000)
     }
 }
 
@@ -492,7 +491,8 @@ module Isolation PhotonIsolation {
 
   set PTMin 0.5
 
-  set PTRatioMax 999.
+  #set PTRatioMax 999.
+  set PTRatioMax 0.25
 }
 
 #################
@@ -761,6 +761,9 @@ module UniqueObjectFinder UniqueObjectFinder {
 
 
 
+
+
+
 ##################
 # ROOT tree writer
 ##################
@@ -795,6 +798,7 @@ module TreeWriter TreeWriter {
     add Branch MuonEfficiency/muons  AllMuon Muon
 
     add Branch JetEnergyScale/jets AntiKtJet Jet
+
 
     add Branch MissingET/momentum MissingET MissingET
     add Branch ScalarHT/energy ScalarHT ScalarHT
