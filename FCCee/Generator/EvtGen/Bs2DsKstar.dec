@@ -6,8 +6,8 @@ Alias      MyD_s-     D_s-
 Alias      MyD_s+     D_s+
 ChargeConj MyD_s+     MyD_s-
 
-Alias MyK*-    K*+
-Alias MyK*+    K*-
+Alias MyK*-    K*-
+Alias MyK*+    K*+
 ChargeConj MyK*-  MyK*+
 
 Alias      Myphi      phi
