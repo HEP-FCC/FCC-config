@@ -23,7 +23,7 @@ Decay MyD_s*-
   0.500     gamma        Myphi        pi-      PHSP;
   0.500     gamma        Myphi        Myrho-   PHSP;
 Enddecay
-CDecay MyD_s+
+CDecay MyD_s*+
 #
 Decay Myrho-
       1.000  pi- pi0  VSS;
