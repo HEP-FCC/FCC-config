@@ -9,9 +9,13 @@ ChargeConj MyD_s+     MyD_s-
 Alias      Myphi      phi
 ChargeConj Myphi      Myphi
 
+Alias      Myrho+      rho+
+Alias      Myrho-      rho-
+ChargeConj Myrho-      Myrho+
+
 #
 Decay Bs_SIGNAL
-  1.000     MyD_s-     K+      PHSP;
+  1.000     MyD_s-     pi+      PHSP;
 Enddecay
 CDecay Bsbar_SIGNAL
 #
@@ -21,8 +25,15 @@ Decay MyD_s-
 Enddecay
 CDecay MyD_s+
 #
+Decay Myrho-
+      1.000  pi- pi0  VSS;
+Enddecay
+CDecay Myrho+
+#
+#
 Decay Myphi
       1.000  K+ K-  VSS;
 Enddecay
 #
 End
+

@@ -1,0 +1,39 @@
+Alias   Bs_SIGNAL   B_s0
+Alias   Bsbar_SIGNAL    anti-B_s0
+ChargeConj Bs_SIGNAL  Bsbar_SIGNAL
+
+Alias      MyD_s*-     D_s*-
+Alias      MyD_s*+     D_s*+
+ChargeConj MyD_s*+     MyD_s*-
+
+Alias      Myphi      phi
+ChargeConj Myphi      Myphi
+
+Alias      Myrho+      rho+
+Alias      Myrho-      rho-
+ChargeConj Myrho-      Myrho+
+
+#
+Decay Bs_SIGNAL
+  1.000     MyD_s*-     pi+      PHSP;
+Enddecay
+CDecay Bsbar_SIGNAL
+#
+Decay MyD_s*-
+  0.500     gamma        Myphi        pi-      PHSP;
+  0.500     gamma        Myphi        Myrho-   PHSP;
+Enddecay
+CDecay MyD_s+
+#
+Decay Myrho-
+      1.000  pi- pi0  VSS;
+Enddecay
+CDecay Myrho+
+#
+#
+Decay Myphi
+      1.000  K+ K-  VSS;
+Enddecay
+#
+End
+
