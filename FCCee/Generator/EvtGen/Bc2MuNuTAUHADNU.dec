@@ -1,0 +1,9 @@
+Alias   Bc_SIGNAL   B_c+
+Alias   Bcbar_SIGNAL    B_c-
+ChargeConj    Bc_SIGNAL   Bcbar_SIGNAL
+#
+Decay Bc_SIGNAL
+    1.0   mu+    nu_mu    SLN;
+Enddecay
+CDecay    Bcbar_SIGNAL
+End
