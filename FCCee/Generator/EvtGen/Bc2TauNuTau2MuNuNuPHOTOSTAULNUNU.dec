@@ -11,7 +11,7 @@ Decay Bc_SIGNAL
 Enddecay
 CDecay    Bcbar_SIGNAL
 #
-Decay Mytau+
+Decay MyTau+
 1.00 mu+ nu_mu anti-nu_tau PHOTOS TAULNUNU;
 Enddecay
 CDecay MyTau-
