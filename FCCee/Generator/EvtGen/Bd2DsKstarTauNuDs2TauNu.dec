@@ -9,6 +9,11 @@
 # Responsible: Stephane Monteil
 # Email: monteil@in2p3.fr
 #
+
+Alias Bd_SIGNAL     B0
+Alias Bdbar_SIGNAL  anti-B0
+ChargeConj Bd_SIGNAL Bdbar_SIGNAL
+
 # Tauola steering options
 Define TauolaCurrentOption 0
 Define TauolaBR1 1.0
@@ -23,10 +28,10 @@ ChargeConj    MyDs+     MyDs-
 ChargeConj    MyTau+     MyTau-
 ChargeConj MyK*0  Myanti-K*0
 #
-Decay B0
+Decay Bd_SIGNAL
   1.000       MyDs+     MyK*0   MyTau-   nu_tau   PHSP;
 Enddecay
-CDecay anti-B0
+CDecay Bdbar_SIGNAL
 #
 # -----------------
 # Decay of the Ds+-
