@@ -1,4 +1,4 @@
-# NickName: Bd_DsDsKst0,Kpi,Ds_taunu
+# NickName: Bd_DsstDsKst0,Kpi,Ds_taunu
 # Descriptor: [B0 -> (Ds*+ -> (Ds+ -> (tau+ ->  pi+  pi+  pi- anti-nu_tau) nu_tau) gamma)(Ds- -> (tau- ->  pi-  pi-  pi+ nu_tau) anti-nu_tau) (K*0 -> K+ pi-)]cc
 #
 # Documentation:  K*0 forced to K+ pi-, Ds forced to tau nu, D*s+ forced in Ds gamma.  
@@ -29,7 +29,7 @@ ChargeConj MyTau+  MyTau-
 # Decay of the B0
 #----------------
 Decay Bd_SIGNAL
-  1.000 MyDs+ MyDs- MyK*0 PHSP;
+  1.000 MyDs*+ MyDs- MyK*0 PHSP;
 Enddecay
 CDecay Bdbar_SIGNAL
 

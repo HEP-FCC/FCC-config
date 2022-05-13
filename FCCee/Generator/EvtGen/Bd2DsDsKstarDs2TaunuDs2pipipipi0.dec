@@ -1,7 +1,7 @@
-# NickName: Bd_DsDsKst0,Kpi,Ds_taunu
-# Descriptor: [B0 -> (Ds+ -> (tau+ ->  pi+  pi+  pi- anti-nu_tau) nu_tau) (Ds- -> (tau- ->  pi-  pi-  pi+ nu_tau) anti-nu_tau) (K*0 -> K+ pi-)]cc
+# NickName: Bd_DsDsKst0,Kpi,Ds_TauNu,Ds_pipipipi0
+# Descriptor: [B0 -> (Ds+ -> (tau+ ->  pi+  pi+  pi- anti-nu_tau) nu_tau) (Ds- -> (tau- ->  pi-  pi-  pi+ pi0 nu_tau) (K*0 -> K+ pi-)]cc
 #
-# Documentation:  K*0 forced to K+ pi-, Ds forced to tau nu 
+# Documentation:  K*0 forced to K+ pi-, Ds forced to tau nu or 3pi1pi0
 # Decay file for B0 -> Ds+ Ds- K*0
 # EndDocumentation
 # 
