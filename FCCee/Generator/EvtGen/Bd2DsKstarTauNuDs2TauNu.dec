@@ -1,8 +1,8 @@
-# NickName: Bd_DsDsKst0,Kpi,Ds_taunu
+# NickName: Bd_DsKst0TauNu,Kpi,Ds_taunu
 # Descriptor: [B0 -> (Ds+ -> (tau+ ->  pi+  pi+  pi- anti-nu_tau) nu_tau) (tau-->pi-  pi-  pi+ nu_tau)  (anti-nu_tau) (K*0 -> K+ pi-)]cc
 #
 # Documentation:  K*0 forced to K+ pi-, Ds forced to tau nu, Semileptonic B decay. 
-# Decay file for B0 -> Ds*+ Ds- K*0
+# Decay file for B0 -> Ds+ Ds- K*0
 # EndDocumentation
 # 
 # Date:   20220511
@@ -23,21 +23,16 @@ ChargeConj    MyDs+     MyDs-
 ChargeConj    MyTau+     MyTau-
 ChargeConj MyK*0  Myanti-K*0
 #
-#
-Alias Bd_SIGNAL     B0
-Alias Bdbar_SIGNAL  anti-B0
-ChargeConj Bd_SIGNAL Bdbar_SIGNAL
-
-Decay Bd_SIGNAL
+Decay B0
   1.000       MyDs+     MyK*0   MyTau-   nu_tau   PHSP;
 Enddecay
-CDecay Bdbar_SIGNAL
+CDecay anti-B0
 #
-#-----------
+# -----------------
 # Decay of the Ds+-
-#-----------
+# -----------------
 Decay MyDs+
-  1.000 pi+ pi+ pi- pi0 pi0  PHSP;
+  1.000 MyTau+ nu_tau   SLN;
 Enddecay
 CDecay MyDs-
 #
