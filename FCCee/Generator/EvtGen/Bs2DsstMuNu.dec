@@ -1,0 +1,10 @@
+Alias   Bs_SIGNAL   B_s0
+Alias   Bsbar_SIGNAL    anti-B_s0
+ChargeConj Bs_SIGNAL  Bsbar_SIGNAL
+
+Decay Bsbar_SIGNAL
+    1.0    D_s*+ mu- anti-nu_mu   ISGW2;
+Enddecay
+CDecay Bs_SIGNAL
+
+End

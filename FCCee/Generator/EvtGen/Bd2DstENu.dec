@@ -1,0 +1,10 @@
+Alias   Bd_SIGNAL   B0
+Alias   Bdbar_SIGNAL    anti-B0
+ChargeConj Bd_SIGNAL  Bdbar_SIGNAL
+
+Decay Bdbar_SIGNAL
+    1.0    D*+ e- anti-nu_e   ISGW2;
+Enddecay
+CDecay Bd_SIGNAL
+
+End
