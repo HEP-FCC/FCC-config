@@ -24,7 +24,7 @@ sqrts = 240 GeV
 process proc = e1, E1 => H, e1, E1
 
 beams = e1, E1 => gaussian => isr
-?keep_beams  = true    # do not use this option, makes Pythia crash
+?keep_beams  = true    
 ?keep_remnants = true
 
 gaussian_spread1 = 0.165%
