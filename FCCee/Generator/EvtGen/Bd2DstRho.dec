@@ -1,0 +1,10 @@
+Alias   Bd_SIGNAL   B0
+Alias   Bdbar_SIGNAL    anti-B0
+ChargeConj Bd_SIGNAL  Bdbar_SIGNAL
+
+Decay Bdbar_SIGNAL
+    1.0    rho- D*+     SVV_HELAMP 0.317 0.19 0.936 0.0 0.152 1.47;
+Enddecay
+CDecay Bd_SIGNAL
+
+End

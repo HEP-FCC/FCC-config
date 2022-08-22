@@ -1,0 +1,10 @@
+Alias   Bs_SIGNAL   B_s0
+Alias   Bsbar_SIGNAL    anti-B_s0
+ChargeConj Bs_SIGNAL  Bsbar_SIGNAL
+
+Decay Bsbar_SIGNAL
+    1.0    rho- D_s*+     SVV_HELAMP 1.0 0.0 1.0 0.0 1.0 0.0;
+Enddecay
+CDecay Bs_SIGNAL
+
+End
