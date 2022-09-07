@@ -1,0 +1,11 @@
+Alias   Dd_SIGNAL   D+
+Alias   Ddbar_SIGNAL    D-
+ChargeConj    Dd_SIGNAL   Ddbar_SIGNAL
+#
+#
+Decay Dd_SIGNAL
+    1.0   pi+   pi+   pi-   K0   PHSP;
+Enddecay
+CDecay    Ddbar_SIGNAL
+#
+End

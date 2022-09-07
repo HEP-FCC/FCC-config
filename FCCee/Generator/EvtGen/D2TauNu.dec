@@ -1,0 +1,23 @@
+# Tauola steering options
+Define TauolaCurrentOption 0
+Define TauolaBR1 1.0
+#
+Alias   Dd_SIGNAL   D+
+Alias   Ddbar_SIGNAL    D-
+ChargeConj    Dd_SIGNAL   Ddbar_SIGNAL
+#
+Alias		MyTau+	tau+
+Alias		MyTau-	tau-
+ChargeConj	MyTau+	MyTau-
+#
+Decay Dd_SIGNAL
+      1.0	MyTau+	nu_tau	PHSP;
+Enddecay
+CDecay Ddbar_SIGNAL
+#
+Decay MyTau+
+      1.0	TAUOLA 5;
+Enddecay
+CDecay MyTau-
+#
+End

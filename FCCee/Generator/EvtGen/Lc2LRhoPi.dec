@@ -1,0 +1,10 @@
+Alias   Lc_SIGNAL   Lambda_c+
+Alias   Lcbar_SIGNAL  anti-Lambda_c-
+ChargeConj Lc_SIGNAL  Lcbar_SIGNAL
+
+Decay Lc_SIGNAL
+    1.0    rho   pi+   Lambda0     PHSP;
+Enddecay
+CDecay Lcbar_SIGNAL
+
+End
