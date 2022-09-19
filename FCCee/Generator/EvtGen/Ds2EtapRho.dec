@@ -1,0 +1,11 @@
+Alias   Ds_SIGNAL   D_s+
+Alias   Dsbar_SIGNAL    D_s-
+ChargeConj    Ds_SIGNAL   Dsbar_SIGNAL
+#
+#
+Decay Ds_SIGNAL
+    1.0   rho+    eta'   SVS;
+Enddecay
+CDecay    Dsbar_SIGNAL
+#
+End
