@@ -1,0 +1,6 @@
+#
+Decay tau-
+  1.000       pi- pi+ pi- nu_tau              PHSP;
+Enddecay
+#
+End
