@@ -1,20 +1,18 @@
+Alias   Bs_SIGNAL   B_s0
+Alias   Bsbar_SIGNAL    anti-B_s0
+ChargeConj Bs_SIGNAL  Bsbar_SIGNAL
+
 Alias MyJ/psi J/psi
-Alias Myphi phi
-
-Decay B_s0
-      1.000     MyJ/psi     Myphi     PHSP;
+Alias Myphi   phi
+Decay Bs_SIGNAL
+    1.000 MyJ/psi  Myphi PHSP;
 Enddecay
-
-Decay anti-B_s0
-      1.000	MyJ/psi		Myphi	PHSP;
-Enddecay
+CDecay Bsbar_SIGNAL
 
 Decay MyJ/psi
-      1.000	mu+ mu-		PHSP;
+    1.000 mu+  mu-  PHSP;
 Enddecay
-
 Decay Myphi
-      1.000	K+ K-	PHSP;
+    1.000 K+ K-  PHSP;
 Enddecay
-
 End
