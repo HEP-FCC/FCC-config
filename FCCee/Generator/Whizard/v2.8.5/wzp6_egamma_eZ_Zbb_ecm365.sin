@@ -14,6 +14,9 @@ model = SM
 # Center of mass energy
 sqrts = 365 GeV
 
+me = 0.000511
+
+
 # Processes
 
 #?vis_diags = true
