@@ -29,12 +29,16 @@ model = SM
 sqrts = 240 GeV
 
 
+alias nu = nue:numu:nutau
+alias nubar = nuebar:numubar:nutaubar
+
+
 # Processes
 
 # ?vis_diags = true
 
 
-process proc = e1, E1 =>  n2, N2, H 
+process proc = e1, E1 =>  nu, nubar, H
 
 beams = e1, E1 => gaussian => isr
 ?keep_beams  = true    
