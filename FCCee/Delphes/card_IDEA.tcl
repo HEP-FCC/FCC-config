@@ -13,6 +13,8 @@ set RandomSeed 123
 ## MOD2: set vtx mode timing to MC truth
 
 set B 2.0
+set R 2.25
+set HL 2.5
 
 ## Drift chamber coordinates
 set DCHZMIN -2.125
@@ -28,6 +30,7 @@ set DCHRMAX 2.02
 set ExecutionPath {
 
   TruthVertexFinder
+  UnstablePropagator
   ParticlePropagator
 
   ChargedHadronTrackingEfficiency
@@ -54,6 +57,7 @@ set ExecutionPath {
   PhotonIsolation
 
   MuonFilter
+  TowerMerger
 
   ElectronFilter
   ElectronEfficiency
@@ -62,19 +66,19 @@ set ExecutionPath {
   MuonEfficiency
   MuonIsolation
 
-  MissingET
-
   NeutrinoFilter
   GenJetFinder
-  GenMissingET
 
   FastJetFinder
-
   JetEnergyScale
+
+  GenJetFinderDurhamN2
+  FastJetFinderDurhamN2
 
   JetFlavorAssociation
 
   BTagging
+  CTagging
   TauTagging
 
   TreeWriter
@@ -93,6 +97,29 @@ module TruthVertexFinder TruthVertexFinder {
   set VertexOutputArray vertices
 }
 
+###########################################
+# Propagate unstable particles in cylinder
+###########################################
+
+module UnstablePropagator UnstablePropagator {
+  set InputArray Delphes/allParticles
+
+  # inner radius of the solenoid, in m
+  set Radius $R
+
+  # half-length: z of the solenoid, in m
+  set HalfLength $HL
+
+  # minimum flight distance requested to propagate
+  # unstable charged particle in B field (in m)
+  set Lmin 1.0E-06
+
+  # magnetic field, in T
+  set Bz $B
+}
+
+
+
 #################################
 # Propagate particles in cylinder
 #################################
@@ -106,10 +133,10 @@ module ParticlePropagator ParticlePropagator {
   set MuonOutputArray muons
 
   # inner radius of the solenoid, in m
-  set Radius 2.25
+  set Radius $R
 
   # half-length: z of the solenoid, in m
-  set HalfLength 2.5
+  set HalfLength $HL
 
   # magnetic field, in T
   set Bz $B
@@ -126,8 +153,8 @@ module Efficiency ChargedHadronTrackingEfficiency {
 
     set EfficiencyFormula {
         (abs(eta) > 2.56)                                  * (0.000) +
-        (pt < 0.1) * (abs(eta) <= 2.56)                    * (0.000) +
-        (pt >= 0.1) * (abs(eta) <= 2.56)                   * (1.000)
+        (pt < 0.1) * (abs(eta) <= 2.56)       * (0.000) +
+        (pt >= 0.1) * (abs(eta) <= 2.56)      * (1.000)
     }
 }
 
@@ -161,8 +188,8 @@ module Efficiency MuonTrackingEfficiency {
 
     set EfficiencyFormula {
         (abs(eta) > 2.56)                                  * (0.000) +
-        (pt < 0.1) * (abs(eta) <= 2.56)                    * (0.000) +
-        (pt >= 0.1) * (abs(eta) <= 2.56)                   * (1.000)
+        (pt < 0.1) * (abs(eta) <= 2.56)       * (0.000) +
+        (pt >= 0.1) * (abs(eta) <= 2.56)      * (1.000)
     }
 }
 
@@ -195,9 +222,11 @@ module TrackCovariance TrackSmearing {
     ## magnetic field
     set Bz $B
 
-    ## uses https://raw.githubusercontent.com/selvaggi/FastTrackCovariance/master/GeoIDEA_BASE.txt
-    set DetectorGeometry {
+    ## scale factors
+    set ElectronScaleFactor  {1.25}
 
+
+    set DetectorGeometry {
 
       # Layer type 1 = R (barrel) or 2 = z (forward/backward)
       # Layer label
@@ -215,27 +244,13 @@ module TrackCovariance TrackSmearing {
 
       # barrel  name       zmin   zmax   r        w (m)      X0        n_meas  th_up (rad) th_down (rad)    reso_up (m)   reso_down (m)  flag
 
-      # barrel  name       zmin   zmax   r        w (m)      X0        n_meas  th_up (rad) th_down (rad)    reso_up (m)   reso_down (m)  flag
-
-      1        PIPE       -100    100    0.015    0.001655  0.2805     0        0          0                0             0              0
-      1        VTXLOW     -0.12   0.12   0.017    0.00028   0.0937     2        0          1.5708           3e-006        3e-006         1
-      1        VTXLOW     -0.16   0.16   0.023    0.00028   0.0937     2        0          1.5708           3e-006        3e-006         1
-      1        VTXLOW     -0.16   0.16   0.031    0.00028   0.0937     2        0          1.5708           3e-006        3e-006         1
-      1        VTXHIGH    -1      1      0.32     0.00047   0.0937     2        0          1.5708           7e-006        7e-006         1
-      1        VTXHIGH    -1.05   1.05   0.34     0.00047   0.0937     2        0          1.5708           7e-006        7e-006         1
-
-      # endcap  name       rmin   rmax   z        w (m)      X0        n_meas   th_up (rad)  th_down (rad)   reso_up (m)   reso_down (m) flag
-
-      2        VTXDSK      0.141  0.3   -0.92     0.00028   0.0937     2        0          1.5708           7e-006        7e-006         1
-      2        VTXDSK      0.138  0.3   -0.9      0.00028   0.0937     2        0          1.5708           7e-006        7e-006         1
-      2        VTXDSK      0.065  0.3   -0.42     0.00028   0.0937     2        0          1.5708           7e-006        7e-006         1
-      2        VTXDSK      0.062  0.3   -0.4      0.00028   0.0937     2        0          1.5708           7e-006        7e-006         1
-      2        VTXDSK      0.062  0.3    0.4      0.00028   0.0937     2        0          1.5708           7e-006        7e-006         1
-      2        VTXDSK      0.065  0.3    0.42     0.00028   0.0937     2        0          1.5708           7e-006        7e-006         1
-      2        VTXDSK      0.138  0.3    0.9      0.00028   0.0937     2        0          1.5708           7e-006        7e-006         1
-      2        VTXDSK      0.141  0.3    0.92     0.00028   0.0937     2        0          1.5708           7e-006        7e-006         1
-
-      1 DCHCANI $DCHZMIN $DCHZMAX $DCHRMIN 0.0002 0.237223 0 0 0 0 0 0
+      1 PIPE -100 100 0.01 0.00235 0.35276 0 0 0 0 0 0
+      1 VTXLOW -0.0965 0.0965 0.012 0.00028 0.0937 2 0 1.5708 3e-06 3e-06 1
+      1 VTXLOW -0.1609 0.1609 0.02 0.00028 0.0937 2 0 1.5708 3e-06 3e-06 1
+      1 VTXLOW -0.2575 0.2575 0.031525 0.00028 0.0937 2 0 1.5708 3e-06 3e-06 1
+      1 VTXLOW -0.1609 0.1609 0.15 0.00028 0.0937 2 0 1.5708 3e-06 3e-06 1
+      1 VTXHIGH -0.3263 0.3263 0.315 0.00047 0.0937 2 0 1.5708 7e-06 7e-06 1
+      1 DCHCANI -2.125 2.125 0.345 0.0002 0.237223 0 0 0 0 0 0
       1 DCH -2 2 0.36 0.0147748 1400 1 0.0203738 0 0.0001 0 1
       1 DCH -2 2 0.374775 0.0147748 1400 1 -0.0212097 0 0.0001 0 1
       1 DCH -2 2 0.38955 0.0147748 1400 1 0.0220456 0 0.0001 0 1
@@ -348,21 +363,27 @@ module TrackCovariance TrackSmearing {
       1 DCH -2 2 1.97045 0.0147748 1400 1 -0.111072 0 0.0001 0 1
       1 DCH -2 2 1.98523 0.0147748 1400 1 0.111898 0 0.0001 0 1
       1 DCH -2 2 2 0.0147748 1400 1 -0.112723 0 0.0001 0 1
-      1 DCHCANO $DCHZMIN $DCHZMAX $DCHRMAX $DCHRMAX 0.02 1.667 0 0 0 0 0 0
-      1 BSILWRP -2.35 2.35 2.04 0.00047 0.0937 2 0 1.5708 7e-006 9e-005 1
-      1 BSILWRP -2.35 2.35 2.06 0.00047 0.0937 2 0 1.5708 7e-006 9e-005 1
+      1 DCHCANO -2.125 2.125 2.02 0.02 1.667 0 0 0 0 0 0
+      1 BSILWRP -2.35 2.35 2.04 0.00047 0.0937 2 0 1.5708 7e-06 9e-05 1
+      1 BSILWRP -2.35 2.35 2.06 0.00047 0.0937 2 0 1.5708 7e-06 9e-05 1
       1 MAG -2.5 2.5 2.25 0.05 0.0658 0 0 0 0 0 0
-      1 BPRESH -2.55 2.55 2.45 0.02 1 2 0 1.5708 7e-005 0.01 1
-      2 DCHWALL $DCHRMIN $DCHRMAX $DCHZMAX 0.25 5.55 0 0 0 0 0 0
-      2 DCHWALL $DCHRMIN $DCHRMAX $DCHZMIN 0.25 5.55 0 0 0 0 0 0
-      2 FSILWRP 0.354 2.02 -2.32 0.00047 0.0937 2 0 1.5708 7e-006 9e-005 1
-      2 FSILWRP 0.35 2.02 -2.3 0.00047 0.0937 2 0 1.5708 7e-006 9e-005 1
-      2 FSILWRP 0.35 2.02 2.3 0.00047 0.0937 2 0 1.5708 7e-006 9e-005 1
-      2 FSILWRP 0.354 2.02 2.32 0.00047 0.0937 2 0 1.5708 7e-006 9e-005 1
+      1 BPRESH -2.55 2.55 2.45 0.02 1 2 0 1.5708 7e-05 0.01 1
+      2 VTXDSK 0.105 0.29 -0.93 0.00028 0.0937 2 0 1.5708 7e-06 7e-06 1
+      2 VTXDSK 0.075 0.29 -0.62 0.00028 0.0937 2 0 1.5708 7e-06 7e-06 1
+      2 VTXDSK 0.0365 0.2515 -0.2575 0.00028 0.0937 2 0 1.5708 7e-06 7e-06 1
+      2 VTXDSK 0.0365 0.2515 0.2575 0.00028 0.0937 2 0 1.5708 7e-06 7e-06 1
+      2 VTXDSK 0.075 0.29 0.62 0.00028 0.0937 2 0 1.5708 7e-06 7e-06 1
+      2 VTXDSK 0.105 0.29 0.93 0.00028 0.0937 2 0 1.5708 7e-06 7e-06 1
+      2 DCHWALL 0.345 2.02 2.125 0.25 5.55 0 0 0 0 0 0
+      2 DCHWALL 0.345 2.02 -2.125 0.25 5.55 0 0 0 0 0 0
+      2 FSILWRP 0.354 2.02 -2.32 0.00047 0.0937 2 0 1.5708 7e-06 9e-05 1
+      2 FSILWRP 0.35 2.02 -2.3 0.00047 0.0937 2 0 1.5708 7e-06 9e-05 1
+      2 FSILWRP 0.35 2.02 2.3 0.00047 0.0937 2 0 1.5708 7e-06 9e-05 1
+      2 FSILWRP 0.354 2.02 2.32 0.00047 0.0937 2 0 1.5708 7e-06 9e-05 1
       2 FRAD 0.38 2.09 2.49 0.0043 0.005612 0 0 0 0 0 0
       2 FRAD 0.38 2.09 -2.49 0.0043 0.005612 0 0 0 0 0 0
-      2 FPRESH 0.39 2.43 -2.55 0.02 1 2 0 1.5708 7e-005 0.01 1
-      2 FPRESH 0.39 2.43 2.55 0.02 1 2 0 1.5708 7e-005 0.01 1
+      2 FPRESH 0.39 2.43 -2.55 0.02 1 2 0 1.5708 7e-05 0.01 1
+      2 FPRESH 0.39 2.43 2.55 0.02 1 2 0 1.5708 7e-05 0.01 1
     }
 
 }
@@ -470,16 +491,13 @@ module DualReadoutCalorimeter Calorimeter {
   set EFlowPhotonOutputArray eflowPhotons
   set EFlowNeutralHadronOutputArray eflowNeutralHadrons
 
-  set ECalEnergyMin 0.5
-  set HCalEnergyMin 0.5
-  set ECalEnergySignificanceMin 3.0
-  set HCalEnergySignificanceMin 3.0
+  set ECalMinSignificance 2.0
+  set HCalMinSignificance 2.5
 
-  set EnergyMin 0.5
-  set EnergySignificanceMin 3.0
+  set SmearLogNormal false
 
-  #set SmearTowerCenter true
-  set SmearTowerCenter false
+  set SmearTowerCenter true
+  #set SmearTowerCenter false
     set pi [expr {acos(-1)}]
 
     # Lists of the edges of each tower in eta and phi;
@@ -489,32 +507,25 @@ module DualReadoutCalorimeter Calorimeter {
     # Endcaps: deta=0.02 towers up to |eta| <= 3.0 (8.6° = 100 mrad)
     # Cell size: about 6 cm x 6 cm
 
-    #barrel:
+    set EtaPhiRes 0.02
+    set EtaMax 3.0
+
+    set pi [expr {acos(-1)}]
+
+    set nbins_phi [expr {$pi/$EtaPhiRes} ]
+    set nbins_phi [expr {int($nbins_phi)} ]
+
     set PhiBins {}
-    for {set i -120} {$i <= 120} {incr i} {
-        add PhiBins [expr {$i * $pi/120}]
-    }
-    #deta=0.02 units for |eta| <= 0.88
-    for {set i -44} {$i < 45} {incr i} {
-        set eta [expr {$i * 0.02}]
-        add EtaPhiBins $eta $PhiBins
+    for {set i -$nbins_phi} {$i <= $nbins_phi} {incr i} {
+      add PhiBins [expr {$i * $pi/$nbins_phi}]
     }
 
-    #endcaps:
-    set PhiBins {}
-    for {set i -120} {$i <= 120} {incr i} {
-        add PhiBins [expr {$i* $pi/120}]
-    }
-    #deta=0.02 units for 0.88 < |eta| <= 3.0
-    #first, from -3.0 to -0.88
-    for {set i 0} {$i <=106} {incr i} {
-        set eta [expr {-3.00 + $i * 0.02}]
-        add EtaPhiBins $eta $PhiBins
-    }
-    #same for 0.88 to 3.0
-    for  {set i 1} {$i <=106} {incr i} {
-        set eta [expr {0.88 + $i * 0.02}]
-        add EtaPhiBins $eta $PhiBins
+    set nbins_eta [expr {$EtaMax/$EtaPhiRes} ]
+    set nbins_eta [expr {int($nbins_eta)} ]
+
+    for {set i -$nbins_eta} {$i <= $nbins_eta} {incr i} {
+      set eta [expr {$i * $EtaPhiRes}]
+      add EtaPhiBins $eta $PhiBins
     }
 
     # default energy fractions {abs(PDG code)} {Fecal Fhcal}
@@ -539,16 +550,19 @@ module DualReadoutCalorimeter Calorimeter {
     add EnergyFraction {3122} {0.3 0.7}
 
 
+    ## ECAL crystals for the EM part from 2008.00338
     # set ECalResolutionFormula {resolution formula as a function of eta and energy}
     set ECalResolutionFormula {
-    (abs(eta) <= 0.88 )                     * sqrt(energy^2*0.01^2 + energy*0.11^2)+
-    (abs(eta) > 0.88 && abs(eta) <= 3.0)    * sqrt(energy^2*0.01^2 + energy*0.11^2)
+    (abs(eta) <= 0.88 )                     * sqrt(energy^2*0.005^2 + energy*0.03^2 + 0.002^2)+
+    (abs(eta) > 0.88 && abs(eta) <= 3.0)    * sqrt(energy^2*0.005^2 + energy*0.03^2 + 0.002^2)
     }
 
+
+    # Dual Readout
     # set HCalResolutionFormula {resolution formula as a function of eta and energy}
     set HCalResolutionFormula {
-    (abs(eta) <= 0.88 )                     * sqrt(energy^2*0.01^2 + energy*0.30^2)+
-    (abs(eta) > 0.88 && abs(eta) <= 3.0)    * sqrt(energy^2*0.01^2 + energy*0.30^2)
+    (abs(eta) <= 0.88 )                     * sqrt(energy^2*0.01^2 + energy*0.3^2 + 0.05^2)+
+    (abs(eta) > 0.88 && abs(eta) <= 3.0)    * sqrt(energy^2*0.01^2 + energy*0.3^2 + 0.05^2)
     }
 }
 
@@ -608,6 +622,18 @@ module Merger EFlowMerger {
   add InputArray Calorimeter/eflowPhotons
   add InputArray TimeOfFlightNeutralHadron/eflowNeutralHadrons
   set OutputArray eflow
+}
+
+
+####################
+# Tower merger
+####################
+
+module Merger TowerMerger {
+# add InputArray InputArray
+  add InputArray Calorimeter/towers
+  add InputArray MuonFilter/muons
+  set OutputArray towers
 }
 
 
@@ -743,28 +769,7 @@ module Isolation MuonIsolation {
   set PTRatioMax 9999.
 }
 
-###################
-# Missing ET merger
-###################
 
-module Merger MissingET {
-# add InputArray InputArray
-  add InputArray EFlowMerger/eflow
-  set MomentumOutputArray momentum
-}
-
-##################
-# Scalar HT merger
-##################
-
-module Merger ScalarHT {
-# add InputArray InputArray
-  add InputArray UniqueObjectFinder/jets
-  add InputArray UniqueObjectFinder/electrons
-  add InputArray UniqueObjectFinder/photons
-  add InputArray UniqueObjectFinder/muons
-  set EnergyOutputArray energy
-}
 
 #####################
 # Neutrino Filter
@@ -785,6 +790,52 @@ module PdgCodeFilter NeutrinoFilter {
   add PdgCode {-16}
 }
 
+###################################
+# Gen Jet finder Durham exclusive
+###################################
+
+module FastJetFinder GenJetFinderDurhamN2 {
+
+  set InputArray NeutrinoFilter/filteredParticles
+  set OutputArray jets
+
+  # algorithm: 11 ee-durham kT algorithm
+  # ref: https://indico.cern.ch/event/1173562/contributions/4929025/attachments/2470068/4237859/2022-06-FCC-jets.pdf
+  # to run exclusive njet mode set NJets to int
+  # to run exclusive dcut mode set DCut to float
+  # if DCut > 0 will run in dcut mode
+
+  set JetAlgorithm 11
+  set ExclusiveClustering true
+  set NJets 2
+  # set DCut 10.0
+}
+
+################################
+# Jet finder Durham exclusive
+################################
+
+module FastJetFinder FastJetFinderDurhamN2 {
+#  set InputArray Calorimeter/towers
+  set InputArray EFlowMerger/eflow
+
+  set OutputArray jets
+
+  # algorithm: 11 ee-durham kT algorithm
+  # ref: https://indico.cern.ch/event/1173562/contributions/4929025/attachments/2470068/4237859/2022-06-FCC-jets.pdf
+  # to run exclusive njet mode set NJets to int
+  # to run exclusive dcut mode set DCut to float
+  # if DCut > 0 will run in dcut mode
+
+  set JetAlgorithm 11
+  set ExclusiveClustering true
+  set NJets 2
+  # set DCut 10.0
+
+}
+
+
+
 
 #####################
 # MC truth jet finder
@@ -802,15 +853,6 @@ module FastJetFinder GenJetFinder {
 }
 
 
-#########################
-# Gen Missing ET merger
-########################
-
-module Merger GenMissingET {
-# add InputArray InputArray
-  add InputArray NeutrinoFilter/filteredParticles
-  set MomentumOutputArray momentum
-}
 
 ############
 # Jet finder
@@ -871,14 +913,36 @@ module BTagging BTagging {
   # add EfficiencyFormula {abs(PDG code)} {efficiency formula as a function of eta and pt}
 
   # default efficiency formula (misidentification rate)
+  add EfficiencyFormula {0} {0.005}
+
+  # efficiency formula for c-jets (misidentification rate)
+  add EfficiencyFormula {4} {0.01}
+
+  # efficiency formula for b-jets
+  add EfficiencyFormula {5} {0.85}
+}
+
+###########
+# c-tagging
+###########
+
+module BTagging CTagging {
+  set JetInputArray JetEnergyScale/jets
+
+  set BitNumber 1
+
+  # add EfficiencyFormula {abs(PDG code)} {efficiency formula as a function of eta and pt}
+
+  # default efficiency formula (misidentification rate)
   add EfficiencyFormula {0} {0.01}
 
   # efficiency formula for c-jets (misidentification rate)
-  add EfficiencyFormula {4} {0.10}
+  add EfficiencyFormula {5} {0.05}
 
   # efficiency formula for b-jets
-  add EfficiencyFormula {5} {0.80}
+  add EfficiencyFormula {4} {0.80}
 }
+
 
 #############
 # tau-tagging
@@ -894,9 +958,9 @@ module TauTagging TauTagging {
   set TauEtaMax 3.0
 
   # default efficiency formula (misidentification rate)
-  add EfficiencyFormula {0} {0.001}
+  add EfficiencyFormula {0} {0.01}
   # efficiency formula for tau-jets
-  add EfficiencyFormula {15} {0.6}
+  add EfficiencyFormula {15} {0.85}
 }
 
 
@@ -921,16 +985,18 @@ module TreeWriter TreeWriter {
     add Branch TimeOfFlightNeutralHadron/eflowNeutralHadrons EFlowNeutralHadron Tower
 
     add Branch EFlowMerger/eflow ParticleFlowCandidate ParticleFlowCandidate
+    add Branch Calorimeter/towers Tower Tower
 
     add Branch ElectronEfficiency/electrons Electron Electron
     add Branch MuonEfficiency/muons Muon Muon
     add Branch PhotonEfficiency/photons Photon Photon
 
     add Branch JetEnergyScale/jets Jet Jet
-    add Branch MissingET/momentum MissingET MissingET
 
     add Branch GenJetFinder/jets GenJet Jet
-    add Branch GenMissingET/momentum GenMissingET MissingET
+
+    add Branch GenJetFinderDurhamN2/jets GenJetDurhamN2 Jet
+    add Branch FastJetFinderDurhamN2/jets JetDurhamN2 Jet
 
     # add Info InfoName InfoValue
     add Info Bz $B
