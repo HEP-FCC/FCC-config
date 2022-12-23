@@ -66,8 +66,11 @@ set ExecutionPath {
   MuonEfficiency
   MuonIsolation
 
+  MissingET
+
   NeutrinoFilter
   GenJetFinder
+  GenMissingET
 
   FastJetFinder
   JetEnergyScale
@@ -769,6 +772,15 @@ module Isolation MuonIsolation {
   set PTRatioMax 9999.
 }
 
+###################
+# Missing ET merger
+###################
+
+module Merger MissingET {
+# add InputArray InputArray
+  add InputArray EFlowMerger/eflow
+  set MomentumOutputArray momentum
+}
 
 
 #####################
@@ -853,6 +865,15 @@ module FastJetFinder GenJetFinder {
 }
 
 
+#########################
+# Gen Missing ET merger
+########################
+
+module Merger GenMissingET {
+# add InputArray InputArray
+  add InputArray NeutrinoFilter/filteredParticles
+  set MomentumOutputArray momentum
+}
 
 ############
 # Jet finder
@@ -992,8 +1013,10 @@ module TreeWriter TreeWriter {
     add Branch PhotonEfficiency/photons Photon Photon
 
     add Branch JetEnergyScale/jets Jet Jet
+    add Branch MissingET/momentum MissingET MissingET
 
     add Branch GenJetFinder/jets GenJet Jet
+    add Branch GenMissingET/momentum GenMissingET MissingET
 
     add Branch GenJetFinderDurhamN2/jets GenJetDurhamN2 Jet
     add Branch FastJetFinderDurhamN2/jets JetDurhamN2 Jet
