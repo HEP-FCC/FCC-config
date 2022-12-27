@@ -30,7 +30,6 @@ set DCHRMAX 2.02
 set ExecutionPath {
 
   TruthVertexFinder
-  UnstablePropagator
   ParticlePropagator
 
   ChargedHadronTrackingEfficiency
