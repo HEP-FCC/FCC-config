@@ -35,3 +35,8 @@ PartonLevel:FSR = on               ! final-state radiation
 !Z0
 23:onMode = off
 23:onIfAny = 1 2 3 4 5 6
+
+ParticleDecays:limitCylinder = on
+ParticleDecays:xyMax = 2250.
+ParticleDecays:zMax = 2500.
+

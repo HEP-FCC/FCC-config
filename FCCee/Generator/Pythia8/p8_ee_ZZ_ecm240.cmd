@@ -32,3 +32,7 @@ WeakDoubleBoson:ffbar2gmZgmZ = on
 PartonLevel:ISR = on               ! no initial-state radiation
 PartonLevel:FSR = on               ! no final-state radiation
 
+ParticleDecays:limitCylinder = on
+ParticleDecays:xyMax = 2250.
+ParticleDecays:zMax = 2500.
+
