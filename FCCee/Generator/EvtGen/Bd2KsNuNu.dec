@@ -1,0 +1,20 @@
+
+Alias       Bd_SIGNAL     B0
+Alias       Bdbar_SIGNAL  anti-B0
+ChargeConj  Bd_SIGNAL     Bdbar_SIGNAL
+
+Alias   MyKs    K_S0
+ChargeConj MyKs MyKs
+
+#
+Decay Bd_SIGNAL
+  1.000        MyKs     nu_e    anti-nu_e                PHSP;
+Enddecay
+CDecay Bdbar_SIGNAL
+#
+Decay MyKs
+  1.000        pi+        pi-                    PHSP;
+Enddecay
+#
+End
+#
