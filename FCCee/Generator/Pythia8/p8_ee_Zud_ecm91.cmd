@@ -35,7 +35,7 @@ Beams:eCM = 91.188  ! CM energy of collision
 
 WeakSingleBoson:ffbar2gmZ = on
 23:onMode = off
-23:onIfAny = 1,2
+23:onIfAny = 1 2
 
 PartonLevel:ISR = on               ! initial-state radiation
 PartonLevel:FSR = on               ! final-state radiation
