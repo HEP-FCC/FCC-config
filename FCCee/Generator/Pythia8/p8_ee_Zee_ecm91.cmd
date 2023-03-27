@@ -29,7 +29,7 @@ Beams:sigmaVertexY = 23.8E-6
 Beams:sigmaVertexZ = 0.397     
 Beams:sigmaTime = 10.89    !  36.3 ps
 
-! 4) Hard process : Z->ee at Ecm=91 GeV
+! 4) Hard process : Z->e+e- at Ecm=91 GeV
 Beams:eCM = 91.188  ! CM energy of collision
 
 
