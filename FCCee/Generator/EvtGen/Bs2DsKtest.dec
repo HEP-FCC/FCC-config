@@ -9,9 +9,19 @@ ChargeConj MyD_s+     MyD_s-
 Alias      Myphi      phi
 ChargeConj Myphi      Myphi
 
+Define dms 17.65e12
+Define dgog 0.136
+# PhiCKM = Pi - gamma +2 * betas
+Define PhiCKM 2.03
+Define delta -0.035
+Define PhiPlus 1.995
+Define PhiMinus 2.065
+#Define PhiMinus PhiCKM-delta
+Define rho 0.7
+
 #
 Decay Bs_SIGNAL
-  1.000     MyD_s-     K+      SSD_CP;
+  1.000     MyD_s-     K+      SSD_CP dms dgog 1.0 0.0 1.0 0.0 rho PhiPlus rho PhiMinus 1.0 0.0 ;
 Enddecay
 CDecay Bsbar_SIGNAL
 #
