@@ -7,11 +7,12 @@
 ! 1) Settings used in the main program.
 Random:setSeed = on
 Main:timesAllowErrors = 5          ! how many aborts before run stops
+Stat:showProcessLevel = on
 
 ! 2) Settings related to output in init(), next() and stat().
 Init:showChangedSettings = on      ! list changed settings
 Init:showChangedParticleData = off ! list changed particle data
-Next:numberCount = 10000             ! print message every n events
+Next:numberCount = 100             ! print message every n events
 Next:numberShowInfo = 1            ! print event information n times
 Next:numberShowProcess = 1         ! print process record n times
 Next:numberShowEvent = 0           ! print event record n times
@@ -20,6 +21,7 @@ Next:numberShowEvent = 0           ! print event record n times
 Beams:idA = 11                   ! first beam, e = 2212, pbar = -2212
 Beams:idB = -11                   ! second beam, e = 2212, pbar = -2212
 
+! Beam energy spread: 0.132% x 45.594 GeV = 0.0602 GeV
 Beams:allowMomentumSpread  = off
 
 ! Vertex smearing :
@@ -29,13 +31,11 @@ Beams:sigmaVertexY = 23.8E-6
 Beams:sigmaVertexZ = 0.397     
 Beams:sigmaTime = 10.89    !  36.3 ps
 
-! 4) Hard process : Z->e+e- at Ecm=91 GeV
+
+! 4) Hard process : Z->tau+tau- at Ecm=91 GeV
 Beams:eCM = 91.188  ! CM energy of collision
 
 
 WeakSingleBoson:ffbar2gmZ = on
 23:onMode = off
-23:onIfAny = 11
-
-PartonLevel:ISR = on               ! initial-state radiation
-PartonLevel:FSR = on               ! final-state radiation
+23:onIfAny = 15

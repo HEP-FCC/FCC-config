@@ -1,0 +1,36 @@
+Alias   Bs_SIGNAL   B_s0
+Alias   Bsbar_SIGNAL    anti-B_s0
+ChargeConj Bs_SIGNAL  Bsbar_SIGNAL
+
+Alias      MyD_s-     D_s-
+Alias      MyD_s+     D_s+
+ChargeConj MyD_s+     MyD_s-
+
+Alias      Myphi      phi
+ChargeConj Myphi      Myphi
+
+Define dms 17.65e12
+Define dgog -0.136
+Define minus2betas -0.04
+Define rho 0.7
+Define delta  0.17
+Define gama 1.15
+Define minusgama -1.15 
+
+#
+Decay Bs_SIGNAL
+  1.000     MyD_s-     K+      SSD_CP  dms dgog 1.0 minus2betas 1.0  gama  rho  delta  rho delta  1 minusgama;
+Enddecay
+CDecay Bsbar_SIGNAL
+#
+Decay MyD_s-
+  0.045     Myphi        pi-                    SVS;
+  0.0559     Myphi        rho-                   PHSP;
+Enddecay
+CDecay MyD_s+
+#
+Decay Myphi
+      1.000  K+ K-  VSS;
+Enddecay
+#
+End
