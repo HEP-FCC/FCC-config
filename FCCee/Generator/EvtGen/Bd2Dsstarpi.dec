@@ -6,6 +6,10 @@ Alias      MyD_s*-     D_s*-
 Alias      MyD_s*+     D_s*+
 ChargeConj MyD_s*+     MyD_s*-
 
+Alias      MyD_s-     D_s-
+Alias      MyD_s+     D_s+
+ChargeConj MyD_s+     MyD_s-
+
 Alias      Myphi      phi
 ChargeConj Myphi      Myphi
 
@@ -19,11 +23,18 @@ Decay Bd_SIGNAL
 Enddecay
 CDecay Bdbar_SIGNAL
 #
+
 Decay MyD_s*-
-  0.500     gamma        Myphi        pi-      PHSP;
-  0.500     gamma        Myphi        Myrho-   PHSP;
+  1.00      MyD_s-     gamma     VSP_PWAVE ;
 Enddecay
 CDecay MyD_s*+
+
+Decay MyD_s-
+  0.045     Myphi        pi-                    PHSP;
+  0.0559     Myphi       Myrho-                   PHSP;
+Enddecay
+CDecay MyD_s+
+
 #
 Decay Myrho-
       1.000  pi- pi0  VSS;
