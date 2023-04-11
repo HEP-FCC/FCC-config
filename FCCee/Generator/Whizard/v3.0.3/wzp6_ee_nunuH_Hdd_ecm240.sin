@@ -1,0 +1,94 @@
+########################################################################
+#
+# Copyright (C) 1999-2019 by 
+#     Wolfgang Kilian <kilian@physik.uni-siegen.de>
+#     Thorsten Ohl <ohl@physik.uni-wuerzburg.de>
+#     Juergen Reuter <juergen.reuter@desy.de>
+#     with contributions from
+#     cf. main AUTHORS file
+#
+# WHIZARD is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by 
+# the Free Software Foundation; either version 2, or (at your option)
+# any later version.
+#
+# WHIZARD is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+#
+########################################################################
+
+model = SM
+
+# Center of mass energy
+sqrts = 240 GeV
+
+
+alias nu = nue:numu:nutau
+alias nubar = nuebar:numubar:nutaubar
+
+
+# Processes
+
+# ?vis_diags = true
+
+
+process proc = e1, E1 =>  nu, nubar, H
+
+beams = e1, E1 => gaussian => isr
+?keep_beams  = true    
+?keep_remnants = true
+
+gaussian_spread1 = 0.185%
+gaussian_spread2 = 0.185%
+
+
+?isr_handler       = true
+$isr_handler_mode = "recoil"
+isr_alpha          = 0.0072993
+isr_mass           = 0.000511
+
+
+
+! Parton shower and hadronization
+?ps_fsr_active          = true
+?ps_isr_active          = false
+?hadronization_active   = true
+$shower_method          = "PYTHIA6"
+!?ps_PYTHIA_verbose     = true
+
+#  I      210  d          + dbar                     I   2.142D-09 I  7.849D-07 I off  I  0.000D+00 I
+#  I      211  u          + ubar                     I   6.855D-10 I  2.511D-07 I off  I  0.000D+00 I
+#  I      212  s          + sbar                     I   8.656D-07 I  3.171D-04 I off  I  0.000D+00 I
+#  I      213  c          + cbar                     I   1.070D-04 I  3.919D-02 I off  I  0.000D+00 I
+#  I      214  b          + bbar                     I   1.952D-03 I  7.150D-01 I on   I  1.000D+00 I
+#  I      215  t          + tbar                     I   0.000D+00 I  0.000D+00 I off  I  0.000D+00 I
+#  I      218  e-         + e+                       I   1.938D-11 I  7.101D-09 I off  I  0.000D+00 I
+#  I      219  mu-        + mu+                      I   8.319D-07 I  3.048D-04 I off  I  0.000D+00 I
+#  I      220  tau-       + tau+                     I   2.350D-04 I  8.608D-02 I off  I  0.000D+00 I
+#  I      222  g          + g                        I   1.490D-04 I  5.460D-02 I off  I  0.000D+00 I
+#  I      223  gamma      + gamma                    I   7.496D-06 I  2.746D-03 I off  I  0.000D+00 I
+#  I      224  gamma      + Z0                       I   2.255D-06 I  8.263D-04 I off  I  0.000D+00 I
+#  I      225  Z0         + Z0                       I   2.561D-05 I  9.383D-03 I off  I  0.000D+00 I
+#  I      226  W+         + W-                       I   2.498D-04 I  9.153D-02 I off  I  0.000D+00 I
+
+
+
+$ps_PYTHIA_PYGIVE = "MDME(210,1)=1; MDME(211,1)=0; MDME(212,1)=0; MDME(213,1)=0; MDME(214,1)=0; MDME(215,1)=0; MDME(218,1)=0; MDME(219,1)=0; MDME(220,1)=0; MDME(222,1)=0; MDME(223,1)=0; MDME(224,1)=0; MDME(225,1)=0; MDME(226,1)=0; MSTJ(28)=0; PMAS(25,1)=125.; PMAS(25,2)=0.4143E-02; MSTJ(41)=2; MSTU(22)=2000; PARJ(21)=0.40000; PARJ(41)=0.11000; PARJ(42)=0.52000; PARJ(81)=0.25000; PARJ(82)=1.90000; MSTJ(11)=3; PARJ(54)=-0.03100; PARJ(55)=-0.00200; PARJ(1)=0.08500; PARJ(3)=0.45000; PARJ(4)=0.02500; PARJ(2)=0.31000; PARJ(11)=0.60000; PARJ(12)=0.40000; PARJ(13)=0.72000; PARJ(14)=0.43000; PARJ(15)=0.08000; PARJ(16)=0.08000; PARJ(17)=0.17000; MSTP(3)=1;MSTP(71)=1;  MSTP(151)=1; PARP(151)=0.0098; PARP(152)=2.54e-5; PARP(153)=0.646; PARP(154)=1.937; MSTJ(22)=4; PARJ(73)=2250; PARJ(74)=2500"
+
+
+integrate (proc) { iterations = 10:100000:"gw", 5:200000:"" }
+
+# n_events should be passed by the EventProducer
+# n_events = 100000
+
+sample_format =  stdhep
+$extension_stdhep = "stdhep"
+simulate (proc) {checkpoint = 100}
+
+
