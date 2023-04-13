@@ -1,0 +1,73 @@
+# NickName: Bd_DsstDsKst0,Kpi,Ds_taunu
+# Descriptor: [B0 -> (Ds*+ -> (Ds+ -> (tau+ ->  pi+  pi+  pi- anti-nu_tau) nu_tau) gamma)(Ds- -> (tau- ->  pi-  pi-  pi+ nu_tau) anti-nu_tau) (K*0 -> K+ pi-)]cc
+#
+# Documentation:  K*0 forced to K+ pi-, Ds forced to tau nu, D*s+ forced in Ds gamma.  
+# Decay file for B0 -> Ds*+ Ds- K*0
+# EndDocumentation
+# 
+# Date:   20210913
+# Responsible: Stephane Monteil
+# Email: monteil@in2p3.fr
+Alias Bd_SIGNAL     B0
+Alias Bdbar_SIGNAL  anti-B0
+ChargeConj Bd_SIGNAL Bdbar_SIGNAL
+
+Alias      MyDs*-     D_s*-
+Alias      MyDs*+     D_s*+
+Alias MyDs+    D_s+
+Alias MyDs-    D_s-
+Alias MyK*0    K*0
+Alias Myanti-K*0    anti-K*0
+Alias MyTau+ tau+
+Alias MyTau- tau-
+ChargeConj MyDs*+     MyDs*-
+ChargeConj MyDs+   MyDs- 
+ChargeConj MyK*0  Myanti-K*0
+ChargeConj MyTau+  MyTau-
+
+#----------------
+# Decay of the B0
+#----------------
+Decay Bd_SIGNAL
+  1.000 MyDs*+ MyDs- MyK*0 PHSP;
+Enddecay
+CDecay Bdbar_SIGNAL
+
+
+# -----------------
+# Decay of the Ds*+-
+# -----------------
+Decay MyDs*+
+  1.000 MyDs+ gamma VSP_PWAVE;
+Enddecay
+CDecay MyDs*-
+
+
+# -----------------
+# Decay of the Ds+-
+# -----------------
+Decay MyDs+
+  1.000 MyTau+ nu_tau   SLN;
+Enddecay
+CDecay MyDs-
+
+# -----------------
+# Decay of the K*0 anti-K*0
+# -----------------
+#
+Decay MyK*0
+  1.000 K+ pi-  VSS;
+Enddecay
+CDecay Myanti-K*0
+
+
+# -----------------
+# Decay of the tau+-
+# -----------------
+#  
+Decay MyTau-
+  1.00      pi-     pi-      pi+     nu_tau                TAUHADNU -0.108 0.775 0.149 1.364 0.400 1.23 0.4;
+Enddecay
+CDecay MyTau+
+#
+End
