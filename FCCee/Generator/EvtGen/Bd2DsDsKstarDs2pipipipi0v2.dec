@@ -1,0 +1,81 @@
+# NickName: Bd_DsDsKst0,Kpi,Ds_taunu
+# Descriptor: [B0 -> (Ds+ -> (eta0 ->  pi+  pi-  pi0 / omega0 -> pi+  pi-  pi0) pi+) (Ds+ -> (eta0 ->  pi-  pi+  pi0 / omega0 -> pi-  pi+  pi0) pi-) (K*0 -> K+ pi-)]cc
+#
+# Documentation:  K*0 forced to K+ pi-, Ds forced to omega0 pi and eta0 pi, omega0 and eta0 forced to pi pi pi0 
+# Decay file for B0 -> Ds+ Ds- K*0
+# EndDocumentation
+# 
+# Date:   20210913
+# Responsible: Stephane Monteil
+# Email: monteil@in2p3.fr
+Alias Bd_SIGNAL     B0
+Alias Bdbar_SIGNAL  anti-B0
+ChargeConj Bd_SIGNAL Bdbar_SIGNAL
+
+Alias MyDs+    D_s+
+Alias MyDs-    D_s-
+Alias MyK*0    K*0
+Alias Myanti-K*0    anti-K*0
+Alias Mypi0    pi0
+Alias Myeta0    eta
+Alias Myomega0    omega
+ChargeConj Mypi0     Mypi0
+ChargeConj MyDs+   MyDs- 
+ChargeConj MyK*0  Myanti-K*0
+ChargeConj Myeta0     Myeta0
+ChargeConj Myomega0     Myomega0
+
+#----------------
+# Decay of the B0
+#----------------
+Decay Bd_SIGNAL
+  1.000 MyDs+ MyDs- MyK*0 PHSP;
+Enddecay
+CDecay Bdbar_SIGNAL
+
+
+
+# -----------------
+# Decay of the Ds+-
+# -----------------
+
+Decay MyDs+
+  0.693 Myeta0 pi+ PHSP;
+  0.307 Myomega0 pi+ PHSP;
+Enddecay
+CDecay MyDs-
+
+# -----------------
+# Decay of the eta0
+# -----------------
+
+Decay Myeta0
+  1.000 pi+ pi- pi0 PHSP;
+Enddecay
+
+# -----------------
+# Decay of the omega0
+# -----------------
+
+Decay Myomega0
+  1.000 pi+ pi- pi0 OMEGA_DALITZ;
+Enddecay
+
+# -----------------
+# Decay of the K*0 anti-K*0
+# -----------------
+
+Decay MyK*0
+  1.000 K+ pi-  VSS;
+Enddecay
+CDecay Myanti-K*0
+
+#-----------
+# Decay of the pi0
+#-----------
+Decay Mypi0
+  1.000 gamma   gamma  PHSP;
+Enddecay
+
+#
+End
