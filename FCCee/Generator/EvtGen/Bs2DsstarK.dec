@@ -6,6 +6,10 @@ Alias      MyD_s*-     D_s*-
 Alias      MyD_s*+     D_s*+
 ChargeConj MyD_s*+     MyD_s*-
 
+Alias      MyD_s-     D_s-
+Alias      MyD_s+     D_s+
+ChargeConj MyD_s+     MyD_s-
+
 Alias      Myphi      phi
 ChargeConj Myphi      Myphi
 
