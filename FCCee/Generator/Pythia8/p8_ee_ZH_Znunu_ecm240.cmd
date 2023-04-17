@@ -1,5 +1,5 @@
 Random:setSeed = on
-Main:numberOfEvents = 100         ! number of events to generate
+Main:numberOfEvents = 1000         ! number of events to generate
 Main:timesAllowErrors = 5          ! how many aborts before run stops
 
 
