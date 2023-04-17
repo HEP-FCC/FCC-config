@@ -48,9 +48,9 @@ Enddecay
 # Decay of the Ds-
 # -----------------
 
-Decay MyDs+
-  0.693 Myeta0 pi+ PHSP;
-  0.307 Myomega0 pi+ PHSP;
+Decay MyDs-
+  0.693 Myeta0 pi- PHSP;
+  0.307 Myomega0 pi- PHSP;
 Enddecay
 
 # -----------------
