@@ -22,7 +22,6 @@ Beams:sigmaVertexY = 25.4E-6   !  25.4 nm
 Beams:sigmaVertexZ = 0.64      !  0.64 mm
 
 
-
 ! 3) Hard process : WW at 240 GeV
 Beams:eCM = 240  ! CM energy of collision
 WeakDoubleBoson:ffbar2WW = on
