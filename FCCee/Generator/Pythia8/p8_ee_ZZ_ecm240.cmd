@@ -13,11 +13,6 @@ Next:numberShowEvent = 0           ! print event record n times
 Beams:idA = 11                   ! first beam, e+ = 11
 Beams:idB = -11                   ! second beam, e- = -11
 
-! Beam energy spread: 0.185% x 120 GeV = 0.222 GeV
-Beams:allowMomentumSpread  = off
-! Beams:sigmaPzA = 0.222
-! Beams:sigmaPzB = 0.222
-
 ! Vertex smearing :
 Beams:allowVertexSpread = on
 Beams:sigmaVertexX = 9.80e-3   !  9.80 mum
