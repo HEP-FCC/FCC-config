@@ -35,8 +35,8 @@ alias nubar = "ve~":"vm~":"vt~"
 
 # Processes
 #?vis_diags = true
-process proc = "e-", "e+" =>   (nu, nubar, "b~", s) 
-                             + (nu, nubar, b, "s~") { $restrictions = "5+6~h1" }
+process proc = "e-", "e+" =>   (nu, nubar, "c~", u) 
+                             + (nu, nubar, c, "u~") { $restrictions = "5+6~h1" }
 
 #beams = e1, E1 => gaussian => isr
 beams = "e-", "e+" => gaussian => isr
