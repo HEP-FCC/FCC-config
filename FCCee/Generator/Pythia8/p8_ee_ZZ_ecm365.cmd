@@ -15,7 +15,7 @@ Beams:idB = -11                   ! second beam, e- = -11
 
 ! Vertex smearing :
 Beams:allowVertexSpread = on
-Beams:sigmaVertexX = 2.73e-3   !  27.3 mum
+Beams:sigmaVertexX = 2.73e-2   !  27.3 mum
 Beams:sigmaVertexY = 48.8E-6   !  48.8 nm
 Beams:sigmaVertexZ = 1.33      !  1.33 mm
 
