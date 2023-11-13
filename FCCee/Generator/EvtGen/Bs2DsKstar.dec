@@ -24,8 +24,8 @@ Enddecay
 CDecay Bsbar_SIGNAL
 #
 Decay MyD_s-
-  0.500     Myphi        pi-      PHSP;
-  0.500     Myphi        Myrho-   PHSP;
+  0.045     Myphi        pi-      SVS;
+  0.0559    Myphi        Myrho-   PHSP;
 Enddecay
 CDecay MyD_s+
 #

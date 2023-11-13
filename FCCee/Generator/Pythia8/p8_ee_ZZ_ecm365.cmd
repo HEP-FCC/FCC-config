@@ -15,12 +15,12 @@ Beams:idB = -11                   ! second beam, e- = -11
 
 ! Vertex smearing :
 Beams:allowVertexSpread = on
-Beams:sigmaVertexX = 9.80e-3   !  9.80 mum
-Beams:sigmaVertexY = 25.4E-6   !  25.4 nm
-Beams:sigmaVertexZ = 0.64      !  0.64 mm
+Beams:sigmaVertexX = 2.73e-2   !  27.3 mum
+Beams:sigmaVertexY = 48.8E-6   !  48.8 nm
+Beams:sigmaVertexZ = 1.33      !  1.33 mm
 
-! 3) Hard process : ZZ at 240 GeV
-Beams:eCM = 240  ! CM energy of collision
+! 3) Hard process : ZZ at 365 GeV
+Beams:eCM = 365  ! CM energy of collision
 WeakDoubleBoson:ffbar2gmZgmZ = on
 
 ! 4) Settings for the event generation process in the Pythia8 library.
