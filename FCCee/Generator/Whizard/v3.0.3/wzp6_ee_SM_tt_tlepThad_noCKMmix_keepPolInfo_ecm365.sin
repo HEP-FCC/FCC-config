@@ -24,18 +24,15 @@
 ########################################################################
 #
 #    e+ e- -> Z*/gamma* -> t tbar at 365 GeV,
-#    t -> W b -> anything, tbar -> W s -> light quarks
+#    t -> W b -> leptons, tbar -> W b -> hadrons
+#    Allow t and W mediators to have finite on-shell width
+#    Polarization kept
 #
 #    Whizard version is 3.1.0, as in key4hep-stack/2023-04-08
 #
-#    REMARK: The generation for this card may take long
-#            because there are many processes
-#            and the phasespace integration can take ~12 hours.
-#            But after this overhead, the event generation is as fast as other cards.
-#
 ########################################################################
 
-model = SM_CKM
+model = SM
 
 # Center of mass energy
 sqrts = 365 GeV
@@ -48,20 +45,19 @@ resonance_background_factor = 0
 
 # Process
 
-alias lep  = e1:e2
-alias neut = n1:n2
-alias Lep  = E1:E2
-alias Neut = N1:N2
+alias lep  = e1:e2:e3
+alias neut = n1:n2:n2
+alias Lep  = E1:E2:E3
+alias Neut = N1:N2:N3
 me = 0
 mmu = 0
+mtau = 0
 
-process proc = e1, E1 =>  (U, d, S, Lep, neut, b) + (U, d, S, E3, n3, b)
-                        + (U, s, S, Lep, neut, b) + (U, s, S, E3, n3, b)
-                        + (U, d, S, u, D, b) + (U, d, S, u, S, b) + (U, d, S, u, B, b)
-                        + (U, d, S, c, D, b) + (U, d, S, c, S, b) + (U, d, S, c, B, b)
-                        + (U, s, S, u, D, b) + (U, s, S, u, S, b) + (U, s, S, u, B, b)
-                        + (U, s, S, c, D, b) + (U, s, S, c, S, b) + (U, s, S, c, B, b) 
-                        {$restrictions = "3+4~W- && 6+7~W+ && 3+4+5~tbar && 6+7+8~t"}
+process proc = e1, E1 =>  (Lep, neut, b, U, d, B)
+                        + (Lep, neut, b, C, s, B)
+                        {$restrictions = "3+4~W+ && 6+7~W- && 3+4+5~t && 6+7+8~tbar"}
+
+polarized E1, E2, E3, n1, n2, n3, b, U, d, C, s, B
 
 beams = e1, E1 => gaussian => isr
 ?keep_beams  = true    
