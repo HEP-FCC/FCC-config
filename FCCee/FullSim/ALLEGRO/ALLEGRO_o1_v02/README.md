@@ -14,13 +14,13 @@ ddsim --enableGun --gun.distribution uniform --gun.energy "10*GeV" --gun.particl
 
 ## Running the digitization and reconstruction
 ```
-# if eos is mounted
 mkdir data
-cp /eos/user/b/brfranco/rootfile_storage/elecNoise_ecalBarrelFCCee_theta.root data/
-cp /eos/user/g/gmarchio/rootfile_storage/neighbours_map_barrel_thetamodulemerged.root data/
-cp /eos/user/g/gmarchio/rootfile_storage/cellNoise_map_electronicsNoiseLevel_thetamodulemerged.root data/
-# if not, do the same as above with scp yourlogin@lxplus.cern.ch:/eos/user/b/brfranco/rootfile_storage/elecNoise_ecalBarrelFCCee_theta.root data/ etc
-k4run run_digi_reco.py 
-# you can inspect the rootfile content with 
+cd data
+curl -O -L http://fccsw.web.cern.ch/fccsw/filesForSimDigiReco/ALLEGRO/ALLEGRO_o1_v02/elecNoise_ecalBarrelFCCee_theta.root
+curl -O -L http://fccsw.web.cern.ch/fccsw/filesForSimDigiReco/ALLEGRO/ALLEGRO_o1_v02/cellNoise_map_electronicsNoiseLevel_thetamodulemerged.root
+curl -O -L http://fccsw.web.cern.ch/fccsw/filesForSimDigiReco/ALLEGRO/ALLEGRO_o1_v02/neighbours_map_barrel_thetamodulemerged.root
+cd ..
+k4run run_digi_reco.py
+# you can than print the rootfile content with
 podio-dump ALLEGRO_sim_digi_reco.root  
 ```
