@@ -26,7 +26,7 @@ jobs:
         curl -O -L http://fccsw.web.cern.ch/fccsw/filesForSimDigiReco/ALLEGRO/ALLEGRO_o1_v02/cellNoise_map_electronicsNoiseLevel_thetamodulemerged.root;
         curl -O -L http://fccsw.web.cern.ch/fccsw/filesForSimDigiReco/ALLEGRO/ALLEGRO_o1_v02/neighbours_map_barrel_thetamodulemerged.root;
         cd ..;
-        k4run run_digi_reco.py;
+        k4run run_digi_reco.py;'
 
 
 
