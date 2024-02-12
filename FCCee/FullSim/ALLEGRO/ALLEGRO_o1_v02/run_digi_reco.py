@@ -5,8 +5,8 @@ from Configurables import k4DataSvc, PodioInput
 from Configurables import PodioOutput
 from Configurables import GeoSvc
 from Configurables import CorrectCaloClusters
-from Configurables import CreateCaloClustersSlidingWindow
-from Configurables import CaloTowerTool
+from Configurables import CreateCaloClustersSlidingWindowFCCee
+from Configurables import CaloTowerToolFCCee
 from Configurables import CreateEmptyCaloCellsCollection
 from Configurables import CreateCaloCellPositionsFCCee
 from Configurables import CellPositionsECalBarrelModuleThetaSegTool
@@ -220,10 +220,8 @@ createemptycells = CreateEmptyCaloCellsCollection("CreateEmptyCaloCells")
 createemptycells.cells.Path = "emptyCaloCells"
 
 # Produce sliding window clusters
-towers = CaloTowerTool("towers",
-                       deltaEtaTower=0.01, deltaPhiTower=2*_pi/768,
-                       radiusForPosition=2160 + 40 / 2.0,
-                       # ecalBarrelReadoutName = ecalBarrelReadoutNamePhiEta,
+towers = CaloTowerToolFCCee("towers",
+                       deltaThetaTower = 0.009817477, deltaPhiTower = 2*2*_pi/1536.,
                        ecalBarrelReadoutName=ecalBarrelReadoutName,
                        ecalEndcapReadoutName=ecalEndcapReadoutName,
                        ecalFwdReadoutName="",
@@ -232,7 +230,8 @@ towers = CaloTowerTool("towers",
                        hcalEndcapReadoutName="",
                        hcalFwdReadoutName="",
                        OutputLevel=INFO)
-towers.ecalBarrelCells.Path = ecalBarrelCellsName
+towers.ecalBarrelCells.Path = ecalBarrelPositionedCellsName
+#towers.ecalBarrelCells.Path = ecalBarrelCellsName
 towers.ecalEndcapCells.Path = "ECalEndcapCells"
 towers.ecalFwdCells.Path = "emptyCaloCells"
 
@@ -242,23 +241,23 @@ towers.hcalEndcapCells.Path = "emptyCaloCells"
 towers.hcalFwdCells.Path = "emptyCaloCells"
 
 # Cluster variables
-windE = 9
+windT = 9
 windP = 17
-posE = 5
+posT = 5
 posP = 11
-dupE = 7
+dupT = 7
 dupP = 13
-finE = 9
+finT = 9
 finP = 17
 # Minimal energy to create a cluster in GeV (FCC-ee detectors have to reconstruct low energy particles)
 threshold = 0.040
 
-createClusters = CreateCaloClustersSlidingWindow("CreateClusters",
+createClusters = CreateCaloClustersSlidingWindowFCCee("CreateClusters",
                                                  towerTool=towers,
-                                                 nEtaWindow=windE, nPhiWindow=windP,
-                                                 nEtaPosition=posE, nPhiPosition=posP,
-                                                 nEtaDuplicates=dupE, nPhiDuplicates=dupP,
-                                                 nEtaFinal=finE, nPhiFinal=finP,
+                                                 nThetaWindow=windT, nPhiWindow=windP,
+                                                 nThetaPosition=posT, nPhiPosition=posP,
+                                                 nThetaDuplicates=dupT, nPhiDuplicates=dupP,
+                                                 nThetaFinal=finT, nPhiFinal=finP,
                                                  energyThreshold=threshold,
                                                  energySharingCorrection=False,
                                                  attachCells=True,
@@ -424,9 +423,9 @@ if runHCal:
     ]
 TopAlg += [
     createemptycells,
-    # createClusters,
-    # createEcalBarrelPositionedCaloClusterCells,
-    # correctCaloClusters,
+    createClusters,
+    createEcalBarrelPositionedCaloClusterCells,
+    correctCaloClusters,
     createTopoClusters,
     createEcalBarrelPositionedCaloTopoClusterCells,
     correctCaloTopoClusters,
