@@ -231,7 +231,6 @@ towers = CaloTowerToolFCCee("towers",
                        hcalFwdReadoutName="",
                        OutputLevel=INFO)
 towers.ecalBarrelCells.Path = ecalBarrelPositionedCellsName
-#towers.ecalBarrelCells.Path = ecalBarrelCellsName
 towers.ecalEndcapCells.Path = "ECalEndcapCells"
 towers.ecalFwdCells.Path = "emptyCaloCells"
 
