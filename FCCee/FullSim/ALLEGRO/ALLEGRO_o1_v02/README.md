@@ -21,6 +21,6 @@ curl -O -L http://fccsw.web.cern.ch/fccsw/filesForSimDigiReco/ALLEGRO/ALLEGRO_o1
 curl -O -L http://fccsw.web.cern.ch/fccsw/filesForSimDigiReco/ALLEGRO/ALLEGRO_o1_v02/neighbours_map_barrel_thetamodulemerged.root
 cd ..
 k4run run_digi_reco.py
-# you can than print the rootfile content with
+# you can then print the rootfile content with
 podio-dump ALLEGRO_sim_digi_reco.root  
 ```
