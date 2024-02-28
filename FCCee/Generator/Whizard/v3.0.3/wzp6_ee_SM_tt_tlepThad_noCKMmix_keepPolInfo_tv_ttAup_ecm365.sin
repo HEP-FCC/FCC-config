@@ -1,0 +1,105 @@
+########################################################################
+#
+# Copyright (C) 1999-2019 by 
+#     Wolfgang Kilian <kilian@physik.uni-siegen.de>
+#     Thorsten Ohl <ohl@physik.uni-wuerzburg.de>
+#     Juergen Reuter <juergen.reuter@desy.de>
+#     with contributions from
+#     cf. main AUTHORS file
+#
+# WHIZARD is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by 
+# the Free Software Foundation; either version 2, or (at your option)
+# any later version.
+#
+# WHIZARD is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+#
+########################################################################
+#
+#    e+ e- -> Z*/gamma* -> t tbar at 365 GeV,
+#    t -> W b -> leptons, tbar -> W b -> hadrons
+#    Allow t and W mediators to have finite on-shell width
+#    Polarization kept
+#    With modified tv_ttA coupling
+#
+#    Whizard version is 3.1.0, as in key4hep-stack/2023-04-08
+#
+########################################################################
+
+model = SM_top_anom
+
+# Center of mass energy
+sqrts = 365 GeV
+
+# Configure
+
+# from https://arxiv.org/abs/1503.01325
+# and https://inspirehep.net/files/13c5ba337a8a8a66821c2a6bf1159754
+# C_gam = 4 i sw * tv_ttA
+# N.B. tv_ttZ (C_Z) is modified implicitly in Whizard due to gauge invariance
+tv_ttA = 0.02 / (4*sw)
+
+?resonance_history = true
+resonance_on_shell_limit = 10
+resonance_background_factor = 0 
+
+# Process
+
+alias lep  = e1:e2:e3
+alias neut = n1:n2:n2
+alias Lep  = E1:E2:E3
+alias Neut = N1:N2:N3
+me = 0
+mmu = 0
+mtau = 0
+
+process proc = e1, E1 =>  (Lep, neut, b, U, d, B)
+                        + (Lep, neut, b, C, s, B)
+                        {$restrictions = "3+4~W+ && 6+7~W- && 3+4+5~t && 6+7+8~tbar"}
+
+polarized E1, E2, E3, n1, n2, n3, b, U, d, C, s, B
+
+beams = e1, E1 => gaussian => isr
+?keep_beams  = true    
+?keep_remnants = true
+
+! beams = e1, E1 => gaussian 
+gaussian_spread1 = 0.221%
+gaussian_spread2 = 0.221%
+
+
+?isr_handler       = true
+$isr_handler_mode = "recoil"
+isr_alpha          = 0.0072993
+isr_mass           = 0.000511
+
+
+! Parton shower and hadronization
+?ps_fsr_active          = true
+?ps_isr_active          = false
+?hadronization_active   = true
+$shower_method          = "PYTHIA6"
+!?ps_PYTHIA_verbose     = true
+
+
+$ps_PYTHIA_PYGIVE = "MSTJ(28)=0; PMAS(25,1)=125.; PMAS(25,2)=0.4143E-02; MSTJ(41)=2; MSTU(22)=2000; PARJ(21)=0.40000; PARJ(41)=0.11000; PARJ(42)=0.52000; PARJ(81)=0.25000; PARJ(82)=1.90000; MSTJ(11)=3; PARJ(54)=-0.03100; PARJ(55)=-0.00200; PARJ(1)=0.08500; PARJ(3)=0.45000; PARJ(4)=0.02500; PARJ(2)=0.31000; PARJ(11)=0.60000; PARJ(12)=0.40000; PARJ(13)=0.72000; PARJ(14)=0.43000; PARJ(15)=0.08000; PARJ(16)=0.08000; PARJ(17)=0.17000; MSTP(3)=1;MSTP(71)=1; MSTP(151)=1; PARP(151)=0.0273; PARP(152)=4.88e-5; PARP(153)=1.33; PARP(154)=1.337; MSTJ(22)=4; PARJ(73)=2250; PARJ(74)=2500"
+
+integrate (proc) { iterations = 10:100000:"gw", 10:200000:"" }
+
+# n_events should be passed by the EventProducer
+# n_events = 100000
+
+
+sample_format =  stdhep
+$extension_stdhep = "stdhep"
+
+
+simulate (proc) {checkpoint = 100}
+

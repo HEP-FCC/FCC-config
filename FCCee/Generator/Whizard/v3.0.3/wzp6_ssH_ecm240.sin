@@ -16,17 +16,12 @@ mH     = 125 GeV
 # Center of mass energy
 sqrts = 240 GeV
 
-ms = 0
-
-alias q = u:d
-alias Q = U:D
-
 # Processes
 
 #?vis_diags = true
 
 
-process proc = e1, E1 =>    ( H, q, Q )
+process proc = e1, E1 =>    ( H, s, sbar )
 
 beams = e1, E1 => gaussian => isr
 ?keep_beams  = true    # do not use this option, makes Pythia crash
