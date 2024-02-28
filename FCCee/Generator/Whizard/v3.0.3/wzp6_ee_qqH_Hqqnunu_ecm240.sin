@@ -41,9 +41,6 @@ alias nubar = nuebar:numubar:nutaubar
 # onshell Z decay handled by pythia
 process proc = e1, E1 =>    ( u, ubar, H )
 	       	       	  + ( d, dbar, H )
-	       	       	  + ( s, sbar, H )
-	       	       	  + ( c, cbar, H )
-			  + ( b, bbar, H )
 
 beams = e1, E1 => gaussian => isr
 ?keep_beams  = true    

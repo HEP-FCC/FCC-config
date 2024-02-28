@@ -18,8 +18,8 @@ sqrts = 365 GeV
 
 ms = 0
 
-alias q = u:d:s
-alias Q = U:D:S
+alias q = u:d
+alias Q = U:D
 
 # Processes
 
@@ -27,8 +27,6 @@ alias Q = U:D:S
 
 
 process proc = e1, E1 =>    ( H, q, Q )
-                          + ( H, c, C )
-                          + ( H, b, B )
 
 beams = e1, E1 => gaussian => isr
 ?keep_beams  = true    # do not use this option, makes Pythia crash
