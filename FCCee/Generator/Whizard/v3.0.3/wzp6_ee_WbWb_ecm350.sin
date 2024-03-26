@@ -133,9 +133,9 @@ integrate (proc)
 # n_events should be passed by the EventProducer
 n_events = 100000
 
-sample_format = lhef
-#sample_format =  stdhep
-#$extension_stdhep = "stdhep"
+#sample_format = lhef
+sample_format =  stdhep
+$extension_stdhep = "stdhep"
 
 
 simulate (proc) {checkpoint = 100}
