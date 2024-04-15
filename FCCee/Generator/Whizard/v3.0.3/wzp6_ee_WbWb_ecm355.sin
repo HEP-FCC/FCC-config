@@ -1,0 +1,141 @@
+########################################################################
+#
+# Copyright (C) 1999-2019 by 
+#     Wolfgang Kilian <kilian@physik.uni-siegen.de>
+#     Thorsten Ohl <ohl@physik.uni-wuerzburg.de>
+#     Juergen Reuter <juergen.reuter@desy.de>
+#     with contributions from
+#     cf. main AUTHORS file
+#
+# WHIZARD is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by 
+# the Free Software Foundation; either version 2, or (at your option)
+# any later version.
+#
+# WHIZARD is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+#
+########################################################################
+#
+#    e+ e- -> Z*/gamma* -> t tbar at 365 GeV, t+ -> W+ b, t- -> W- sbar. Polarization kept, CKM enabled
+#
+#    Whizard version is 3.1.0, as in key4hep-stack/2023-04-08
+#
+########################################################################
+#
+# Card provided by M. Vos - marcel.vos@ific.uv.es 
+#
+########################################################################
+
+
+model = SM_CKM
+
+# Center of mass energy
+sqrts = 355 GeV
+
+alphas = 1.e-6
+logical ?is_higgs_process = true
+
+if ?is_higgs_process then 
+  mH = 125 GeV
+  wH = 4.1 MeV
+else
+  mH = 2000 GeV
+  wH = 10 GeV
+endif
+
+logical ?is_higgs_exclusive = false
+#  logical ?is_higgs_exclusive = true
+
+
+mZ = 91.1876
+mW = 80.385
+mb = 0.0 
+me = 0.0
+ms = 0.0
+mc = 0.0
+mmu = 0.0
+
+wtop = 1.33
+mtop = 172.5
+!! widths
+wZ =  2.443
+wW =  2.049000000000E+00
+
+alias quark = u:d:s:c:b:U:D:S:C:B	
+alias lepton = e1:e2:e3:E1:E2:E3
+
+# Processes
+process proc = e1, E1 => "W+", "W-", b, B { $omega_flags =  "-model:constant_width" }
+
+?resonance_history = true
+resonance_on_shell_limit =  16
+resonance_on_shell_turnoff =  2
+resonance_background_factor =  1
+
+beams = e1, E1 => gaussian => isr
+?keep_beams  = true    
+?keep_remnants = true
+
+! beams = e1, E1 => gaussian 
+gaussian_spread1 = 0.221%
+gaussian_spread2 = 0.221%
+
+
+?isr_handler       = true
+$isr_handler_mode = "recoil"
+isr_alpha          = 0.0072993
+isr_mass           = 0.000511
+
+real default_Mqq_cut = 10 GeV
+
+real default_Mll_cut = 10 GeV
+
+cuts =  all M > default_Mqq_cut [ quark,  quark ] and
+     	all M > default_Mll_cut [ lepton, lepton ] and
+	all M < -default_Mll_cut [ incoming e1, e1 ] and
+	all M < -default_Mll_cut [ incoming E1, E1 ]
+
+iterations = 1:500000, 10:500000, 1:1000000
+
+relative_error_goal = 0.01
+
+$integration_method= "vamp2" 
+$rng_method= "rng_stream"
+
+
+! Parton shower and hadronization
+?ps_fsr_active          = true
+?ps_isr_active          = false
+?hadronization_active   = true
+$shower_method          = "PYTHIA6"
+!?ps_PYTHIA_verbose     = true
+
+# Process with Higgs
+if ?is_higgs_process then 
+     $ps_PYTHIA_PYGIVE = "PMAS(25,1)=125.0;PMAS(25,2)=0.0043;MSTJ(41)=2; MSTU(22)=20; PARJ(21)=0.40000; PARJ(41)=0.11000; PARJ(42)=0.52000; PARJ(81)=0.25000;PARJ(82)=1.90000; MSTJ(11)=3; PARJ(54)=-0.03100; PARJ(55)=-0.00200;PARJ(1)=0.08500; PARJ(3)=0.45000; PARJ(4)=0.02500; PARJ(2)=0.31000;PARJ(11)=0.60000; PARJ(12)=0.40000; PARJ(13)=0.72000; PARJ(14)=0.43000;PARJ(15)=0.08000; PARJ(16)=0.08000; PARJ(17)=0.17000; MSTP(3)=1; MSTP(125)=2; MWID(25)=2;BRAT(210)=0.000052;BRAT(211)=0.000012;BRAT(212)=0.000246;BRAT(213)=0.0289;BRAT(214)=0.582;BRAT(219)=0.000218;BRAT(220)=0.0627;BRAT(222)=0.0819;BRAT(223)=0.00227;BRAT(224)=0.00153;BRAT(225)=0.0262;BRAT(226)=0.214;MDME(210,1)=0;MDME(211,1)=0; PARP(151)=0.0273; PARP(152)=4.88e-5; PARP(153)=1.33; PARP(154)=1.337"
+# 
+# Processes without Higgs
+else
+  $ps_PYTHIA_PYGIVE = "MSTJ(28)=2;PMAS(25,1)=2000.0;PMAS(25,2)=10.0;MSTJ(41)=2; MSTU(22)=20; PARJ(21)=0.40000; PARJ(41)=0.11000; PARJ(42)=0.52000; PARJ(81)=0.25000;PARJ(82)=1.90000; MSTJ(11)=3; PARJ(54)=-0.03100; PARJ(55)=-0.00200;PARJ(1)=0.08500; PARJ(3)=0.45000; PARJ(4)=0.02500; PARJ(2)=0.31000;PARJ(11)=0.60000; PARJ(12)=0.40000; PARJ(13)=0.72000; PARJ(14)=0.43000;PARJ(15)=0.08000; PARJ(16)=0.08000; PARJ(17)=0.17000; MSTP(3)=1; MSTP(125)=2; MWID(25)=2; PARP(151)=0.0273; PARP(152)=4.88e-5; PARP(153)=1.33; PARP(154)=1.337"
+endif
+##$ps_PYTHIA_PYGIVE = "MSTJ(28)=0; PMAS(25,1)=125.; PMAS(25,2)=0.4143E-02; MSTJ(41)=2; MSTU(22)=2000; PARJ(21)=0.40000; PARJ(41)=0.11000; PARJ(42)=0.52000; PARJ(81)=0.25000; PARJ(82)=1.90000; MSTJ(11)=3; PARJ(54)=-0.03100; PARJ(55)=-0.00200; PARJ(1)=0.08500; PARJ(3)=0.45000; PARJ(4)=0.02500; PARJ(2)=0.31000; PARJ(11)=0.60000; PARJ(12)=0.40000; PARJ(13)=0.72000; PARJ(14)=0.43000; PARJ(15)=0.08000; PARJ(16)=0.08000; PARJ(17)=0.17000; MSTP(3)=1;MSTP(71)=1; MSTP(151)=1; PARP(151)=0.0273; PARP(152)=4.88e-5; PARP(153)=1.33; PARP(154)=1.337; MSTJ(22)=4; PARJ(73)=2250; PARJ(74)=2500"
+
+integrate (proc)
+#{ iterations = 10:100000:"gw", 10:200000:"" }
+
+# n_events should be passed by the EventProducer
+n_events = 100000
+
+#sample_format = lhef
+sample_format =  stdhep
+$extension_stdhep = "stdhep"
+
+
+simulate (proc) {checkpoint = 100}
