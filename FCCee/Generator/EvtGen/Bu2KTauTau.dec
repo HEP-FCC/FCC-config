@@ -1,0 +1,25 @@
+# Tauola steering options
+Define TauolaCurrentOption 0
+Define TauolaBR1 1.0
+#
+
+Alias      Bu_SIGNAL     B+
+Alias      Bubar_SIGNAL  B-
+ChargeConj Bu_SIGNAL     Bubar_SIGNAL
+
+Alias         Mytau+     tau+
+Alias         Mytau-     tau-
+ChargeConj    Mytau+     Mytau-
+
+Decay Bu_SIGNAL
+ 1.0     K+      Mytau+   Mytau-  PHSP;
+Enddecay
+CDecay Bubar_SIGNAL
+#
+Decay Mytau-
+  1.00        TAUOLA 5;
+Enddecay
+CDecay Mytau+
+#
+End
+#

@@ -1,0 +1,33 @@
+# Tauola steering options
+Define TauolaCurrentOption 0
+Define TauolaBR1 1.0
+#
+Alias         Mytau+     tau+
+Alias         Mytau-     tau-
+ChargeConj    Mytau+     Mytau-
+Alias   Lb_SIGNAL   Lambda_b0
+Alias   Lbbar_SIGNAL    anti-Lambda_b0
+ChargeConj Lb_SIGNAL  Lbbar_SIGNAL
+
+Alias      MyLambda0      Lambda0
+Alias      Myanti-Lambda0 anti-Lambda0
+ChargeConj MyLambda0      Myanti-Lambda0
+
+#
+Decay Lb_SIGNAL
+  1.000        MyLambda0    Mytau+    Mytau-           PHSP;
+Enddecay
+CDecay Lbbar_SIGNAL
+#
+Decay MyLambda0
+  1.000        p+       pi-              PHSP;
+Enddecay
+CDecay Myanti-Lambda0
+#
+Decay Mytau-
+  1.00        TAUOLA 5;
+Enddecay
+CDecay Mytau+
+#
+End
+#
