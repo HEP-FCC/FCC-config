@@ -15,7 +15,7 @@ ChargeConj MyLambda0      Myanti-Lambda0
 
 #
 Decay Lb_SIGNAL
-  1.000        MyLambda0    Mytau+    Mytau-           PHSP;
+  1.000        MyLambda0    Mytau+    Mytau-         BTOSLLBALL;
 Enddecay
 CDecay Lbbar_SIGNAL
 #

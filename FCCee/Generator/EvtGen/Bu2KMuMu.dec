@@ -3,7 +3,7 @@ Alias      Bubar_SIGNAL  B-
 ChargeConj Bu_SIGNAL     Bubar_SIGNAL
 
 Decay Bu_SIGNAL
- 1.0     K+      mu+   mu-  PHSP;
+ 1.0     K+      mu+   mu-  BTOSLLBALL;
 Enddecay
 CDecay Bubar_SIGNAL
 #

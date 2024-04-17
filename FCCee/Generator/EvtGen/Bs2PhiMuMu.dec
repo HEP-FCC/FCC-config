@@ -6,7 +6,7 @@ Alias      MyPhi   phi
 ChargeConj MyPhi   MyPhi
 
 Decay  Bs_SIGNAL
-  1.000        MyPhi     mu+    mu-           PHSP;
+  1.000        MyPhi     mu+    mu-           BTOSLLBALL;
 Enddecay
 CDecay Bsbar_SIGNAL
 #

@@ -12,7 +12,7 @@ Alias         Mytau-     tau-
 ChargeConj    Mytau+     Mytau-
 
 Decay Bu_SIGNAL
- 1.0     K+      Mytau+   Mytau-  PHSP;
+ 1.0     K+      Mytau+   Mytau-  BTOSLLBALL;
 Enddecay
 CDecay Bubar_SIGNAL
 #

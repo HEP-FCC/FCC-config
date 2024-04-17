@@ -6,7 +6,7 @@ Alias   MyKs    K_S0
 ChargeConj MyKs MyKs
 
 Decay Bs_SIGNAL
- 1.0     MyKs     mu+   mu-  PHSP;
+ 1.0     MyKs     mu+   mu-  BTOSLLBALL;
 Enddecay
 CDecay Bsbar_SIGNAL
 
