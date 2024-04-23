@@ -6,17 +6,17 @@ Alias         Mytau+     tau+
 Alias         Mytau-     tau-
 ChargeConj    Mytau+     Mytau-
 
-Alias   Bs_SIGNAL   B_s0
-Alias   Bsbar_SIGNAL    anti-B_s0
-ChargeConj Bs_SIGNAL  Bsbar_SIGNAL
+Alias       Bd_SIGNAL     B0
+Alias       Bdbar_SIGNAL  anti-B0
+ChargeConj  Bd_SIGNAL     Bdbar_SIGNAL
 
 Alias   MyKs    K_S0
 ChargeConj MyKs MyKs
 
-Decay Bs_SIGNAL
+Decay Bd_SIGNAL
  1.0     MyKs     Mytau+   Mytau-  BTOSLLBALL;
 Enddecay
-CDecay Bsbar_SIGNAL
+CDecay Bdbar_SIGNAL
 
 Decay MyKs
  1.000  pi+ pi- PHSP;
