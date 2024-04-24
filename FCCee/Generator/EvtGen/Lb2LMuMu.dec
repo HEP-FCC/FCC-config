@@ -8,7 +8,7 @@ ChargeConj MyLambda0      Myanti-Lambda0
 
 #
 Decay Lb_SIGNAL
-  1.000        MyLambda0    mu+    mu-         BTOSLLBALL;
+  1.000        MyLambda0    mu+    mu-       RareLbToLll LQCD;
 Enddecay
 CDecay Lbbar_SIGNAL
 #
