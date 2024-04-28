@@ -3,7 +3,7 @@ Alias   Bsbar_SIGNAL    anti-B_s0
 ChargeConj Bs_SIGNAL  Bsbar_SIGNAL
 
 Decay Bs_SIGNAL
-  1.0    mu+      mu-         PHSP;
+  1.0    mu+      mu-         PHSP;
 Enddecay
 CDecay Bsbar_SIGNAL
 
