@@ -14,12 +14,21 @@ ddsim --enableGun --gun.distribution uniform --gun.energy "10*GeV" --gun.particl
 
 ## Running the digitization and reconstruction
 ```
-mkdir data
 # Retrieve the files needed for digitization/reconstruction (e.g. noise values, machine learning models for calibration, ...)
 # NB: if you do not have direct access to eos, you can retrieve those files from here: https://fccsw.web.cern.ch/fccsw/filesForSimDigiReco/ALLEGRO/ 
-cp /eos/project/f/fccsw-web/www/filesForSimDigiReco/ALLEGRO/ALLEGRO_o1_v03/* data/
+cp /eos/project/f/fccsw-web/www/filesForSimDigiReco/ALLEGRO/ALLEGRO_o1_v03/* .
 # run the digitization and reconstruction
 k4run run_digi_reco.py
 # you can then print the rootfile content with
 podio-dump ALLEGRO_sim_digi_reco.root  
+```
+
+## Dirac submission
+The following is not yet ready, we have to implement ddsim as a generator in diract to do particle gun transformation
+You need to create a tarball containing the files needed for reconstruction and upload it at the right place with dirac commands
+```
+# In lxplus
+source /cvmfs/clicdp.cern.ch/DIRAC/bashrc; dirac-proxy-init -g fcc_prod
+./create_dirac_tarball.sh
+dirac-dms-add-file LFN:/fcc/prod/software/fccconfig/fccconfig-ALLEGRO_o1_v03-devel.tgz fccconfig-ALLEGRO_o1_v03-devel.tgz CERN-DST-EOS
 ```

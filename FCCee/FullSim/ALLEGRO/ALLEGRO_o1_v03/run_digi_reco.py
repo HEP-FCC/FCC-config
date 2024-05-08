@@ -458,11 +458,11 @@ if doTopoClustering:
     cellPositionHcalBarrelNoSegTool = None
     cellPositionHcalExtBarrelTool = None
 
-    neighboursMap = "data/neighbours_map_ecalB_thetamodulemerged.root"
-    noiseMap = "data/cellNoise_map_electronicsNoiseLevel_ecalB_thetamodulemerged.root"
+    neighboursMap = "neighbours_map_ecalB_thetamodulemerged.root"
+    noiseMap = "cellNoise_map_electronicsNoiseLevel_ecalB_thetamodulemerged.root"
     if runHCal:
-        neighboursMap = "data/neighbours_map_ecalB_thetamodulemerged_hcalB_thetaphi.root"
-        noiseMap = "data/cellNoise_map_electronicsNoiseLevel_ecalB_thetamodulemerged_hcalB_thetaphi.root"
+        neighboursMap = "neighbours_map_ecalB_thetamodulemerged_hcalB_thetaphi.root"
+        noiseMap = "cellNoise_map_electronicsNoiseLevel_ecalB_thetamodulemerged_hcalB_thetaphi.root"
 
     readNeighboursMap = TopoCaloNeighbours("ReadNeighboursMap",
                                            fileName=neighboursMap,
