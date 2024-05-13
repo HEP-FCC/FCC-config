@@ -31,7 +31,6 @@ model = SM
 sqrts = 365 GeV
 
 # $rng_method = "rng_tao"
-seed = 123456789
 
 # Processes
 
