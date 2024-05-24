@@ -27,8 +27,8 @@ beams = e1, E1 => gaussian => isr
 ?keep_beams  = true    # do not use this option, makes Pythia crash
 ?keep_remnants = true
 
-gaussian_spread1 = 0.18315%
-gaussian_spread2 = 0.18315%
+gaussian_spread1 = 0.2232%
+gaussian_spread2 = 0.2232%
 
 
 ?isr_handler       = true
