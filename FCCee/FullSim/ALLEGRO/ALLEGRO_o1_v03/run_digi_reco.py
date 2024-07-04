@@ -36,6 +36,8 @@ from Configurables import CaloTopoClusterFCCee
 from Configurables import AugmentClustersFCCee
 # MVA calibration
 from Configurables import CalibrateCaloClusters
+# photon/pi0 identification
+from Configurables import PhotonIDTool
 # Logger
 from Gaudi.Configuration import INFO, VERBOSE, DEBUG
 # units and physical constants
@@ -60,17 +62,18 @@ runHCal = True
 #
 # for big productions, save significant space removing hits and cells
 # however, hits and cluster cells might be wanted for small productions for detailed event displays
-# also, cluster cells are needed for the MVA training
+# cluster cells are not needed for the training of the MVA energy regression nor the photon ID since needed quantities are stored in cluster shapeParameters
 # saveHits = False
 # saveCells = False
+# saveClusterCells = False
 saveHits = True
 saveCells = True
 saveClusterCells = True
 
 # ECAL barrel parameters for digitisation
-samplingFraction=[0.37586625991994105] * 1 + [0.13459486704309379] * 1 + [0.142660085165352] * 1 + [0.14768106642302886] * 1 + [0.15205230356024715] * 1 + [0.15593671843591686] * 1 + [0.15969313426201745] * 1 + [0.16334257010426537] * 1 + [0.16546584993953908] * 1 + [0.16930439771304764] * 1 + [0.1725913708958098] * 1
-upstreamParameters = [[0.025582045561310333, -0.9524128168665387, -53.10089405478649, 1.283851527438571, -295.30650178662637, -284.8945817377308]]
-downstreamParameters = [[0.0018280333929494054, 0.004932212590963076, 0.8409676097173655, -1.2676690014715288, 0.005347798049886769, 4.161741293789687]]
+samplingFraction=[0.3800493723322256] * 1 + [0.13494147915064658] * 1 + [0.142866851721152] * 1 + [0.14839315921940666] * 1 + [0.15298362570665006] * 1 + [0.15709704561942747] * 1 + [0.16063717490147533] * 1 + [0.1641723795419055] * 1 + [0.16845490287689746] * 1 + [0.17111520115997653] * 1 + [0.1730605163148862] * 1
+upstreamParameters = [[0.025582045561310333, -0.9524128168665387, -53.10089405478649, 1.283851527438571, -295.30650178662637, -284.8945817377308]]  # FIXME: to be updated for ddsim
+downstreamParameters = [[0.0018280333929494054, 0.004932212590963076, 0.8409676097173655, -1.2676690014715288, 0.005347798049886769, 4.161741293789687]]  # FIXME: to be updated for ddsim
     
 ecalBarrelLayers = len(samplingFraction)
 resegmentECalBarrel = False
@@ -87,21 +90,24 @@ applyUpDownstreamCorrections = False and not runHCal
 
 # BDT regression from total cluster energy and fraction of energy in each layer (after correction for sampling fraction)
 # not to be applied (yet) for ECAL+HCAL clustering (MVA trained only on ECAL so far)
-applyMVAClusterEnergyCalibration = True and not runHCal #
+applyMVAClusterEnergyCalibration = True and not runHCal
 
 # calculate cluster energy and barycenter per layer and save it as extra parameters
 addShapeParameters = True and not runHCal
 ecalBarrelThetaWeights = [-1, 3.0, 3.0, 3.0, 4.25, 4.0, 4.0, 4.0, 4.0, 4.0, 4.0]  # to be recalculated for V03, separately for topo and calo clusters...
+
+# run photon ID algorithm
+runPhotonIDTool = False
 
 #
 # ALGORITHMS AND SERVICES SETUP
 #
 
 # Input: load the output of the SIM step
-evtsvc = k4DataSvc('EventDataSvc')
-evtsvc.input = inputfile
+podioevent = k4DataSvc('EventDataSvc')
+podioevent.input = inputfile
 input_reader = PodioInput('InputReader')
-podioevent = k4DataSvc("EventDataSvc")
+
 
 # Detector geometry
 # prefix all xmls with path_to_detector
@@ -145,7 +151,7 @@ calibEcalBarrel = CalibrateInLayersTool("CalibrateECalBarrel",
                                         layerFieldName="layer")
 #   * ECAL endcap
 calibEcalEndcap = CalibrateCaloHitsTool(
-        "CalibrateECalEndcap", invSamplingFraction="4.27")  # FIXME: to be updated for ddsim
+    "CalibrateECalEndcap", invSamplingFraction="4.27")  # FIXME: to be updated for ddsim
 
 if runHCal:
     # HCAL barrel
@@ -153,7 +159,7 @@ if runHCal:
         "CalibrateHCal", invSamplingFraction="29.4202")
     # HCAL endcap
     calibHcalEndcap = CalibrateCaloHitsTool(
-        "CalibrateHCalEndcap", invSamplingFraction="29.4202") # FIXME: to be updated for ddsim
+        "CalibrateHCalEndcap", invSamplingFraction="29.4202")  # FIXME: to be updated for ddsim
 
 # Create cells in ECal barrel (needed if one wants to apply cell calibration,
 # which is not performed by ddsim)
@@ -412,6 +418,7 @@ if doSWClustering:
                                                    readoutNames=[ecalBarrelReadoutName],
                                                    layerFieldNames=["layer"],
                                                    thetaRecalcWeights=[ecalBarrelThetaWeights],
+                                                   do_photon_shapeVar=runPhotonIDTool,
                                                    OutputLevel=INFO
                                                    )
 
@@ -435,6 +442,25 @@ if doSWClustering:
                                                       calibrationFile="data/lgbm_calibration-CaloClusters.onnx",
                                                       OutputLevel=INFO
                                                       )
+
+    if runPhotonIDTool:
+        if not addShapeParameters:
+            print("Photon ID tool cannot be run if shower shape parameters are not calculated")
+            runPhotonIDTool = False
+        else:
+            inClusters = ""
+            if applyMVAClusterEnergyCalibration:
+                inClusters = calibrateCaloClusters.outClusters.Path
+            else:
+                inClusters = augmentCaloClusters.outClusters.Path
+
+            photonIDCaloClusters = PhotonIDTool("photonIDCaloClusters",
+                                                inClusters=inClusters,
+                                                outClusters="PhotonID" + inClusters,
+                                                mvaModelFile="data/bdt-photonid-weights-CaloClusters.onnx",
+                                                mvaInputsFile="data/bdt-photonid-inputs-CaloClusters.json",
+                                                OutputLevel=INFO
+                                                )
 
 if doTopoClustering:
     # Produce topoclusters (ECAL only or ECAL+HCAL)
@@ -528,6 +554,7 @@ if doTopoClustering:
                                                        readoutNames=[ecalBarrelReadoutName],
                                                        layerFieldNames=["layer"],
                                                        thetaRecalcWeights=[ecalBarrelThetaWeights],
+                                                       do_photon_shapeVar=runPhotonIDTool,
                                                        OutputLevel=INFO)
 
     if applyMVAClusterEnergyCalibration:
@@ -535,7 +562,8 @@ if doTopoClustering:
         if addShapeParameters:
             inClusters = "Augmented" + createTopoClusters.clusters.Path
         else:
-            inClusters = createTopoClusters.clusters.Path,
+            inClusters = createTopoClusters.clusters.Path
+
         calibrateCaloTopoClusters = CalibrateCaloClusters("calibrateCaloTopoClusters",
                                                           inClusters=inClusters,
                                                           outClusters="Calibrated" + createTopoClusters.clusters.Path,
@@ -550,17 +578,35 @@ if doTopoClustering:
                                                           OutputLevel=INFO
                                                           )
 
+    if runPhotonIDTool:
+        if not addShapeParameters:
+            print("Photon ID tool cannot be run if shower shape parameters are not calculated")
+            runPhotonIDTool = False
+        else:
+            inClusters = ""
+            if applyMVAClusterEnergyCalibration:
+                inClusters = calibrateCaloTopoClusters.outClusters.Path
+            else:
+                inClusters = augmentCaloTopoClusters.outClusters.Path
+
+            photonIDCaloClusters = PhotonIDTool("photonIDCaloTopoClusters",
+                                                inClusters=inClusters,
+                                                outClusters="PhotonID" + inClusters,
+                                                mvaModelFile="data/bdt-photonid-weights-CaloTopoClusters.onnx",
+                                                mvaInputsFile="data/bdt-photonid-inputs-CaloTopoClusters.json",
+                                                OutputLevel=INFO
+                                                )
 
 # Output
 out = PodioOutput("out",
                   OutputLevel=INFO)
 out.filename = "ALLEGRO_sim_digi_reco.root"
 
-# drop the unpositioned ECal barrel cells
+# drop the unpositioned ECal and HCal barrel and endcap cells
 if runHCal:
-    out.outputCommands = ["keep *", "drop emptyCaloCells", "drop ECalBarrelCells*", "drop HCalBarrelCells*"]
+    out.outputCommands = ["keep *", "drop emptyCaloCells", "drop ECalBarrelCells*", "drop HCalBarrelCells*", "drop %s" % createEcalEndcapCells.cells.Path]
 else:
-    out.outputCommands = ["keep *", "drop HCal*", "drop emptyCaloCells", "drop ECalBarrelCells*"]
+    out.outputCommands = ["keep *", "drop HCal*", "drop emptyCaloCells", "drop ECalBarrelCells*", "drop %s" % createEcalEndcapCells.cells.Path]
 out.outputCommands.append("drop %s" % ecalBarrelReadoutName)
 out.outputCommands.append("drop %s" % ecalBarrelReadoutName2)
 if runHCal:
@@ -580,9 +626,12 @@ out.outputCommands.append("drop MuonTagger*")
 if not saveHits:
     out.outputCommands.append("drop %s_contributions" % ecalBarrelReadoutName)
     out.outputCommands.append("drop %s_contributions" % ecalBarrelReadoutName2)
+    out.outputCommands.append("drop %s_contributions" % ecalEndcapReadoutName)
 if not saveCells:
     out.outputCommands.append("drop %s" % ecalBarrelPositionedCellsName)
-    out.outputCommands.append("drop %s" % ecalBarrelPositionedCellsName2)
+    out.outputCommands.append("drop %s" % ecalEndcapReadoutName)
+    if resegmentECalBarrel:
+        out.outputCommands.append("drop %s" % ecalBarrelPositionedCellsName2)
     if runHCal:
         out.outputCommands.append("drop %s" % hcalBarrelPositionedCellsName2)
 if resegmentECalBarrel:
@@ -590,6 +639,10 @@ if resegmentECalBarrel:
     out.outputCommands.append("drop %s" % ecalBarrelCellsName2)
 if not saveClusterCells:
     out.outputCommands.append("drop Calo*ClusterCells*")
+
+# if we decorate the clusters, we can drop the non-decorated ones
+if addShapeParameters:
+    out.outputCommands.append("drop %s" % augmentCaloClusters.inClusters)
 
 # CPU information
 chra = ChronoAuditor()
@@ -663,6 +716,10 @@ if doSWClustering or doTopoClustering:
             TopAlg += [calibrateCaloClusters]
             calibrateCaloClusters.AuditExecute = True
 
+        if runPhotonIDTool:
+            TopAlg += [photonIDCaloClusters]
+            photonIDCaloClusters.AuditExecute = True
+
     if doTopoClustering:
         TopAlg += [createTopoClusters]
         createTopoClusters.AuditExecute = True
@@ -679,6 +736,10 @@ if doSWClustering or doTopoClustering:
             TopAlg += [calibrateCaloTopoClusters]
             calibrateCaloTopoClusters.AuditExecute = True
 
+        if runPhotonIDTool:
+            TopAlg += [photonIDCaloTopoClusters]
+            photonIDCaloTopoClusters.AuditExecute = True
+
 TopAlg += [
     out
 ]
@@ -690,4 +751,3 @@ ApplicationMgr(
     ExtSvc=ExtSvc,
     StopOnSignal=True,
 )
-
