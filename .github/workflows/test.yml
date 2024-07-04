@@ -1,4 +1,4 @@
-name: linux
+name: CTESTS
 
 on: [push, pull_request]
 
@@ -15,18 +15,28 @@ jobs:
     - name: Start container
       run: |
         docker run -it --name CI_container -v ${GITHUB_WORKSPACE}:/Package -v /cvmfs:/cvmfs:shared -d ghcr.io/aidasoft/centos7:latest /bin/bash
+    - name: CMake Configure
+      run: |
+        docker exec CI_container /bin/bash -c 'cd Package;\
+         mkdir -p build install;\
+         source ${{ matrix.SETUP }};\
+         cd build;\
+         cmake -DCMAKE_INSTALL_PREFIX=../install -DCMAKE_CXX_STANDARD=17  -DCMAKE_CXX_FLAGS=" -fdiagnostics-color=always " -G Ninja ..;'
+    - name: Compile 
+      run: |
+        docker exec CI_container /bin/bash -c 'cd ./Package;\
+        source ${{ matrix.SETUP }};\
+        cd build;\
+        ninja -k0;'
+    - name: Install
+      run: |
+        docker exec CI_container /bin/bash -c 'cd ./Package;\
+          source ${{ matrix.SETUP }};\
+          cd build;\
+          ninja -k0 install;'
     - name: Test
       run: |
         docker exec CI_container /bin/bash -c 'cd ./Package;\
         source ${{ matrix.SETUP }};\
-        ddsim --enableGun --gun.distribution uniform --gun.energy "10*GeV" --gun.particle e- --numberOfEvents 100 --outputFile ALLEGRO_sim.root --random.enableEventSeed --random.seed 42 --compactFile $K4GEO/FCCee/ALLEGRO/compact/ALLEGRO_o1_v02/ALLEGRO_o1_v02.xml;
-        mkdir data;
-        cd data;
-        curl -O -L http://fccsw.web.cern.ch/fccsw/filesForSimDigiReco/ALLEGRO/ALLEGRO_o1_v02/elecNoise_ecalBarrelFCCee_theta.root;
-        curl -O -L http://fccsw.web.cern.ch/fccsw/filesForSimDigiReco/ALLEGRO/ALLEGRO_o1_v02/cellNoise_map_electronicsNoiseLevel_thetamodulemerged.root;
-        curl -O -L http://fccsw.web.cern.ch/fccsw/filesForSimDigiReco/ALLEGRO/ALLEGRO_o1_v02/neighbours_map_barrel_thetamodulemerged.root;
-        cd ..;
-        k4run FCCee/FullSim/ALLEGRO/ALLEGRO_o1_v02/run_digi_reco.py'
-
-
-
+        cd build;\
+        ninja -k0 && ctest --output-on-failure;'
