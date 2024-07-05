@@ -72,8 +72,8 @@ saveClusterCells = True
 
 # ECAL barrel parameters for digitisation
 samplingFraction=[0.3800493723322256] * 1 + [0.13494147915064658] * 1 + [0.142866851721152] * 1 + [0.14839315921940666] * 1 + [0.15298362570665006] * 1 + [0.15709704561942747] * 1 + [0.16063717490147533] * 1 + [0.1641723795419055] * 1 + [0.16845490287689746] * 1 + [0.17111520115997653] * 1 + [0.1730605163148862] * 1
-upstreamParameters = [[0.025582045561310333, -0.9524128168665387, -53.10089405478649, 1.283851527438571, -295.30650178662637, -284.8945817377308]]  # FIXME: to be updated for ddsim
-downstreamParameters = [[0.0018280333929494054, 0.004932212590963076, 0.8409676097173655, -1.2676690014715288, 0.005347798049886769, 4.161741293789687]]  # FIXME: to be updated for ddsim
+upstreamParameters = [[0.028158491043365624, -1.564259408365951, -76.52312805346982, 0.7442903558010191, -34.894692961350195, -74.19340877431723]]
+downstreamParameters = [[0.00010587711361028165, 0.0052371999097777355, 0.69906696456064, -0.9348243433360095, -0.0364714212117143, 8.360401126995626]]
     
 ecalBarrelLayers = len(samplingFraction)
 resegmentECalBarrel = False
@@ -395,6 +395,7 @@ if doSWClustering:
         correctCaloClusters = CorrectCaloClusters("correctCaloClusters",
                                                   inClusters=createClusters.clusters.Path,
                                                   outClusters="Corrected" + createClusters.clusters.Path,
+                                                  systemIDs=[4],
                                                   numLayers=[ecalBarrelLayers],
                                                   firstLayerIDs=[0],
                                                   lastLayerIDs=[ecalBarrelLayers-1],
@@ -531,6 +532,7 @@ if doTopoClustering:
             "correctCaloTopoClusters",
             inClusters=createTopoClusters.clusters.Path,
             outClusters="Corrected" + createTopoClusters.clusters.Path,
+            systemIDs=[4],
             numLayers=[ecalBarrelLayers],
             firstLayerIDs=[0],
             lastLayerIDs=[ecalBarrelLayers-1],
