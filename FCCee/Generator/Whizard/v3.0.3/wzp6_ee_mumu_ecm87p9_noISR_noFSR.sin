@@ -51,7 +51,7 @@ gaussian_spread2 = 0.132%
 ! Parton shower and hadronization
 ?ps_fsr_active          = false
 ?ps_isr_active          = false
-?hadronization_active   = true
+?hadronization_active   = false
 $shower_method          = "PYTHIA6"
 !?ps_PYTHIA_verbose     = true
 
