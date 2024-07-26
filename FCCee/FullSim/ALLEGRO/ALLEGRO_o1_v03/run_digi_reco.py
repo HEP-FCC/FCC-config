@@ -99,6 +99,7 @@ ecalBarrelThetaWeights = [-1, 3.0, 3.0, 3.0, 4.25, 4.0, 4.0, 4.0, 4.0, 4.0, 4.0]
 
 # run photon ID algorithm
 runPhotonIDTool = False
+logEWeightInPhotonID = False and runPhotonIDTool
 
 #
 # ALGORITHMS AND SERVICES SETUP
@@ -473,6 +474,7 @@ if doSWClustering:
                                                    layerFieldNames=["layer"],
                                                    thetaRecalcWeights=[ecalBarrelThetaWeights],
                                                    do_photon_shapeVar=runPhotonIDTool,
+                                                   do_widthTheta_logE_weights=logEWeightInPhotonID,
                                                    OutputLevel=INFO
                                                    )
 
@@ -610,6 +612,7 @@ if doTopoClustering:
                                                        layerFieldNames=["layer"],
                                                        thetaRecalcWeights=[ecalBarrelThetaWeights],
                                                        do_photon_shapeVar=runPhotonIDTool,
+                                                       do_widthTheta_logE_weights=logEWeightInPhotonID,
                                                        OutputLevel=INFO)
 
     if applyMVAClusterEnergyCalibration:
