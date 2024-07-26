@@ -421,7 +421,7 @@ if doSWClustering:
                                                    layerFieldNames=["layer"],
                                                    thetaRecalcWeights=[ecalBarrelThetaWeights],
                                                    do_photon_shapeVar=runPhotonIDTool,
-                                                   do_widthTheta_logE_weights=logEWeightInPhotonID
+                                                   do_widthTheta_logE_weights=logEWeightInPhotonID,
                                                    OutputLevel=INFO
                                                    )
 
@@ -559,7 +559,7 @@ if doTopoClustering:
                                                        layerFieldNames=["layer"],
                                                        thetaRecalcWeights=[ecalBarrelThetaWeights],
                                                        do_photon_shapeVar=runPhotonIDTool,
-                                                       do_widthTheta_logE_weights=logEWeightInPhotonID
+                                                       do_widthTheta_logE_weights=logEWeightInPhotonID,
                                                        OutputLevel=INFO)
 
     if applyMVAClusterEnergyCalibration:
