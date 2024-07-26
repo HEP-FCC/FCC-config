@@ -15,10 +15,10 @@ from Configurables import CreateEmptyCaloCellsCollection
 # Cell positioning tools
 from Configurables import CreateCaloCellPositionsFCCee
 from Configurables import CellPositionsECalBarrelModuleThetaSegTool
-# Redo segmentation for ECAL
+# Redo segmentation for ECAL and HCAL
 from Configurables import RedoSegmentation
-# Change HCAL segmentation
-from Configurables import RewriteBitfield
+# Read noise values from file and generate noise in cells
+from Configurables import NoiseCaloCellsVsThetaFromFileTool
 # Apply sampling fraction corrections
 from Configurables import CalibrateCaloHitsTool
 from Configurables import CalibrateInLayersTool
@@ -53,10 +53,11 @@ from math import cos, sin, tan
 
 # - general settings
 #
-inputfile = "ALLEGRO_sim.root"
-Nevts = -1  # -1 means all events
-dumpGDML = False
-runHCal = True
+inputfile = "ALLEGRO_sim.root"  # input file produced with ddsim
+Nevts = -1                      # -1 means all events
+addNoise = False                # add noise or not to the cell energy
+dumpGDML = False                # create GDML file of detector model
+runHCal = True                  # simulate only the ECAL or both ECAL+HCAL
 
 # - what to save in output file
 #
@@ -130,14 +131,14 @@ if dumpGDML:
 # Digitisation (merging hits into cells, EM scale calibration via sampling fractions)
 
 # - ECAL readouts
-ecalBarrelReadoutName = "ECalBarrelModuleThetaMerged"
-ecalBarrelReadoutName2 = "ECalBarrelModuleThetaMerged2"
-ecalEndcapReadoutName = "ECalEndcapPhiEta"
+ecalBarrelReadoutName = "ECalBarrelModuleThetaMerged"     # barrel, original segmentation (baseline)
+ecalBarrelReadoutName2 = "ECalBarrelModuleThetaMerged2"   # barrel, after re-segmentation (for optimisation studies)
+ecalEndcapReadoutName = "ECalEndcapTurbine"               # endcap, turbine-like (baseline)
 # - HCAL readouts
 if runHCal:
-    hcalBarrelReadoutName = "HCalBarrelReadout"
-    hcalBarrelReadoutName2 = "BarHCal_Readout_phitheta"
-    hcalEndcapReadoutName = "HCalEndcapReadout"
+    hcalBarrelReadoutName = "HCalBarrelReadout"           # barrel, original segmentation (row-phi)
+    hcalBarrelReadoutName2 = "BarHCal_Readout_phitheta"   # barrel, groups together cells of different row within same theta slice
+    hcalEndcapReadoutName = "HCalEndcapReadout"           # endcap, original segmentation
 else:
     hcalBarrelReadoutName = ""
     hcalBarrelReadoutName2 = ""
@@ -239,6 +240,7 @@ if resegmentECalBarrel:
 
 # Create cells in ECal endcap (needed if one wants to apply cell calibration,
 # which is not performed by ddsim)
+ecalEndcapCellsName = "ECalEndcapCells"
 createEcalEndcapCells = CreateCaloCells("CreateEcalEndcapCaloCells",
                                         doCellCalibration=True,
                                         calibTool=calibEcalEndcap,
@@ -246,7 +248,58 @@ createEcalEndcapCells = CreateCaloCells("CreateEcalEndcapCaloCells",
                                         filterCellNoise=False,
                                         OutputLevel=INFO)
 createEcalEndcapCells.hits.Path = ecalEndcapReadoutName
-createEcalEndcapCells.cells.Path = "ECalEndcapCells"
+createEcalEndcapCells.cells.Path = ecalEndcapCellsName
+
+
+if addNoise:
+    ecalBarrelNoisePath = "elecNoise_ecalBarrelFCCee_theta.root"
+    ecalBarrelNoiseRMSHistName = "h_elecNoise_fcc_"
+    from Configurables import NoiseCaloCellsVsThetaFromFileTool
+    noiseBarrel = NoiseCaloCellsVsThetaFromFileTool("NoiseBarrel",
+                                                    cellPositionsTool=cellPositionEcalBarrelTool,
+                                                    readoutName=ecalBarrelReadoutName,
+                                                    noiseFileName=ecalBarrelNoisePath,
+                                                    elecNoiseRMSHistoName=ecalBarrelNoiseRMSHistName,
+                                                    setNoiseOffset=False,
+                                                    activeFieldName="layer",
+                                                    addPileup=False,
+                                                    filterNoiseThreshold=0,
+                                                    numRadialLayers=11,
+                                                    scaleFactor=1 / 1000.,  # MeV to GeV
+                                                    OutputLevel=DEBUG)
+
+    # needs to be migrated!
+    #from Configurables import TubeLayerPhiEtaCaloTool
+    #barrelGeometry = TubeLayerPhiEtaCaloTool("EcalBarrelGeo",
+    #                                         readoutName=ecalBarrelReadoutNamePhiEta,
+    #                                         activeVolumeName="LAr_sensitive",
+    #                                         activeFieldName="layer",
+    #                                         activeVolumesNumber=12,
+    #                                         fieldNames=["system"],
+    #                                         fieldValues=[4])
+    
+    # cells with noise not filtered
+    # createEcalBarrelCellsNoise = CreateCaloCells("CreateECalBarrelCellsNoise",
+    #                                              doCellCalibration=False,
+    #                                              addCellNoise=True,
+    #                                              filterCellNoise=False,
+    #                                              OutputLevel=INFO,
+    #                                              hits="ECalBarrelCellsStep2",
+    #                                              noiseTool=noiseBarrel,
+    #                                              geometryTool=barrelGeometry,
+    #                                              cells=EcalBarrelCellsName)
+
+    # cells with noise filtered
+    # createEcalBarrelCellsNoise = CreateCaloCells("CreateECalBarrelCellsNoise_filtered",
+    #                                              doCellCalibration=False,
+    #                                              addCellNoise=True,
+    #                                              filterCellNoise=True,
+    #                                              OutputLevel=INFO,
+    #                                              hits="ECalBarrelCellsStep2",
+    #                                              noiseTool=noiseBarrel,
+    #                                              geometryTool=barrelGeometry,
+    #                                              cells=EcalBarrelCellsName)
+
 
 if runHCal:
     # Create cells in HCal barrel
@@ -292,7 +345,7 @@ if runHCal:
                                          oldReadoutName=hcalBarrelReadoutName,
                                          # specify which fields are going to be altered (deleted/rewritten)
                                          oldSegmentationIds=["row", "theta", "phi"],
-                                         # new bitfield (readout), with new segmentation (merged modules and theta cells)
+                                         # new bitfield (readout), with new segmentation (theta-phi grid)
                                          newReadoutName=hcalBarrelReadoutName2,
                                          OutputLevel=INFO,
                                          debugPrint=200,
@@ -358,7 +411,7 @@ if doSWClustering:
                                 hcalFwdReadoutName="",
                                 OutputLevel=INFO)
     towers.ecalBarrelCells.Path = ecalBarrelPositionedCellsName
-    towers.ecalEndcapCells.Path = "ECalEndcapCells"
+    towers.ecalEndcapCells.Path = ecalEndcapCellsName
     towers.ecalFwdCells.Path = "emptyCaloCells"
     towers.hcalBarrelCells.Path = hcalBarrelPositionedCellsName2
     towers.hcalExtBarrelCells.Path = "emptyCaloCells"
