@@ -1,0 +1,33 @@
+
+----------cccccccccccccccccccccccccccccommentttttttttttttttttttttttttttttttttttt
+BeginX
+********************************************************************************
+*               ACTUAL DATA FOR THIS PARTICULAR RUN
+********************************************************************************
+*indx_____data______ccccccccc0ccccccccc0ccccccccc0ccccccccc0ccccccccc0ccccccccc0
+ 1600       N_EVENTS number of events to be generated
+ 1700           SEED seed, 0<=IJKLIN<=900000000
+    1         91.188 CMSEne =xpar( 1) ! CMS total energy [GeV]
+   25              3      KeyFix=0 normal, =2 beamsstrahlung =3,4 for gaussian BES 
+   50              0      KeyHad=xpar(50)  Default is  1
+   20              0      KeyISR=xpar(20)  Default is  1, for beams       |<<<<|
+   21              0      KeyFSR=xpar(21)  Default is  1, for all final fermions
+*indx_____data______ccccccccc0ccccccccc0ccccccccc0ccccccccc0ccccccccc0ccccccccc0
+   80          0.0e0      ParBES(0) E1=0 will be replaced by CMSene/2
+   81          0.0e0      ParBES(1) E2=0 will be replaced by CMSene/2
+   82      0.00132e0      ParBES(2) sigma1/E1
+   83      0.00132e0      ParBES(3) sigma2/E2
+   84        0.000e0      ParBES(3) rho correlation parameter, dimensionles
+********************************************************************************
+*     Define process
+  413              1      KFfin, muon
+  100              1      store lhe file to (LHE_OUT.LHE)
+************************* one can change the lhf file name between brackets 
+********************************************************************************
+  502      91.1882e0      Use same vale as with Whizard 3.0 in winter2023 MZ  =xpar(502)  pdg22
+  503       .23122e0      SwSq  =xpar(503) sin_squared of EW angle, pdg22
+  504       2.4952e0      GammZ =xpar(504) Z width, pdg22
+  505       80.379e0      MW    =xpar(505) W mass,  pdg22
+  506        2.085e0      GammW =xpar(506) W width, pdg22
+********************************************************************************
+EndX
