@@ -2,7 +2,6 @@
 # IMPORTS
 #
 from Configurables import ApplicationMgr
-from Configurables import EventCounter
 from Configurables import AuditorSvc, ChronoAuditor
 # Input/output
 from Configurables import k4DataSvc, PodioInput
@@ -705,10 +704,6 @@ audsvc = AuditorSvc()
 audsvc.Auditors = [chra]
 out.AuditExecute = True
 
-# Event counter
-event_counter = EventCounter('event_counter')
-event_counter.Frequency = 10
-
 # Configure list of external services
 ExtSvc = [geoservice, podioevent, audsvc]
 if dumpGDML:
@@ -716,7 +711,6 @@ if dumpGDML:
 
 # Setup alg sequence
 TopAlg = [
-    event_counter,
     input_reader,
     createEcalBarrelCells,
     createEcalBarrelPositionedCells,
