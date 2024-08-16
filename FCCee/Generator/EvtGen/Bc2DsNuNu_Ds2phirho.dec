@@ -15,7 +15,7 @@ ChargeConj Myrho+      Myrho-
 
 #
 Decay Bc_SIGNAL
-  1.000     MyD_s-     nu_e    anti-nu_e  PHSP;
+  1.000     MyD_s+     nu_e    anti-nu_e  PHSP;
 Enddecay
 CDecay Bcbar_SIGNAL
 #
