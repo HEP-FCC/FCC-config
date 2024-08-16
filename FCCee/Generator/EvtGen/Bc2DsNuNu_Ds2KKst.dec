@@ -1,0 +1,29 @@
+Alias Bc_SIGNAL     B_c+
+Alias Bcbar_SIGNAL  B_c-
+ChargeConj Bc_SIGNAL Bcbar_SIGNAL
+
+Alias      MyD_s-     D_s-
+Alias      MyD_s+     D_s+
+ChargeConj MyD_s+     MyD_s-
+
+Alias      MyK*0       K*0
+Alias      Myanti-K*0  anti-K*0
+ChargeConj Myanti-K*0  MyK*0
+
+#
+Decay Bc_SIGNAL
+  1.000     MyD_s-     nu_e    anti-nu_e  PHSP;
+Enddecay
+CDecay Bcbar_SIGNAL
+#
+Decay MyD_s-
+  1.000     MyK*0 K-      PHSP;
+Enddecay
+CDecay MyD_s+
+#
+Decay MyK*0
+  1.000        K+        pi-                    VSS;
+Enddecay
+CDecay Myanti-K*0
+#
+End
