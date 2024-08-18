@@ -14,6 +14,7 @@ from Configurables import CreateEmptyCaloCellsCollection
 # Cell positioning tools
 from Configurables import CreateCaloCellPositionsFCCee
 from Configurables import CellPositionsECalBarrelModuleThetaSegTool
+from Configurables import CellPositionsECalEndcapTurbineSegTool
 # Redo segmentation for ECAL and HCAL
 from Configurables import RedoSegmentation
 # Read noise values from file and generate noise in cells
@@ -150,8 +151,10 @@ calibEcalBarrel = CalibrateInLayersTool("CalibrateECalBarrel",
                                         readoutName=ecalBarrelReadoutName,
                                         layerFieldName="layer")
 #   * ECAL endcap
-calibEcalEndcap = CalibrateCaloHitsTool(
-    "CalibrateECalEndcap", invSamplingFraction="4.27")  # FIXME: to be updated for ddsim
+calibEcalEndcap = CalibrateInLayersTool("CalibrateECalEndcap",
+                                        samplingFraction = [0.16419] * 1 + [0.192898] * 1 + [0.18783] * 1 + [0.193203] * 1 + [0.193928] * 1 + [0.192286] * 1 + [0.199959] * 1 + [0.200153] * 1 + [0.212635] * 1 + [0.180345] * 1 + [0.18488] * 1 + [0.194762] * 1 + [0.197775] * 1 + [0.200504] * 1 + [0.205555] * 1 + [0.203601] * 1 + [0.210877] * 1 + [0.208376] * 1 + [0.216345] * 1 + [0.201452] * 1 + [0.202134] * 1 + [0.207566] * 1 + [0.208152] * 1 + [0.209889] * 1 + [0.211743] * 1 + [0.213188] * 1 + [0.215864] * 1 + [0.22972] * 1 + [0.192515] * 1 + [0.0103233] * 1,
+                                        readoutName=ecalEndcapReadoutName,
+                                        layerFieldName="layer")
 
 if runHCal:
     # HCAL barrel
@@ -245,9 +248,25 @@ createEcalEndcapCells = CreateCaloCells("CreateEcalEndcapCaloCells",
                                         calibTool=calibEcalEndcap,
                                         addCellNoise=False,
                                         filterCellNoise=False,
-                                        OutputLevel=INFO)
-createEcalEndcapCells.hits.Path = ecalEndcapReadoutName
-createEcalEndcapCells.cells.Path = ecalEndcapCellsName
+                                        OutputLevel=INFO,
+                                        hits=ecalEndcapReadoutName,
+                                        cells=ecalEndcapCellsName)
+
+# Add to Ecal endcap cells the position information
+# (good for physics, all coordinates set properly)
+cellPositionEcalEndcapTool = CellPositionsECalEndcapTurbineSegTool(
+    "CellPositionsECalEndcap",
+    readoutName=ecalEndcapReadoutName,
+    OutputLevel=INFO
+)
+ecalEndcapPositionedCellsName = ecalEndcapReadoutName + "Positioned"
+createEcalEndcapPositionedCells = CreateCaloCellPositionsFCCee(
+    "CreateECalEndcapPositionedCells",
+    OutputLevel=INFO
+)
+createEcalEndcapPositionedCells.positionsTool = cellPositionEcalEndcapTool
+createEcalEndcapPositionedCells.hits.Path = ecalEndcapCellsName
+createEcalEndcapPositionedCells.positionedHits.Path = ecalEndcapPositionedCellsName
 
 
 if addNoise:
@@ -410,7 +429,7 @@ if doSWClustering:
                                 hcalFwdReadoutName="",
                                 OutputLevel=INFO)
     towers.ecalBarrelCells.Path = ecalBarrelPositionedCellsName
-    towers.ecalEndcapCells.Path = ecalEndcapCellsName
+    towers.ecalEndcapCells.Path = ecalEndcapPositionedCellsName
     towers.ecalFwdCells.Path = "emptyCaloCells"
     towers.hcalBarrelCells.Path = hcalBarrelPositionedCellsName2
     towers.hcalExtBarrelCells.Path = "emptyCaloCells"
@@ -444,7 +463,7 @@ if doSWClustering:
     createClusters.clusterCells.Path = "CaloClusterCells"
 
     if applyUpDownstreamCorrections:
-        correctCaloClusters = CorrectCaloClusters("correctCaloClusters",
+        correctCaloClusters = CorrectCaloClusters("CorrectCaloClusters",
                                                   inClusters=createClusters.clusters.Path,
                                                   outClusters="Corrected" + createClusters.clusters.Path,
                                                   systemIDs=[4],
@@ -581,7 +600,7 @@ if doTopoClustering:
     # Need something different for EM+HCAL
     if applyUpDownstreamCorrections:
         correctCaloTopoClusters = CorrectCaloClusters(
-            "correctCaloTopoClusters",
+            "CorrectCaloTopoClusters",
             inClusters=createTopoClusters.clusters.Path,
             outClusters="Corrected" + createTopoClusters.clusters.Path,
             systemIDs=[4],
@@ -658,14 +677,29 @@ out.filename = "ALLEGRO_sim_digi_reco.root"
 
 # drop the unpositioned ECal and HCal barrel and endcap cells
 if runHCal:
-    out.outputCommands = ["keep *", "drop emptyCaloCells", "drop ECalBarrelCells*", "drop HCalBarrelCells*", "drop %s" % createEcalEndcapCells.cells.Path]
+    out.outputCommands = ["keep *",
+                          "drop emptyCaloCells",
+                          "drop %s" % ecalBarrelCellsName,
+                          "drop %s" % ecalEndcapCellsName,
+                          "drop %s" % hcalBarrelCellsName,
+                          "drop %s" % hcalBarrelPositionedCellsName,
+                          "drop %s" % hcalBarrelCellsName2]
+
 else:
-    out.outputCommands = ["keep *", "drop HCal*", "drop emptyCaloCells", "drop ECalBarrelCells*", "drop %s" % createEcalEndcapCells.cells.Path]
+    out.outputCommands = ["keep *",
+                          "drop HCal*",
+                          "drop emptyCaloCells",
+                          "drop %s" % ecalBarrelCellsName,
+                          "drop %s" % ecalEndcapCellsName]
+
+# drop the uncalibrated cells
 out.outputCommands.append("drop %s" % ecalBarrelReadoutName)
 out.outputCommands.append("drop %s" % ecalBarrelReadoutName2)
+out.outputCommands.append("drop %s" % ecalEndcapReadoutName)
 if runHCal:
     out.outputCommands.append("drop %s" % hcalBarrelReadoutName)
-    out.outputCommands.append("drop %s" % hcalBarrelPositionedCellsName)
+
+# drop the intermediate ecal barrel cells in case of a resegmentation
 if resegmentECalBarrel:
     out.outputCommands.append("drop ECalBarrelCellsMerged")
     out.outputCommands.append("drop %s" % ecalBarrelCellsName2)
@@ -678,19 +712,16 @@ out.outputCommands.append("drop MuonTagger*")
 
 # drop hits/positioned cells/cluster cells if desired
 if not saveHits:
-    out.outputCommands.append("drop %s_contributions" % ecalBarrelReadoutName)
-    out.outputCommands.append("drop %s_contributions" % ecalBarrelReadoutName2)
-    out.outputCommands.append("drop %s_contributions" % ecalEndcapReadoutName)
+    out.outputCommands.append("drop *%sContributions" % ecalBarrelReadoutName)
+    out.outputCommands.append("drop *%sContributions" % ecalBarrelReadoutName2)
+    out.outputCommands.append("drop *%sContributions" % ecalEndcapReadoutName)
 if not saveCells:
     out.outputCommands.append("drop %s" % ecalBarrelPositionedCellsName)
-    out.outputCommands.append("drop %s" % ecalEndcapReadoutName)
+    out.outputCommands.append("drop %s" % ecalEndcapPositionedCellsName)
     if resegmentECalBarrel:
         out.outputCommands.append("drop %s" % ecalBarrelPositionedCellsName2)
     if runHCal:
         out.outputCommands.append("drop %s" % hcalBarrelPositionedCellsName2)
-if resegmentECalBarrel:
-    out.outputCommands.append("drop ECalBarrelCellsMerged")
-    out.outputCommands.append("drop %s" % ecalBarrelCellsName2)
 if not saveClusterCells:
     out.outputCommands.append("drop Calo*ClusterCells*")
 
@@ -714,11 +745,13 @@ TopAlg = [
     input_reader,
     createEcalBarrelCells,
     createEcalBarrelPositionedCells,
-    createEcalEndcapCells
+    createEcalEndcapCells,
+    createEcalEndcapPositionedCells,
 ]
 createEcalBarrelCells.AuditExecute = True
 createEcalBarrelPositionedCells.AuditExecute = True
 createEcalEndcapCells.AuditExecute = True
+createEcalEndcapPositionedCells.AuditExecute = True
 
 if resegmentECalBarrel:
     TopAlg += [
