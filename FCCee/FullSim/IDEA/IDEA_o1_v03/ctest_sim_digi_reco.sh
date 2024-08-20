@@ -1,7 +1,11 @@
 #!/bin/bash
 
-# set-up the environment
-source /cvmfs/sw-nightlies.hsf.org/key4hep/setup.sh || true # if the key4hep env is loaded twice, it returns a non zero exit code, '|| true' ensures it returns 0 to avoid stopping pipelines
+# set-up the Key4hep environment if not already set
+if [[ -z "${KEY4HEP_STACK}" ]]; then
+  source /cvmfs/sw-nightlies.hsf.org/key4hep/setup.sh
+else
+  echo "The Key4hep stack was already loaded in this environment."
+fi
 
 # run the SIM step
 ddsim --enableGun --gun.distribution uniform --gun.energy "10*GeV" --gun.particle e- --numberOfEvents 10 --outputFile IDEA_sim.root --random.enableEventSeed --random.seed 42 --compactFile $K4GEO/FCCee/IDEA/compact/IDEA_o1_v03/IDEA_o1_v03.xml
