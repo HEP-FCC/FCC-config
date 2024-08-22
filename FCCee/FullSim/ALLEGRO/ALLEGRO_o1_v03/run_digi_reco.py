@@ -271,6 +271,7 @@ createEcalEndcapPositionedCells.positionedHits.Path = ecalEndcapPositionedCellsN
 
 
 if addNoise:
+    #FIXME Input histograms need to be updated to match the new detector geometry of ALLEGRO v3
     ecalBarrelNoisePath = "elecNoise_ecalBarrelFCCee_theta.root"
     ecalBarrelNoiseRMSHistName = "h_elecNoise_fcc_"
     from Configurables import NoiseCaloCellsVsThetaFromFileTool
