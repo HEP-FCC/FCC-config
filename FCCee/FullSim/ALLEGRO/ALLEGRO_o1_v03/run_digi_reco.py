@@ -55,9 +55,9 @@ from math import cos, sin, tan
 #
 inputfile = "ALLEGRO_sim.root"  # input file produced with ddsim
 Nevts = -1                      # -1 means all events
-addNoise = False                # add noise or not to the cell energy
+addNoise = True                # add noise or not to the cell energy
 dumpGDML = False                # create GDML file of detector model
-runHCal = True                  # simulate only the ECAL or both ECAL+HCAL
+runHCal = False                  # simulate only the ECAL or both ECAL+HCAL
 
 # - what to save in output file
 #
@@ -91,7 +91,7 @@ applyUpDownstreamCorrections = False and not runHCal
 
 # BDT regression from total cluster energy and fraction of energy in each layer (after correction for sampling fraction)
 # not to be applied (yet) for ECAL+HCAL clustering (MVA trained only on ECAL so far)
-applyMVAClusterEnergyCalibration = True and not runHCal
+applyMVAClusterEnergyCalibration = False and not runHCal # temporarily switched off due to negative cell signals introduced by noise
 
 # calculate cluster energy and barycenter per layer and save it as extra parameters
 addShapeParameters = True and not runHCal
@@ -168,15 +168,16 @@ if runHCal:
 # which is not performed by ddsim)
 # - merge hits into cells according to initial segmentation
 ecalBarrelCellsName = "ECalBarrelCells"
-createEcalBarrelCells = CreateCaloCells("CreateECalBarrelCells",
-                                        doCellCalibration=True,
-                                        calibTool=calibEcalBarrel,
-                                        addCellNoise=False,
-                                        filterCellNoise=False,
-                                        addPosition=True,
-                                        OutputLevel=INFO,
-                                        hits=ecalBarrelReadoutName,
-                                        cells=ecalBarrelCellsName)
+if not addNoise: # Create ECAL barrel cells without adding noise
+    createEcalBarrelCells = CreateCaloCells("CreateECalBarrelCells",
+                                            doCellCalibration=True,
+                                            calibTool=calibEcalBarrel,
+                                            addCellNoise=False,
+                                            filterCellNoise=False,
+                                            addPosition=True,
+                                            OutputLevel=INFO,
+                                            hits=ecalBarrelReadoutName,
+                                            cells=ecalBarrelCellsName)
 
 # - add to Ecal barrel cells the position information
 #   (good for physics, all coordinates set properly)
@@ -284,28 +285,30 @@ if addNoise:
                                                     filterNoiseThreshold=0,
                                                     numRadialLayers=11,
                                                     scaleFactor=1 / 1000.,  # MeV to GeV
-                                                    OutputLevel=DEBUG)
+                                                    OutputLevel=INFO)
 
-    # needs to be migrated!
-    #from Configurables import TubeLayerPhiEtaCaloTool
-    #barrelGeometry = TubeLayerPhiEtaCaloTool("EcalBarrelGeo",
-    #                                         readoutName=ecalBarrelReadoutNamePhiEta,
-    #                                         activeVolumeName="LAr_sensitive",
-    #                                         activeFieldName="layer",
-    #                                         activeVolumesNumber=12,
-    #                                         fieldNames=["system"],
-    #                                         fieldValues=[4])
+    # barrel geometry tool is migrated to match ALLEGRO v3 segmentation
+    from Configurables import TubeLayerModuleThetaMergedCaloTool
+    barrelGeometry = TubeLayerModuleThetaMergedCaloTool("EcalBarrelGeo",
+                                             readoutName=ecalBarrelReadoutName,
+                                             activeVolumeName="LAr_sensitive",
+                                             activeFieldName="layer",
+                                             activeVolumesNumber=11,
+                                             fieldNames=["system"],
+                                             fieldValues=[4])
     
     # cells with noise not filtered
-    # createEcalBarrelCellsNoise = CreateCaloCells("CreateECalBarrelCellsNoise",
-    #                                              doCellCalibration=False,
-    #                                              addCellNoise=True,
-    #                                              filterCellNoise=False,
-    #                                              OutputLevel=INFO,
-    #                                              hits="ECalBarrelCellsStep2",
-    #                                              noiseTool=noiseBarrel,
-    #                                              geometryTool=barrelGeometry,
-    #                                              cells=EcalBarrelCellsName)
+    createEcalBarrelCells = CreateCaloCells("CreateECalBarrelCellsNoise",
+                                                 doCellCalibration=True,
+                                                 calibTool=calibEcalBarrel,
+                                                 addCellNoise=True,
+                                                 filterCellNoise=False,
+                                                 noiseTool=noiseBarrel,
+                                                 addPosition=True,
+                                                 geometryTool=barrelGeometry,
+                                                 OutputLevel=INFO,
+                                                 hits=ecalBarrelReadoutName,
+                                                 cells=ecalBarrelCellsName)
 
     # cells with noise filtered
     # createEcalBarrelCellsNoise = CreateCaloCells("CreateECalBarrelCellsNoise_filtered",
