@@ -91,7 +91,7 @@ applyUpDownstreamCorrections = False and not runHCal
 
 # BDT regression from total cluster energy and fraction of energy in each layer (after correction for sampling fraction)
 # not to be applied (yet) for ECAL+HCAL clustering (MVA trained only on ECAL so far)
-applyMVAClusterEnergyCalibration = False and not runHCal # temporarily switched off due to negative cell signals introduced by noise
+applyMVAClusterEnergyCalibration = True and not runHCal and not addNoise # temporarily switched off due to negative cell signals introduced by noise
 
 # calculate cluster energy and barycenter per layer and save it as extra parameters
 addShapeParameters = True and not runHCal
