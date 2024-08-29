@@ -39,13 +39,11 @@ from Configurables import CalibrateCaloClusters
 # photon/pi0 identification
 from Configurables import PhotonIDTool
 # Logger
-from Gaudi.Configuration import INFO, VERBOSE, DEBUG
+from Gaudi.Configuration import INFO  # , DEBUG, VERBOSE
 # units and physical constants
-from GaudiKernel.SystemOfUnits import GeV, tesla, mm
-from GaudiKernel.PhysicalConstants import pi, halfpi, twopi
+from GaudiKernel.PhysicalConstants import pi
 # python libraries
 import os
-from math import cos, sin, tan
 
 #
 # SETTINGS
@@ -72,10 +70,10 @@ saveCells = True
 saveClusterCells = True
 
 # ECAL barrel parameters for digitisation
-samplingFraction=[0.3800493723322256] * 1 + [0.13494147915064658] * 1 + [0.142866851721152] * 1 + [0.14839315921940666] * 1 + [0.15298362570665006] * 1 + [0.15709704561942747] * 1 + [0.16063717490147533] * 1 + [0.1641723795419055] * 1 + [0.16845490287689746] * 1 + [0.17111520115997653] * 1 + [0.1730605163148862] * 1
+samplingFraction = [0.3800493723322256] * 1 + [0.13494147915064658] * 1 + [0.142866851721152] * 1 + [0.14839315921940666] * 1 + [0.15298362570665006] * 1 + [0.15709704561942747] * 1 + [0.16063717490147533] * 1 + [0.1641723795419055] * 1 + [0.16845490287689746] * 1 + [0.17111520115997653] * 1 + [0.1730605163148862] * 1
 upstreamParameters = [[0.028158491043365624, -1.564259408365951, -76.52312805346982, 0.7442903558010191, -34.894692961350195, -74.19340877431723]]
 downstreamParameters = [[0.00010587711361028165, 0.0052371999097777355, 0.69906696456064, -0.9348243433360095, -0.0364714212117143, 8.360401126995626]]
-    
+
 ecalBarrelLayers = len(samplingFraction)
 resegmentECalBarrel = False
 
@@ -153,7 +151,7 @@ calibEcalBarrel = CalibrateInLayersTool("CalibrateECalBarrel",
                                         layerFieldName="layer")
 #   * ECAL endcap
 calibEcalEndcap = CalibrateInLayersTool("CalibrateECalEndcap",
-                                        samplingFraction = [0.16419] * 1 + [0.192898] * 1 + [0.18783] * 1 + [0.193203] * 1 + [0.193928] * 1 + [0.192286] * 1 + [0.199959] * 1 + [0.200153] * 1 + [0.212635] * 1 + [0.180345] * 1 + [0.18488] * 1 + [0.194762] * 1 + [0.197775] * 1 + [0.200504] * 1 + [0.205555] * 1 + [0.203601] * 1 + [0.210877] * 1 + [0.208376] * 1 + [0.216345] * 1 + [0.201452] * 1 + [0.202134] * 1 + [0.207566] * 1 + [0.208152] * 1 + [0.209889] * 1 + [0.211743] * 1 + [0.213188] * 1 + [0.215864] * 1 + [0.22972] * 1 + [0.192515] * 1 + [0.0103233] * 1,
+                                        samplingFraction=[0.16419] * 1 + [0.192898] * 1 + [0.18783] * 1 + [0.193203] * 1 + [0.193928] * 1 + [0.192286] * 1 + [0.199959] * 1 + [0.200153] * 1 + [0.212635] * 1 + [0.180345] * 1 + [0.18488] * 1 + [0.194762] * 1 + [0.197775] * 1 + [0.200504] * 1 + [0.205555] * 1 + [0.203601] * 1 + [0.210877] * 1 + [0.208376] * 1 + [0.216345] * 1 + [0.201452] * 1 + [0.202134] * 1 + [0.207566] * 1 + [0.208152] * 1 + [0.209889] * 1 + [0.211743] * 1 + [0.213188] * 1 + [0.215864] * 1 + [0.22972] * 1 + [0.192515] * 1 + [0.0103233] * 1,
                                         readoutName=ecalEndcapReadoutName,
                                         layerFieldName="layer")
 
@@ -225,20 +223,20 @@ if resegmentECalBarrel:
                                              OutputLevel=INFO,
                                              hits="ECalBarrelCellsMerged",
                                              cells=ecalBarrelCellsName2)
-    
-    
+
     cellPositionEcalBarrelTool2 = CellPositionsECalBarrelModuleThetaSegTool(
         "CellPositionsECalBarrel2",
         readoutName=ecalBarrelReadoutName2,
         OutputLevel=INFO
     )
+    ecalBarrelPositionedCellsName2 = ecalBarrelReadoutName2 + "Positioned"
     createEcalBarrelPositionedCells2 = CreateCaloCellPositionsFCCee(
         "CreateECalBarrelPositionedCells2",
         OutputLevel=INFO
     )
     createEcalBarrelPositionedCells2.positionsTool = cellPositionEcalBarrelTool2
     createEcalBarrelPositionedCells2.hits.Path = ecalBarrelCellsName2
-    createEcalBarrelPositionedCells2.positionedHits.Path = ecalBarrelReadoutName2 + "Positioned"
+    createEcalBarrelPositionedCells2.positionedHits.Path = ecalBarrelPositionedCellsName2
 
 
 # Create cells in ECal endcap (needed if one wants to apply cell calibration,
@@ -273,7 +271,6 @@ createEcalEndcapPositionedCells.positionedHits.Path = ecalEndcapPositionedCellsN
 if addNoise:
     ecalBarrelNoisePath = "elecNoise_ecalBarrelFCCee_theta.root"
     ecalBarrelNoiseRMSHistName = "h_elecNoise_fcc_"
-    from Configurables import NoiseCaloCellsVsThetaFromFileTool
     noiseBarrel = NoiseCaloCellsVsThetaFromFileTool("NoiseBarrel",
                                                     cellPositionsTool=cellPositionEcalBarrelTool,
                                                     readoutName=ecalBarrelReadoutName,
@@ -285,18 +282,18 @@ if addNoise:
                                                     filterNoiseThreshold=0,
                                                     numRadialLayers=11,
                                                     scaleFactor=1 / 1000.,  # MeV to GeV
-                                                    OutputLevel=DEBUG)
+                                                    OutputLevel=INFO)
 
     # needs to be migrated!
-    #from Configurables import TubeLayerPhiEtaCaloTool
-    #barrelGeometry = TubeLayerPhiEtaCaloTool("EcalBarrelGeo",
+    # from Configurables import TubeLayerPhiEtaCaloTool
+    # barrelGeometry = TubeLayerPhiEtaCaloTool("EcalBarrelGeo",
     #                                         readoutName=ecalBarrelReadoutNamePhiEta,
     #                                         activeVolumeName="LAr_sensitive",
     #                                         activeFieldName="layer",
     #                                         activeVolumesNumber=12,
     #                                         fieldNames=["system"],
     #                                         fieldValues=[4])
-    
+
     # cells with noise not filtered
     # createEcalBarrelCellsNoise = CreateCaloCells("CreateECalBarrelCellsNoise",
     #                                              doCellCalibration=False,
@@ -381,7 +378,7 @@ if runHCal:
 
     # 4 - attach positions to the new cells
     from Configurables import CellPositionsHCalBarrelPhiThetaSegTool
-    hcalBarrelPositionedCellsName2 =  hcalBarrelReadoutName2 + "Positioned"
+    hcalBarrelPositionedCellsName2 = hcalBarrelReadoutName2 + "Positioned"
     cellPositionHcalBarrelTool2 = CellPositionsHCalBarrelPhiThetaSegTool(
         "CellPositionsHCalBarrel2",
         readoutName=hcalBarrelReadoutName2,
@@ -470,7 +467,7 @@ if doSWClustering:
                                                   systemIDs=[4],
                                                   numLayers=[ecalBarrelLayers],
                                                   firstLayerIDs=[0],
-                                                  lastLayerIDs=[ecalBarrelLayers-1],
+                                                  lastLayerIDs=[ecalBarrelLayers - 1],
                                                   readoutNames=[ecalBarrelReadoutName],
                                                   upstreamParameters=upstreamParameters,
                                                   upstreamFormulas=[
@@ -597,7 +594,6 @@ if doTopoClustering:
     createTopoClusters.clusters.Path = "CaloTopoClusters"
     createTopoClusters.clusterCells.Path = "CaloTopoClusterCells"
 
-
     # Correction below is for EM-only clusters
     # Need something different for EM+HCAL
     if applyUpDownstreamCorrections:
@@ -608,7 +604,7 @@ if doTopoClustering:
             systemIDs=[4],
             numLayers=[ecalBarrelLayers],
             firstLayerIDs=[0],
-            lastLayerIDs=[ecalBarrelLayers-1],
+            lastLayerIDs=[ecalBarrelLayers - 1],
             readoutNames=[ecalBarrelReadoutName],
             # do not split the following line or it will break scripts that update the values of the corrections
             upstreamParameters=upstreamParameters,
@@ -665,13 +661,13 @@ if doTopoClustering:
             else:
                 inClusters = augmentCaloTopoClusters.outClusters.Path
 
-            photonIDCaloClusters = PhotonIDTool("photonIDCaloTopoClusters",
-                                                inClusters=inClusters,
-                                                outClusters="PhotonID" + inClusters,
-                                                mvaModelFile="data/bdt-photonid-weights-CaloTopoClusters.onnx",
-                                                mvaInputsFile="data/bdt-photonid-inputs-CaloTopoClusters.json",
-                                                OutputLevel=INFO
-                                                )
+            photonIDCaloTopoClusters = PhotonIDTool("photonIDCaloTopoClusters",
+                                                    inClusters=inClusters,
+                                                    outClusters="PhotonID" + inClusters,
+                                                    mvaModelFile="data/bdt-photonid-weights-CaloTopoClusters.onnx",
+                                                    mvaInputsFile="data/bdt-photonid-inputs-CaloTopoClusters.json",
+                                                    OutputLevel=INFO
+                                                    )
 
 # Output
 out = PodioOutput("out",
@@ -784,7 +780,7 @@ if runHCal:
 if doSWClustering or doTopoClustering:
     TopAlg += [createemptycells]
     createemptycells.AuditExecute = True
-    
+
     if doSWClustering:
         TopAlg += [createClusters]
         createClusters.AuditExecute = True
@@ -808,7 +804,7 @@ if doSWClustering or doTopoClustering:
     if doTopoClustering:
         TopAlg += [createTopoClusters]
         createTopoClusters.AuditExecute = True
-        
+
         if applyUpDownstreamCorrections:
             TopAlg += [correctCaloTopoClusters]
             correctCaloTopoClusters.AuditExecute = True
