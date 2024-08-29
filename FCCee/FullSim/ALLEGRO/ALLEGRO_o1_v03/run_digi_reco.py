@@ -99,7 +99,7 @@ ecalBarrelThetaWeights = [-1, 3.0, 3.0, 3.0, 4.25, 4.0, 4.0, 4.0, 4.0, 4.0, 4.0]
 
 # run photon ID algorithm
 runPhotonIDTool = False
-logEWeightInPhotonID = False and runPhotonIDTool
+logEWeightInPhotonID = False
 
 #
 # ALGORITHMS AND SERVICES SETUP
