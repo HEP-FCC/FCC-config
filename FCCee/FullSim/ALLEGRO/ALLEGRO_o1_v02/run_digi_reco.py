@@ -1,5 +1,4 @@
 from Configurables import ApplicationMgr
-from Configurables import EventCounter
 from Configurables import AuditorSvc, ChronoAuditor
 from Configurables import k4DataSvc, PodioInput
 from Configurables import PodioOutput
@@ -397,15 +396,11 @@ if runHCal:
 createTopoClusters.AuditExecute = True
 out.AuditExecute = True
 
-event_counter = EventCounter('event_counter')
-event_counter.Frequency = 10
-
 ExtSvc = [evtsvc, geoservice, podioevent, audsvc]
 if dumpGDML:
     ExtSvc += [gdmldumpservice]
 
 TopAlg = [
-    event_counter,
     input_reader,
     createEcalBarrelCells,
     createEcalBarrelPositionedCells,
