@@ -55,7 +55,7 @@ from math import cos, sin, tan
 #
 inputfile = "ALLEGRO_sim.root"  # input file produced with ddsim
 Nevts = -1                      # -1 means all events
-addNoise = True                # add noise or not to the cell energy
+addNoise = False                # add noise or not to the cell energy
 dumpGDML = False                # create GDML file of detector model
 runHCal = False                  # simulate only the ECAL or both ECAL+HCAL
 
