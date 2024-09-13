@@ -23,7 +23,7 @@ addNoise = False                        # add noise or not to the cell energy
 filterNoiseThreshold = 1                # if addNoise is true, and filterNoiseThreshold is >0, will filter away cells with abs(energy) below filterNoiseThreshold * expected sigma(noise)
 addCrosstalk = False                    # switch on/off the crosstalk
 dumpGDML = False                        # create GDML file of detector model
-runHCal = RUNHCAL                       # if false, it will produce only ECAL clusters. if true, it will also produce ECAL+HCAL clusters
+runHCal = True                          # if false, it will produce only ECAL clusters. if true, it will also produce ECAL+HCAL clusters
 
 # - what to save in output file
 #
