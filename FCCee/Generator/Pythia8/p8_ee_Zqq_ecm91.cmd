@@ -32,6 +32,5 @@ Beams:LHEF = events.lhe
 
 ! 5) Hard process : Z->qqbar at Ecm=91 GeV
 Beams:eCM = 91.118  ! CM energy of collision
-WeakSingleBoson:ffbar2ffbar(s:gmZ) = on
 PartonLevel:ISR = on               ! initial-state radiation
 PartonLevel:FSR = on               ! final-state radiation
