@@ -542,7 +542,7 @@ def setupSWClusters(inputCells,
                                                       OutputLevel=INFO
                                                       )
     clusterAlg.clusters.Path = outputClusters
-    clusterAlg.clusterCells.Path = outputClusters[:-1] + "Cells"
+    clusterAlg.clusterCells.Path = outputClusters.replace("Clusters", "Cluster") + "Cells"
     TopAlg += [clusterAlg]
     clusterAlg.AuditExecute = True
 
@@ -708,7 +708,7 @@ def setupTopoClusters(inputCells,
                                       lastNeighbourSigma=lastNeighbourSigma,
                                       OutputLevel=INFO)
     clusterAlg.clusters.Path = outputClusters
-    clusterAlg.clusterCells.Path = outputClusters[:-1] + "Cells"
+    clusterAlg.clusterCells.Path = outputClusters.replace("Clusters", "Cluster") + "Cells"
     TopAlg += [clusterAlg]
     clusterAlg.AuditExecute = True
 
