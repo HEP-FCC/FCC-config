@@ -245,7 +245,7 @@ if addNoise:
                                                             addPileup=False,
                                                             filterNoiseThreshold=filterNoiseThreshold,
                                                             useAbsInFilter=True,
-                                                            numRadialLayers=11,
+                                                            numRadialLayers=ecalBarrelLayers,
                                                             scaleFactor=1 / 1000.,  # MeV to GeV
                                                             OutputLevel=INFO)
 
@@ -254,7 +254,7 @@ if addNoise:
                                                           readoutName=ecalBarrelReadoutName,
                                                           activeVolumeName="LAr_sensitive",
                                                           activeFieldName="layer",
-                                                          activeVolumesNumber=11,
+                                                          activeVolumesNumber=ecalBarrelLayers,
                                                           fieldNames=["system"],
                                                           fieldValues=[4],
                                                           OutputLevel=INFO)
