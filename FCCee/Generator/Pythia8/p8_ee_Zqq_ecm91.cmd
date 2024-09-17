@@ -28,7 +28,7 @@ Beams:sigmaTime = 10.89    !  36.3 ps
 Beams:frameType             = 4
 Beams:setProductionScalesFromLHEF = off
 Beams:LHEF = events.lhe
-
+Check:epTolErr               = 1e-2
 
 ! 5) Hard process : Z->qqbar at Ecm=91 GeV
 Beams:eCM = 91.118  ! CM energy of collision
