@@ -881,7 +881,7 @@ if doTopoClustering:
         setupTopoClusters(EMBCaloTopoClusterInputsWithNoise,
                           EMBCaloTopoClusterReadouts,
                           EMBCaloTopoClusterPositioningTools,
-                          "EMBCaloTopoClustersWithNoise",
+                          "EMBCaloTopoClustersWithNoise" if filterNoiseThreshold < 0 else "EMBCaloTopoClustersWithNoiseFiltered",
                           "neighbours_map_ecalB_thetamodulemerged.root",
                           "cellNoise_map_electronicsNoiseLevel_ecalB_thetamodulemerged.root",
                           applyUpDownstreamCorrections,
