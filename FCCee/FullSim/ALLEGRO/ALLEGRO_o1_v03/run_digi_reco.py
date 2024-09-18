@@ -909,10 +909,10 @@ if doTopoClustering:
                           "CaloTopoClusters",
                           "neighbours_map_ecalB_thetamodulemerged_hcalB_thetaphi.root",
                           "cellNoise_map_electronicsNoiseLevel_ecalB_thetamodulemerged_hcalB_thetaphi.root",
-                          applyUpDownstreamCorrections,
-                          applyMVAClusterEnergyCalibration,
-                          addShapeParameters,
-                          runPhotonIDTool)
+                          False,
+                          False,
+                          False,
+                          False)
 
 
 # Output
