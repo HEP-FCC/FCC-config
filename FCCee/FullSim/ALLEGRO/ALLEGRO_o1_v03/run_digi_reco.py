@@ -113,8 +113,8 @@ podioevent = k4DataSvc('EventDataSvc')
 podioevent.input = inputfile
 ExtSvc += [podioevent]
 from Configurables import PodioInput
-input_reader = PodioInput('InputReader')
-TopAlg += [input_reader]
+inputReader = PodioInput('InputReader')
+TopAlg += [inputReader]
 
 
 # GDML dump of detector model
@@ -917,61 +917,60 @@ if doTopoClustering:
 
 # Output
 from Configurables import PodioOutput
-out = PodioOutput("out",
-                  OutputLevel=INFO)
-TopAlg += [out]
-out.AuditExecute = True
-out.filename = "ALLEGRO_sim_digi_reco.root"
+outputWriter = PodioOutput("OutputWriter", OutputLevel=INFO)
+TopAlg += [outputWriter]
+outputWriter.AuditExecute = True
+outputWriter.filename = "ALLEGRO_sim_digi_reco.root"
 
 # drop the empty cells
-out.outputCommands = ["keep *",
-                      "drop emptyCaloCells"]
+outputWriter.outputCommands = ["keep *",
+                               "drop emptyCaloCells"]
 
 # drop the uncalibrated cells
 if dropUncalibratedCells:
-    out.outputCommands.append("drop %s" % ecalBarrelReadoutName)
-    out.outputCommands.append("drop %s" % ecalBarrelReadoutName2)
-    out.outputCommands.append("drop %s" % ecalEndcapReadoutName)
+    outputWriter.outputCommands.append("drop %s" % ecalBarrelReadoutName)
+    outputWriter.outputCommands.append("drop %s" % ecalBarrelReadoutName2)
+    outputWriter.outputCommands.append("drop %s" % ecalEndcapReadoutName)
     if runHCal:
-        out.outputCommands.append("drop %s" % hcalBarrelReadoutName)
-        out.outputCommands.append("drop %s" % hcalEndcapReadoutName)
+        outputWriter.outputCommands.append("drop %s" % hcalBarrelReadoutName)
+        outputWriter.outputCommands.append("drop %s" % hcalEndcapReadoutName)
     else:
-        out.outputCommands += ["drop HCal*"]
+        outputWriter.outputCommands += ["drop HCal*"]
 
     # drop the intermediate ecal barrel cells in case of a resegmentation
     if resegmentECalBarrel:
-        out.outputCommands.append("drop ECalBarrelCellsMerged")
+        outputWriter.outputCommands.append("drop ECalBarrelCellsMerged")
     # drop the intermediate hcal barrel cells before resegmentation
     if runHCal:
-        out.outputCommands.append("drop %s" % hcalBarrelPositionedCellsName)
-        out.outputCommands.append("drop %s" % hcalEndcapPositionedCellsName)
+        outputWriter.outputCommands.append("drop %s" % hcalBarrelPositionedCellsName)
+        outputWriter.outputCommands.append("drop %s" % hcalEndcapPositionedCellsName)
 
 # drop lumi, vertex, DCH, Muons (unless want to keep for event display)
-out.outputCommands.append("drop Lumi*")
-# out.outputCommands.append("drop Vertex*")
-# out.outputCommands.append("drop DriftChamber_simHits*")
-out.outputCommands.append("drop MuonTagger*")
+outputWriter.outputCommands.append("drop Lumi*")
+# outputWriter.outputCommands.append("drop Vertex*")
+# outputWriter.outputCommands.append("drop DriftChamber_simHits*")
+outputWriter.outputCommands.append("drop MuonTagger*")
 
 # drop hits/positioned cells/cluster cells if desired
 if not saveHits:
-    out.outputCommands.append("drop *%sContributions" % ecalBarrelReadoutName)
-    out.outputCommands.append("drop *%sContributions" % ecalBarrelReadoutName2)
-    out.outputCommands.append("drop *%sContributions" % ecalEndcapReadoutName)
+    outputWriter.outputCommands.append("drop *%sContributions" % ecalBarrelReadoutName)
+    outputWriter.outputCommands.append("drop *%sContributions" % ecalBarrelReadoutName2)
+    outputWriter.outputCommands.append("drop *%sContributions" % ecalEndcapReadoutName)
 if not saveCells:
-    out.outputCommands.append("drop %s" % ecalBarrelPositionedCellsName)
-    out.outputCommands.append("drop %s" % ecalEndcapPositionedCellsName)
+    outputWriter.outputCommands.append("drop %s" % ecalBarrelPositionedCellsName)
+    outputWriter.outputCommands.append("drop %s" % ecalEndcapPositionedCellsName)
     if resegmentECalBarrel:
-        out.outputCommands.append("drop %s" % ecalBarrelPositionedCellsName2)
+        outputWriter.outputCommands.append("drop %s" % ecalBarrelPositionedCellsName2)
     if runHCal:
-        out.outputCommands.append("drop %s" % hcalBarrelPositionedCellsName2)
-        out.outputCommands.append("drop %s" % hcalEndcapPositionedCellsName2)
+        outputWriter.outputCommands.append("drop %s" % hcalBarrelPositionedCellsName2)
+        outputWriter.outputCommands.append("drop %s" % hcalEndcapPositionedCellsName2)
 if not saveClusterCells:
-    out.outputCommands.append("drop Calo*ClusterCells*")
+    outputWriter.outputCommands.append("drop Calo*ClusterCells*")
 
 # if we decorate the clusters, we can drop the non-decorated ones
 # commented in tests, for debugging
 # if addShapeParameters:
-#     out.outputCommands.append("drop %s" % augmentECalBarrelClusters.inClusters)
+#     outputWriter.outputCommands.append("drop %s" % augmentECalBarrelClusters.inClusters)
 
 
 # configure the application
