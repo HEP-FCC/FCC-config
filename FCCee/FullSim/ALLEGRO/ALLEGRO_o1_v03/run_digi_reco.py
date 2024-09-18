@@ -360,7 +360,7 @@ if addNoise:
     createEcalBarrelCellsNoise.AuditExecute = True
 
     # cells with noise filtered
-    createEcalBarrelCellsNoiseFiltered = CreatePositionedCaloCells("CreateECalBarrelCellsWithNoiseFiltered",
+    createEcalBarrelCellsNoiseFiltered = CreatePositionedCaloCells("CreatePositionedECalBarrelCellsWithNoiseFiltered",
                                                                    doCellCalibration=True,
                                                                    calibTool=calibEcalBarrel,
                                                                    positionsTool=cellPositionEcalBarrelTool,
@@ -378,7 +378,7 @@ if addNoise:
 if runHCal:
     # Apply calibration and positioning to cells in HCal barrel
     hcalBarrelPositionedCellsName = hcalBarrelReadoutName + "Positioned"
-    createHCalBarrelCells = CreatePositionedCaloCells("CreateHCalBarrelCells",
+    createHCalBarrelCells = CreatePositionedCaloCells("CreatePositionedHCalBarrelCells",
                                                       doCellCalibration=True,
                                                       calibTool=calibHCalBarrel,
                                                       positionsTool=cellPositionHCalBarrelTool,
@@ -414,7 +414,7 @@ if runHCal:
     rewriteHCalBarrel.AuditExecute = True
 
     hcalBarrelPositionedCellsName2 = hcalBarrelReadoutName2 + "Positioned"
-    createHCalBarrelCells2 = CreatePositionedCaloCells("CreateHCalBarrelCells2",
+    createHCalBarrelCells2 = CreatePositionedCaloCells("CreatePositionedHCalBarrelCells2",
                                                        doCellCalibration=False,
                                                        positionsTool=cellPositionHCalBarrelTool2,
                                                        addCellNoise=False,
@@ -427,7 +427,7 @@ if runHCal:
 
     # Create cells in HCal endcap
     hcalEndcapPositionedCellsName = hcalEndcapReadoutName + "Positioned"
-    createHCalEndcapCells = CreatePositionedCaloCells("CreateHCalEndcapCells",
+    createHCalEndcapCells = CreatePositionedCaloCells("CreatePositionedHCalEndcapCells",
                                                       doCellCalibration=True,
                                                       calibTool=calibHCalEndcap,
                                                       addCellNoise=False,
@@ -454,7 +454,7 @@ if runHCal:
     rewriteHCalEndcap.AuditExecute = True
 
     hcalEndcapPositionedCellsName2 = hcalEndcapReadoutName2 + "Positioned"
-    createHCalEndcapCells2 = CreatePositionedCaloCells("CreateHCalEndcapCells2",
+    createHCalEndcapCells2 = CreatePositionedCaloCells("CreatePositionedHCalEndcapCells2",
                                                        doCellCalibration=False,
                                                        positionsTool=cellPositionHCalEndcapTool2,
                                                        addCellNoise=False,
