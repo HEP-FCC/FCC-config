@@ -40,41 +40,28 @@ outerVertexResolution_x = 0.050/math.sqrt(12) # [mm], assume ATLASPix3 sensor wi
 outerVertexResolution_y = 0.150/math.sqrt(12) # [mm], assume ATLASPix3 sensor with 150 µm pitch
 outerVertexResolution_t = 1000 # [ns]
 
-vtxib_digitizer = VTXdigitizer("VTXIBdigitizer",
-    inputSimHits = "VTXIBCollection",
-    outputDigiHits = "VTXIBDigis",
-    outputSimDigiAssociation = "VTXIBSimDigiLinks",
+vtxb_digitizer = VTXdigitizer("VTXBdigitizer",
+    inputSimHits = "VertexBarrelCollection",
+    outputDigiHits = "VTXBDigis",
+    outputSimDigiAssociation = "VTXBSimDigiLinks",
     detectorName = "Vertex",
-    readoutName = "VTXIBCollection",
-    xResolution = innerVertexResolution_x, # mm, r-phi direction
-    yResolution = innerVertexResolution_y, # mm, z direction
-    tResolution = innerVertexResolution_t,
-    forceHitsOntoSurface = False,
-    OutputLevel = INFO
-)
-
-vtxob_digitizer = VTXdigitizer("VTXOBdigitizer",
-    inputSimHits = "VTXOBCollection",
-    outputDigiHits = "VTXOBDigis",
-    outputSimDigiAssociation = "VTXOBSimDigiLinks",
-    detectorName = "Vertex",
-    readoutName = "VTXOBCollection",
-    xResolution = outerVertexResolution_x, # mm, r-phi direction
-    yResolution = outerVertexResolution_y, # mm, z direction
-    tResolution = outerVertexResolution_t, # ns
+    readoutName = "VertexBarrelCollection",
+    xResolution = [innerVertexResolution_x, innerVertexResolution_x, innerVertexResolution_x, outerVertexResolution_x, outerVertexResolution_x], # mm, r-phi direction
+    yResolution = [innerVertexResolution_y, innerVertexResolution_y, innerVertexResolution_y, outerVertexResolution_y, outerVertexResolution_y], # mm, z direction
+    tResolution = [innerVertexResolution_t, innerVertexResolution_t, innerVertexResolution_t, outerVertexResolution_t, outerVertexResolution_t],
     forceHitsOntoSurface = False,
     OutputLevel = INFO
 )
 
 vtxd_digitizer  = VTXdigitizer("VTXDdigitizer",
-    inputSimHits = "VTXDCollection",
+    inputSimHits = "VertexEndcapCollection",
     outputDigiHits = "VTXDDigis",
     outputSimDigiAssociation = "VTXDSimDigiLinks",
     detectorName = "Vertex",
-    readoutName = "VTXDCollection",
-    xResolution = outerVertexResolution_x, # mm, r direction
-    yResolution = outerVertexResolution_y, # mm, phi direction
-    tResolution = outerVertexResolution_t, # ns
+    readoutName = "VertexEndcapCollection",
+    xResolution = [outerVertexResolution_x, outerVertexResolution_x, outerVertexResolution_x], # mm, r direction
+    yResolution = [outerVertexResolution_y, outerVertexResolution_y, outerVertexResolution_y], # mm, phi direction
+    tResolution = [outerVertexResolution_t, outerVertexResolution_t, outerVertexResolution_t], # ns
     forceHitsOntoSurface = False,
     OutputLevel = INFO
 )
@@ -130,8 +117,7 @@ from Configurables import ApplicationMgr
 application_mgr = ApplicationMgr(
     TopAlg = [
 			  inp,
-              vtxib_digitizer,
-              vtxob_digitizer,
+              vtxb_digitizer,
               vtxd_digitizer,
               #dch_digitizer,
               tracksFromGenParticles, 
