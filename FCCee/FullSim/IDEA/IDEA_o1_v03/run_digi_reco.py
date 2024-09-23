@@ -66,6 +66,37 @@ vtxd_digitizer  = VTXdigitizer("VTXDdigitizer",
     OutputLevel = INFO
 )
 
+# digitise silicon wrapper hits
+siWrapperResolution_x   = 0.050/math.sqrt(12) # [mm]
+siWrapperResolution_y   = 1.0/math.sqrt(12) # [mm]
+siWrapperResolution_t   = 0.040 # [ns], assume 40 ps timing resolution for a single layer -> Should lead to <30 ps resolution when >1 hit
+
+siwrb_digitizer = VTXdigitizer("SiWrBdigitizer",
+    inputSimHits = "SiWrBCollection",
+    outputDigiHits = "SiWrBDigis",
+    outputSimDigiAssociation = "SiWrBSimDigiLinks",
+    detectorName = "SiWrB",
+    readoutName = "SiWrBCollection",
+    xResolution = [siWrapperResolution_x, siWrapperResolution_x], # mm, r-phi direction
+    yResolution = [siWrapperResolution_y, siWrapperResolution_y], # mm, z direction
+    tResolution = [siWrapperResolution_t, siWrapperResolution_t],
+    forceHitsOntoSurface = False,
+    OutputLevel = INFO
+)
+
+siwrd_digitizer = VTXdigitizer("SiWrDdigitizer",
+    inputSimHits = "SiWrDCollection",
+    outputDigiHits = "SiWrDDigis",
+    outputSimDigiAssociation = "SiWrDSimDigiLinks",
+    detectorName = "SiWrD",
+    readoutName = "SiWrDCollection",
+    xResolution = [siWrapperResolution_x, siWrapperResolution_x], # mm, r-phi direction
+    yResolution = [siWrapperResolution_y, siWrapperResolution_y], # mm, z direction
+    tResolution = [siWrapperResolution_t, siWrapperResolution_t],
+    forceHitsOntoSurface = False,
+    OutputLevel = INFO
+)
+
 # digitize drift chamber hits, waiting to merge the digitizer for the new drift chamber
 #from Configurables import DCHsimpleDigitizerExtendedEdm
 #dch_digitizer = DCHsimpleDigitizerExtendedEdm("DCHsimpleDigitizerExtendedEdm",
@@ -119,6 +150,8 @@ application_mgr = ApplicationMgr(
 			  inp,
               vtxb_digitizer,
               vtxd_digitizer,
+              siwrb_digitizer,
+              siwrd_digitizer,
               #dch_digitizer,
               tracksFromGenParticles, 
               plotTrackDCHHitDistances,
