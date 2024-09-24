@@ -17,13 +17,14 @@ from GaudiKernel.PhysicalConstants import pi
 
 # - general settings
 #
-inputfile = "ALLEGRO_sim.root"          # input file produced with ddsim
-Nevts = -1                              # -1 means all events
-addNoise = False                        # add noise or not to the cell energy
-filterNoiseThreshold = -1               # if addNoise is true, and filterNoiseThreshold is >0, will filter away cells with abs(energy) below filterNoiseThreshold * expected sigma(noise)
-addCrosstalk = False                    # switch on/off the crosstalk
-dumpGDML = False                        # create GDML file of detector model
-runHCal = True                          # if false, it will produce only ECAL clusters. if true, it will also produce ECAL+HCAL clusters
+inputfile = "ALLEGRO_sim.root"            # input file produced with ddsim
+outputfile = "ALLEGRO_sim_digi_reco.root" # output file produced by this steering file
+Nevts = -1                                # -1 means all events
+addNoise = False                          # add noise or not to the cell energy
+filterNoiseThreshold = -1                 # if addNoise is true, and filterNoiseThreshold is >0, will filter away cells with abs(energy) below filterNoiseThreshold * expected sigma(noise)
+addCrosstalk = False                      # switch on/off the crosstalk
+dumpGDML = False                          # create GDML file of detector model
+runHCal = True                            # if false, it will produce only ECAL clusters. if true, it will also produce ECAL+HCAL clusters
 
 # - what to save in output file
 #
@@ -106,16 +107,13 @@ geoservice.detectors = [
 geoservice.OutputLevel = INFO
 ExtSvc += [geoservice]
 
-
-# Input: load the output of the SIM step
-from Configurables import k4DataSvc
-podioevent = k4DataSvc('EventDataSvc')
-podioevent.input = inputfile
-ExtSvc += [podioevent]
-from Configurables import PodioInput
-inputReader = PodioInput('InputReader')
-TopAlg += [inputReader]
-
+# Input/Output handling
+from k4FWCore import IOSvc
+from Configurables import EventDataSvc
+io_svc = IOSvc("IOSvc")
+io_svc.input = inputfile
+io_svc.output = outputfile
+ExtSvc += [EventDataSvc("EventDataSvc")]
 
 # GDML dump of detector model
 if dumpGDML:
@@ -281,7 +279,6 @@ createEcalBarrelCells = CreatePositionedCaloCells("CreatePositionedECalBarrelCel
                                                   cells=ecalBarrelPositionedCellsName
                                                   )
 TopAlg += [createEcalBarrelCells]
-createEcalBarrelCells.AuditExecute = True
 
 # -  now, if we want to also save cells with coarser granularity:
 if resegmentECalBarrel:
@@ -323,8 +320,6 @@ if resegmentECalBarrel:
         resegmentEcalBarrelTool,
         createEcalBarrelCells2,
     ]
-    resegmentEcalBarrelTool.AuditExecute = True
-    createEcalBarrelCells2.AuditExecute = True
 
 # Create cells in ECal endcap (needed if one wants to apply cell calibration,
 # which is not performed by ddsim)
@@ -341,7 +336,6 @@ createEcalEndcapCells = CreatePositionedCaloCells("CreatePositionedECalEndcapCel
                                                   hits=ecalEndcapReadoutName,
                                                   cells=ecalEndcapPositionedCellsName)
 TopAlg += [createEcalEndcapCells]
-createEcalEndcapCells.AuditExecute = True
 
 if addNoise:
     # cells with noise not filtered
@@ -357,7 +351,6 @@ if addNoise:
                                                            hits=ecalBarrelReadoutName,
                                                            cells=ecalBarrelPositionedCellsName + "WithNoise")
     TopAlg += [createEcalBarrelCellsNoise]
-    createEcalBarrelCellsNoise.AuditExecute = True
 
     # cells with noise filtered
     createEcalBarrelCellsNoiseFiltered = CreatePositionedCaloCells("CreatePositionedECalBarrelCellsWithNoiseFiltered",
@@ -373,7 +366,6 @@ if addNoise:
                                                                    cells=ecalBarrelPositionedCellsName + "WithNoiseFiltered"
                                                                    )
     TopAlg += [createEcalBarrelCellsNoiseFiltered]
-    createEcalBarrelCellsNoiseFiltered.AuditExecute = True
 
 if runHCal:
     # Apply calibration and positioning to cells in HCal barrel
@@ -388,7 +380,6 @@ if runHCal:
                                                       cells=hcalBarrelPositionedCellsName,
                                                       OutputLevel=INFO)
     TopAlg += [createHCalBarrelCells]
-    createHCalBarrelCells.AuditExecute = True
 
     # Compute new cellID of cells based on new readout - removing row information
     # We use a RedoSegmentation. Using a RewriteBitField with removeIds=["row"],
@@ -411,7 +402,6 @@ if runHCal:
                                          inhits=hcalBarrelPositionedCellsName,
                                          outhits="HCalBarrelCellsWithoutRow")
     TopAlg += [rewriteHCalBarrel]
-    rewriteHCalBarrel.AuditExecute = True
 
     hcalBarrelPositionedCellsName2 = hcalBarrelReadoutName2 + "Positioned"
     createHCalBarrelCells2 = CreatePositionedCaloCells("CreatePositionedHCalBarrelCells2",
@@ -423,7 +413,6 @@ if runHCal:
                                                        hits=rewriteHCalBarrel.outhits.Path,
                                                        cells=hcalBarrelPositionedCellsName2)
     TopAlg += [createHCalBarrelCells2]
-    createHCalBarrelCells2.AuditExecute = True
 
     # Create cells in HCal endcap
     hcalEndcapPositionedCellsName = hcalEndcapReadoutName + "Positioned"
@@ -437,7 +426,6 @@ if runHCal:
                                                       hits=hcalEndcapReadoutName,
                                                       cells=hcalEndcapPositionedCellsName)
     TopAlg += [createHCalEndcapCells]
-    createHCalEndcapCells.AuditExecute = True
 
     rewriteHCalEndcap = RedoSegmentation("ReSegmentationHCalEndcap",
                                          # old bitfield (readout)
@@ -451,7 +439,6 @@ if runHCal:
                                          inhits=hcalEndcapPositionedCellsName,
                                          outhits="HCalEndcapCellsWithoutRow")
     TopAlg += [rewriteHCalEndcap]
-    rewriteHCalEndcap.AuditExecute = True
 
     hcalEndcapPositionedCellsName2 = hcalEndcapReadoutName2 + "Positioned"
     createHCalEndcapCells2 = CreatePositionedCaloCells("CreatePositionedHCalEndcapCells2",
@@ -463,7 +450,6 @@ if runHCal:
                                                        hits=rewriteHCalEndcap.outhits.Path,
                                                        cells=hcalEndcapPositionedCellsName2)
     TopAlg += [createHCalEndcapCells2]
-    createHCalEndcapCells2.AuditExecute = True
 
 else:
     hcalBarrelPositionedCellsName = "emptyCaloCells"
@@ -481,7 +467,6 @@ if doSWClustering or doTopoClustering:
     createemptycells = CreateEmptyCaloCellsCollection("CreateEmptyCaloCells")
     createemptycells.cells.Path = "emptyCaloCells"
     TopAlg += [createemptycells]
-    createemptycells.AuditExecute = True
 
 
 # Function that sets up the sequence for producing SW clusters given an input cell collection
@@ -544,7 +529,6 @@ def setupSWClusters(inputCells,
     clusterAlg.clusters.Path = outputClusters
     clusterAlg.clusterCells.Path = outputClusters.replace("Clusters", "Cluster") + "Cells"
     TopAlg += [clusterAlg]
-    clusterAlg.AuditExecute = True
 
     if applyUpDownstreamCorrections:
         # note that this only works for ecal barrel given various hardcoded quantities
@@ -565,7 +549,6 @@ def setupSWClusters(inputCells,
                                                 OutputLevel=INFO
                                                 )
         TopAlg += [correctClusterAlg]
-        correctClusterAlg.AuditExecute = True
 
     if addShapeParameters:
         # note that this only works for ecal barrel given various hardcoded quantities
@@ -584,7 +567,6 @@ def setupSWClusters(inputCells,
                                                  OutputLevel=INFO
                                                  )
         TopAlg += [augmentClusterAlg]
-        augmentClusterAlg.AuditExecute = True
 
     if applyMVAClusterEnergyCalibration:
         # note that this only works for ecal barrel given various hardcoded quantities
@@ -608,7 +590,6 @@ def setupSWClusters(inputCells,
                                                      OutputLevel=INFO
                                                      )
         TopAlg += [calibrateClustersAlg]
-        calibrateClustersAlg.AuditExecute = True
 
     if runPhotonIDTool:
         if not addShapeParameters:
@@ -630,7 +611,6 @@ def setupSWClusters(inputCells,
                                        OutputLevel=INFO
                                        )
             TopAlg += [photonIDAlg]
-            photonIDAlg.AuditExecute = True
 
 
 # Function that sets up the sequence for producing SW clusters given an input cell collection
@@ -710,7 +690,6 @@ def setupTopoClusters(inputCells,
     clusterAlg.clusters.Path = outputClusters
     clusterAlg.clusterCells.Path = outputClusters.replace("Clusters", "Cluster") + "Cells"
     TopAlg += [clusterAlg]
-    clusterAlg.AuditExecute = True
 
     if applyUpDownstreamCorrections:
         # note that this only works for ecal barrel given various hardcoded quantities
@@ -731,7 +710,6 @@ def setupTopoClusters(inputCells,
                                                 OutputLevel=INFO
                                                 )
         TopAlg += [correctClusterAlg]
-        correctClusterAlg.AuditExecute = True
 
     if addShapeParameters:
         # note that this only works for ecal barrel given various hardcoded quantities
@@ -749,7 +727,6 @@ def setupTopoClusters(inputCells,
                                                  do_widthTheta_logE_weights=logEWeightInPhotonID,
                                                  OutputLevel=INFO)
         TopAlg += [augmentClusterAlg]
-        augmentClusterAlg.AuditExecute = True
 
     if applyMVAClusterEnergyCalibration:
         # note that this only works for ecal barrel given various hardcoded quantities
@@ -773,7 +750,6 @@ def setupTopoClusters(inputCells,
                                                      OutputLevel=INFO
                                                      )
         TopAlg += [calibrateClustersAlg]
-        calibrateClustersAlg.AuditExecute = True
 
     if runPhotonIDTool:
         if not addShapeParameters:
@@ -794,7 +770,6 @@ def setupTopoClusters(inputCells,
                                        mvaInputsFile="bdt-photonid-inputs-CaloTopoClusters.json",
                                        OutputLevel=INFO)
             TopAlg += [photonIDAlg]
-            photonIDAlg.AuditExecute = True
 
 
 if doSWClustering:
@@ -915,72 +890,68 @@ if doTopoClustering:
                           False)
 
 
-# Output
-from Configurables import PodioOutput
-outputWriter = PodioOutput("OutputWriter", OutputLevel=INFO)
-TopAlg += [outputWriter]
-outputWriter.AuditExecute = True
-outputWriter.filename = "ALLEGRO_sim_digi_reco.root"
-
 # drop the empty cells
-outputWriter.outputCommands = ["keep *",
+io_svc.outputCommands = ["keep *",
                                "drop emptyCaloCells"]
 
 # drop the uncalibrated cells
 if dropUncalibratedCells:
-    outputWriter.outputCommands.append("drop %s" % ecalBarrelReadoutName)
-    outputWriter.outputCommands.append("drop %s" % ecalBarrelReadoutName2)
-    outputWriter.outputCommands.append("drop %s" % ecalEndcapReadoutName)
+    io_svc.outputCommands.append("drop %s" % ecalBarrelReadoutName)
+    io_svc.outputCommands.append("drop %s" % ecalBarrelReadoutName2)
+    io_svc.outputCommands.append("drop %s" % ecalEndcapReadoutName)
     if runHCal:
-        outputWriter.outputCommands.append("drop %s" % hcalBarrelReadoutName)
-        outputWriter.outputCommands.append("drop %s" % hcalEndcapReadoutName)
+        io_svc.outputCommands.append("drop %s" % hcalBarrelReadoutName)
+        io_svc.outputCommands.append("drop %s" % hcalEndcapReadoutName)
     else:
-        outputWriter.outputCommands += ["drop HCal*"]
+        io_svc.outputCommands += ["drop HCal*"]
 
     # drop the intermediate ecal barrel cells in case of a resegmentation
     if resegmentECalBarrel:
-        outputWriter.outputCommands.append("drop ECalBarrelCellsMerged")
+        io_svc.outputCommands.append("drop ECalBarrelCellsMerged")
     # drop the intermediate hcal barrel cells before resegmentation
     if runHCal:
-        outputWriter.outputCommands.append("drop %s" % hcalBarrelPositionedCellsName)
-        outputWriter.outputCommands.append("drop %s" % hcalEndcapPositionedCellsName)
+        io_svc.outputCommands.append("drop %s" % hcalBarrelPositionedCellsName)
+        io_svc.outputCommands.append("drop %s" % hcalEndcapPositionedCellsName)
 
 # drop lumi, vertex, DCH, Muons (unless want to keep for event display)
-outputWriter.outputCommands.append("drop Lumi*")
-# outputWriter.outputCommands.append("drop Vertex*")
-# outputWriter.outputCommands.append("drop DriftChamber_simHits*")
-outputWriter.outputCommands.append("drop MuonTagger*")
+io_svc.outputCommands.append("drop Lumi*")
+# io_svc.outputCommands.append("drop Vertex*")
+# io_svc.outputCommands.append("drop DriftChamber_simHits*")
+io_svc.outputCommands.append("drop MuonTagger*")
 
 # drop hits/positioned cells/cluster cells if desired
 if not saveHits:
-    outputWriter.outputCommands.append("drop *%sContributions" % ecalBarrelReadoutName)
-    outputWriter.outputCommands.append("drop *%sContributions" % ecalBarrelReadoutName2)
-    outputWriter.outputCommands.append("drop *%sContributions" % ecalEndcapReadoutName)
+    io_svc.outputCommands.append("drop *%sContributions" % ecalBarrelReadoutName)
+    io_svc.outputCommands.append("drop *%sContributions" % ecalBarrelReadoutName2)
+    io_svc.outputCommands.append("drop *%sContributions" % ecalEndcapReadoutName)
 if not saveCells:
-    outputWriter.outputCommands.append("drop %s" % ecalBarrelPositionedCellsName)
-    outputWriter.outputCommands.append("drop %s" % ecalEndcapPositionedCellsName)
+    io_svc.outputCommands.append("drop %s" % ecalBarrelPositionedCellsName)
+    io_svc.outputCommands.append("drop %s" % ecalEndcapPositionedCellsName)
     if resegmentECalBarrel:
-        outputWriter.outputCommands.append("drop %s" % ecalBarrelPositionedCellsName2)
+        io_svc.outputCommands.append("drop %s" % ecalBarrelPositionedCellsName2)
     if runHCal:
-        outputWriter.outputCommands.append("drop %s" % hcalBarrelPositionedCellsName2)
-        outputWriter.outputCommands.append("drop %s" % hcalEndcapPositionedCellsName2)
+        io_svc.outputCommands.append("drop %s" % hcalBarrelPositionedCellsName2)
+        io_svc.outputCommands.append("drop %s" % hcalEndcapPositionedCellsName2)
 if not saveClusterCells:
-    outputWriter.outputCommands.append("drop Calo*ClusterCells*")
+    io_svc.outputCommands.append("drop Calo*ClusterCells*")
 
 # if we decorate the clusters, we can drop the non-decorated ones
 # commented in tests, for debugging
 # if addShapeParameters:
-#     outputWriter.outputCommands.append("drop %s" % augmentECalBarrelClusters.inClusters)
+#     io_svc.outputCommands.append("drop %s" % augmentECalBarrelClusters.inClusters)
 
 
 # configure the application
 print(TopAlg)
 print(ExtSvc)
-from Configurables import ApplicationMgr
-ApplicationMgr(
+from k4FWCore import ApplicationMgr
+applicationMgr = ApplicationMgr(
     TopAlg=TopAlg,
     EvtSel='NONE',
     EvtMax=Nevts,
     ExtSvc=ExtSvc,
     StopOnSignal=True,
 )
+
+for algo in applicationMgr.TopAlg:
+    algo.AuditExecute = True
