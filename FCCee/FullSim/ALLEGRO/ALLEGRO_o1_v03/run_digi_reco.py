@@ -121,6 +121,18 @@ if dumpGDML:
     gdmldumpservice = GeoToGdmlDumpSvc("GeoToGdmlDumpSvc")
     ExtSvc += [gdmldumpservice]
 
+# Tracking
+# Create tracks from gen particles
+from Configurables import TracksFromGenParticles
+tracksFromGenParticles = TracksFromGenParticles("TracksFromGenParticles",
+                                               InputGenParticles = ["MCParticles"],
+                                               OutputTracks = ["TracksFromGenParticles"],
+                                               OutputMCRecoTrackParticleAssociation = ["TracksFromGenParticlesAssociation"],
+                                               Bz = 2.0,
+                                               OutputLevel = INFO)
+TopAlg += [tracksFromGenParticles]
+
+# End Tracking
 
 # Digitisation (merging hits into cells, EM scale calibration via sampling fractions)
 
