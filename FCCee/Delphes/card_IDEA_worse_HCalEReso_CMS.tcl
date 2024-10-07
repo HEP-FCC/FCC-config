@@ -493,8 +493,8 @@ module DualReadoutCalorimeter Calorimeter {
   set EFlowPhotonOutputArray eflowPhotons
   set EFlowNeutralHadronOutputArray eflowNeutralHadrons
 
-  set ECalMinSignificance 2.0
-  set HCalMinSignificance 2.5
+  set ECalMinSignificance 1.25
+  set HCalMinSignificance 1.5
 
   set SmearLogNormal false
 
