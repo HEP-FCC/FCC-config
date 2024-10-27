@@ -1,0 +1,22 @@
+Alias   Bd_SIGNAL   B0
+Alias   Bdbar_SIGNAL    anti-B0
+ChargeConj Bd_SIGNAL  Bdbar_SIGNAL
+# Tauola steering options
+Define TauolaCurrentOption 0
+Define TauolaBR1 1.0
+#
+Alias         Mytau+     tau+
+Alias         Mytau-     tau-
+ChargeConj    Mytau+     Mytau-
+#
+Decay Bd_SIGNAL
+  1.000       Mytau+    Mytau-       PHSP;
+Enddecay
+CDecay Bdbar_SIGNAL
+#
+Decay Mytau-
+  1.00        TAUOLA 5;
+Enddecay
+CDecay Mytau+
+#
+End
