@@ -90,7 +90,7 @@ if runHCal:
 # 1. step - merge hits into cells with theta and module segmentation
 # (module is a 'physical' cell i.e. lead + LAr + PCB + LAr +lead)
 # 2. step - rewrite the cellId using the merged theta-module segmentation
-# (merging several modules and severla theta readout cells).
+# (merging several modules and several theta readout cells).
 # Add noise at this step if you derived the noise already assuming merged cells
 
 # Step 1: merge hits into cells according to initial segmentation
