@@ -124,7 +124,7 @@ if dumpGDML:
 # Tracking
 # Create tracks from gen particles
 from Configurables import TracksFromGenParticles
-tracksFromGenParticles = TracksFromGenParticles("TracksFromGenParticles",
+tracksFromGenParticles = TracksFromGenParticles("CreateTracksFromGenParticles",
                                                InputGenParticles = ["MCParticles"],
                                                OutputTracks = ["TracksFromGenParticles"],
                                                OutputMCRecoTrackParticleAssociation = ["TracksFromGenParticlesAssociation"],
