@@ -6,8 +6,8 @@ from Gaudi.Configuration import *
 # Loading the input SIM file, defining output file
 #from k4FWCore import IOSvc
 #io_svc = IOSvc("IOSvc")
-#io_svc.input = "IDEA_sim.root"
-#io_svc.output = "IDEA_sim_digi_reco.root"
+#io_svc.Input = "IDEA_sim.root"
+#io_svc.Output = "IDEA_sim_digi_reco.root"
 
 # For now still use the old IO service
 from Configurables import k4DataSvc, PodioInput
