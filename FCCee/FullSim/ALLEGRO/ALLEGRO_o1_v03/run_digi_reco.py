@@ -111,8 +111,8 @@ ExtSvc += [geoservice]
 from k4FWCore import IOSvc
 from Configurables import EventDataSvc
 io_svc = IOSvc("IOSvc")
-io_svc.input = inputfile
-io_svc.output = outputfile
+io_svc.Input = inputfile
+io_svc.Output = outputfile
 ExtSvc += [EventDataSvc("EventDataSvc")]
 
 # GDML dump of detector model
