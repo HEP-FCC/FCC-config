@@ -26,7 +26,7 @@
 model = SM
 
 # Center of mass energy
-sqrts = 240 GeV
+sqrts = 365 GeV
 
 alias nu = nue:numu:nutau
 alias nubar = nuebar:numubar:nutaubar
