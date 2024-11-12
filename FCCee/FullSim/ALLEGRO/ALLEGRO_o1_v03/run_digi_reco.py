@@ -10,21 +10,36 @@ from Gaudi.Configuration import INFO, DEBUG  # , VERBOSE
 # units and physical constants
 from GaudiKernel.PhysicalConstants import pi
 
-
 #
 # SETTINGS
 #
 
-# - general settings
-#
-inputfile = "ALLEGRO_sim.root"            # input file produced with ddsim
-outputfile = "ALLEGRO_sim_digi_reco.root" # output file produced by this steering file
-Nevts = -1                                # -1 means all events
-addNoise = False                          # add noise or not to the cell energy
+# - default settings, that can be overridden via CLI
+inputfile = "ALLEGRO_sim.root"            # input file produced with ddsim - can be overridden with IOSvc.Input
+outputfile = "ALLEGRO_sim_digi_reco.root" # output file produced by this steering file - can be overridden with IOSvc.Output
+Nevts = -1                                # -1 means all events in input file (can be overridden with -n or --num-events option of k4run
+
+# - general settings not set via CLI
 filterNoiseThreshold = -1                 # if addNoise is true, and filterNoiseThreshold is >0, will filter away cells with abs(energy) below filterNoiseThreshold * expected sigma(noise)
-addCrosstalk = False                      # switch on/off the crosstalk
-dumpGDML = False                          # create GDML file of detector model
-runHCal = True                            # if false, it will produce only ECAL clusters. if true, it will also produce ECAL+HCAL clusters
+# dataFolder = "data/"                    # directory containing the calibration files
+dataFolder = "./"                         # directory containing the calibration files
+
+# - general settings set via CLI
+from k4FWCore.parseArgs import parser
+parser.add_argument("--includeHCal", action="store_true", help="Also digitise HCal hits and create ECAL+HCAL clusters", default=False)
+parser.add_argument("--saveHits", action="store_true", help="Save G4 hits", default=False)
+parser.add_argument("--saveCells", action="store_true", help="Save cell collection", default=False)
+parser.add_argument("--addNoise", action="store_true", help="Add noise to cells (ECAL barrel only)", default=False)
+parser.add_argument("--addCrosstalk", action="store_true", help="Add cross-talk to cells (ECAL barrel only)", default=False)
+parser.add_argument("--addTracks", action="store_true", help="Add reco-level tracks (smeared truth tracks)", default=False)
+parser.add_argument("--calibrateClusters", action="store_true", help="Apply MVA calibration to clusters", default=False)
+parser.add_argument("--runPhotonID", action="store_true", help="Apply photon ID tool to clusters", default=False)
+
+opts = parser.parse_known_args()[0]
+runHCal = opts.includeHCal                # if false, it will produce only ECAL clusters. if true, it will also produce ECAL+HCAL clusters
+addNoise = opts.addNoise                  # add noise or not to the cell energy
+addCrosstalk = opts.addCrosstalk          # switch on/off the crosstalk
+addTracks = opts.addTracks                # add tracks or not
 
 # - what to save in output file
 #
@@ -35,22 +50,34 @@ dropUncalibratedCells = True
 # for big productions, save significant space removing hits and cells
 # however, hits and cluster cells might be wanted for small productions for detailed event displays
 # cluster cells are not needed for the training of the MVA energy regression nor the photon ID since needed quantities are stored in cluster shapeParameters
-saveHits = False
-saveCells = False
-saveClusterCells = False
-# saveHits = True
-# saveCells = True
-# saveClusterCells = True
+saveHits = opts.saveHits
+saveCells = opts.saveCells
+# saveHits = False
+# saveCells = False
+saveClusterCells = True
+
+dropLumiCalHits = True
+#dropVertexHits = True
+#dropDCHHits = True
+#dropSiWrHits = True
+#dropMuonHits = True
+dropVertexHits = False
+dropDCHHits = False
+dropSiWrHits = False
+dropMuonHits = False
+
 
 # ECAL barrel parameters for digitisation
+ecalBarrelLayers = 11
 ecalBarrelSamplingFraction = [0.3800493723322256] * 1 + [0.13494147915064658] * 1 + [0.142866851721152] * 1 + [0.14839315921940666] * 1 + [0.15298362570665006] * 1 + [0.15709704561942747] * 1 + [0.16063717490147533] * 1 + [0.1641723795419055] * 1 + [0.16845490287689746] * 1 + [0.17111520115997653] * 1 + [0.1730605163148862] * 1
 ecalBarrelUpstreamParameters = [[0.028158491043365624, -1.564259408365951, -76.52312805346982, 0.7442903558010191, -34.894692961350195, -74.19340877431723]]
 ecalBarrelDownstreamParameters = [[0.00010587711361028165, 0.0052371999097777355, 0.69906696456064, -0.9348243433360095, -0.0364714212117143, 8.360401126995626]]
+if ecalBarrelSamplingFraction and len(ecalBarrelSamplingFraction)>0:
+    assert(ecalBarrelLayers == len(ecalBarrelSamplingFraction))
 
-ecalBarrelLayers = len(ecalBarrelSamplingFraction)
 resegmentECalBarrel = False
 
-# - parameters for clustering
+# - parameters for clustering (could also be made configurable via CLI)
 #
 doSWClustering = True
 doTopoClustering = True
@@ -63,7 +90,8 @@ applyUpDownstreamCorrections = False
 
 # BDT regression from total cluster energy and fraction of energy in each layer (after correction for sampling fraction)
 # not to be applied (yet) for ECAL+HCAL clustering (MVA trained only on ECAL so far)
-applyMVAClusterEnergyCalibration = True
+# applyMVAClusterEnergyCalibration = True
+applyMVAClusterEnergyCalibration = opts.calibrateClusters
 
 # calculate cluster energy and barycenter per layer and save it as extra parameters
 addShapeParameters = True
@@ -72,7 +100,8 @@ ecalBarrelThetaWeights = [-1, 3.0, 3.0, 3.0, 4.25, 4.0, 4.0, 4.0, 4.0, 4.0, 4.0]
 # run photon ID algorithm
 # not run by default in production, but to be turned on here for the purpose of testing that the code is not broken
 # currently off till we provide the onnx files
-runPhotonIDTool = False
+# runPhotonIDTool = False
+runPhotonIDTool = opts.runPhotonID
 logEWeightInPhotonID = False
 
 
@@ -82,6 +111,15 @@ logEWeightInPhotonID = False
 TopAlg = []  # alg sequence
 ExtSvc = []  # list of external services
 
+
+# Event counter
+from Configurables import EventCounter
+eventCounter = EventCounter("EventCounter",
+                            OutputLevel=INFO,
+                            Frequency=10)
+TopAlg += [eventCounter]
+# add a message sink service if you want a summary table at the end (not needed..)
+# ExtSvc += ["Gaudi::Monitoring::MessageSvcSink"]
 
 # CPU information
 from Configurables import AuditorSvc, ChronoAuditor
@@ -107,6 +145,7 @@ geoservice.detectors = [
 geoservice.OutputLevel = INFO
 ExtSvc += [geoservice]
 
+
 # Input/Output handling
 from k4FWCore import IOSvc
 from Configurables import EventDataSvc
@@ -115,24 +154,19 @@ io_svc.Input = inputfile
 io_svc.Output = outputfile
 ExtSvc += [EventDataSvc("EventDataSvc")]
 
-# GDML dump of detector model
-if dumpGDML:
-    from Configurables import GeoToGdmlDumpSvc
-    gdmldumpservice = GeoToGdmlDumpSvc("GeoToGdmlDumpSvc")
-    ExtSvc += [gdmldumpservice]
 
 # Tracking
 # Create tracks from gen particles
-from Configurables import TracksFromGenParticles
-tracksFromGenParticles = TracksFromGenParticles("CreateTracksFromGenParticles",
-                                               InputGenParticles = ["MCParticles"],
-                                               OutputTracks = ["TracksFromGenParticles"],
-                                               OutputMCRecoTrackParticleAssociation = ["TracksFromGenParticlesAssociation"],
-                                               Bz = 2.0,
-                                               OutputLevel = INFO)
-TopAlg += [tracksFromGenParticles]
+if addTracks:
+    from Configurables import TracksFromGenParticles
+    tracksFromGenParticles = TracksFromGenParticles("CreateTracksFromGenParticles",
+                                                    InputGenParticles = ["MCParticles"],
+                                                    OutputTracks = ["TracksFromGenParticles"],
+                                                    OutputMCRecoTrackParticleAssociation = ["TracksFromGenParticlesAssociation"],
+                                                    Bz = 2.0,
+                                                    OutputLevel = INFO)
+    TopAlg += [tracksFromGenParticles]
 
-# End Tracking
 
 # Digitisation (merging hits into cells, EM scale calibration via sampling fractions)
 
@@ -355,6 +389,8 @@ if addNoise:
                                                            doCellCalibration=True,
                                                            calibTool=calibEcalBarrel,
                                                            positionsTool=cellPositionEcalBarrelTool,
+                                                           addCrosstalk=addCrosstalk,
+                                                           crosstalkTool=readCrosstalkMap,
                                                            addCellNoise=True,
                                                            filterCellNoise=False,
                                                            noiseTool=ecalBarrelNoiseTool,
@@ -369,6 +405,8 @@ if addNoise:
                                                                    doCellCalibration=True,
                                                                    calibTool=calibEcalBarrel,
                                                                    positionsTool=cellPositionEcalBarrelTool,
+                                                                   addCrosstalk=addCrosstalk,
+                                                                   crosstalkTool=readCrosstalkMap,
                                                                    addCellNoise=True,
                                                                    filterCellNoise=True,
                                                                    noiseTool=ecalBarrelNoiseTool,
@@ -480,7 +518,6 @@ if doSWClustering or doTopoClustering:
     createemptycells.cells.Path = "emptyCaloCells"
     TopAlg += [createemptycells]
 
-
 # Function that sets up the sequence for producing SW clusters given an input cell collection
 def setupSWClusters(inputCells,
                     inputReadouts,
@@ -506,6 +543,15 @@ def setupSWClusters(inputCells,
     dupP = 13
     finT = 9
     finP = 17
+    # to be tested: about -2% of energy but smaller cluster, less noise
+    #windT = 7
+    #windP = 9
+    #posT = 5
+    #posP = 7
+    #dupT = 7
+    #dupP = 9
+    #finT = 7
+    #finP = 9
     # - minimal energy to create a cluster in GeV (FCC-ee detectors have to reconstruct low energy particles)
     threshold = clusteringThreshold
 
@@ -574,7 +620,8 @@ def setupSWClusters(inputCells,
                                                  readoutNames=[inputReadouts["ecalBarrel"]],
                                                  layerFieldNames=["layer"],
                                                  thetaRecalcWeights=[ecalBarrelThetaWeights],
-                                                 do_photon_shapeVar=runPhotonIDTool,
+                                                 # do_photon_shapeVar=runPhotonIDTool,
+                                                 do_photon_shapeVar=True,  # we want these variables to train the photon ID BDT
                                                  do_widthTheta_logE_weights=logEWeightInPhotonID,
                                                  OutputLevel=INFO
                                                  )
@@ -598,7 +645,7 @@ def setupSWClusters(inputCells,
                                                      firstLayerIDs=[0],
                                                      readoutNames=[inputReadouts["ecalBarrel"]],
                                                      layerFieldNames=["layer"],
-                                                     calibrationFile="lgbm_calibration-CaloClusters.onnx",
+                                                     calibrationFile=dataFolder + "lgbm_calibration-CaloClusters.onnx",
                                                      OutputLevel=INFO
                                                      )
         TopAlg += [calibrateClustersAlg]
@@ -618,8 +665,8 @@ def setupSWClusters(inputCells,
             photonIDAlg = PhotonIDTool("PhotonID" + outputClusters,
                                        inClusters=inClusters,
                                        outClusters="PhotonID" + inClusters,
-                                       mvaModelFile="bdt-photonid-weights-CaloClusters.onnx",
-                                       mvaInputsFile="bdt-photonid-inputs-CaloClusters.json",
+                                       mvaModelFile=dataFolder + "bdt-photonid-weights-CaloClusters.onnx",
+                                       mvaInputsFile=dataFolder + "bdt-photonid-inputs-CaloClusters.json",
                                        OutputLevel=INFO
                                        )
             TopAlg += [photonIDAlg]
@@ -630,6 +677,7 @@ def setupTopoClusters(inputCells,
                       inputReadouts,
                       inputPositioningTools,  # TODO: check if we still need these since the cells are positioned..
                       outputClusters,
+                      clusteringThreshold,
                       neighboursMap,
                       noiseMap,
                       applyUpDownstreamCorrections,
@@ -645,7 +693,7 @@ def setupTopoClusters(inputCells,
     from Configurables import CaloTopoClusterFCCee
 
     # Clustering parameters
-    seedSigma = 4
+    seedSigma = 6
     neighbourSigma = 2
     lastNeighbourSigma = 0
 
@@ -698,6 +746,7 @@ def setupTopoClusters(inputCells,
                                       seedSigma=seedSigma,
                                       neighbourSigma=neighbourSigma,
                                       lastNeighbourSigma=lastNeighbourSigma,
+                                      minClusterEnergy=clusteringThreshold,
                                       OutputLevel=INFO)
     clusterAlg.clusters.Path = outputClusters
     clusterAlg.clusterCells.Path = outputClusters.replace("Clusters", "Cluster") + "Cells"
@@ -735,7 +784,8 @@ def setupTopoClusters(inputCells,
                                                  readoutNames=[inputReadouts["ecalBarrel"]],
                                                  layerFieldNames=["layer"],
                                                  thetaRecalcWeights=[ecalBarrelThetaWeights],
-                                                 do_photon_shapeVar=runPhotonIDTool,
+                                                 # do_photon_shapeVar=runPhotonIDTool,
+                                                 do_photon_shapeVar=True,  # we want these variables to train the photon ID BDT
                                                  do_widthTheta_logE_weights=logEWeightInPhotonID,
                                                  OutputLevel=INFO)
         TopAlg += [augmentClusterAlg]
@@ -758,7 +808,7 @@ def setupTopoClusters(inputCells,
                                                      firstLayerIDs=[0],
                                                      readoutNames=[inputReadouts["ecalBarrel"]],
                                                      layerFieldNames=["layer"],
-                                                     calibrationFile="lgbm_calibration-CaloTopoClusters.onnx",
+                                                     calibrationFile=dataFolder + "lgbm_calibration-CaloTopoClusters.onnx",
                                                      OutputLevel=INFO
                                                      )
         TopAlg += [calibrateClustersAlg]
@@ -778,8 +828,8 @@ def setupTopoClusters(inputCells,
             photonIDAlg = PhotonIDTool("PhotonID" + outputClusters,
                                        inClusters=inClusters,
                                        outClusters="PhotonID" + inClusters,
-                                       mvaModelFile="bdt-photonid-weights-CaloTopoClusters.onnx",
-                                       mvaInputsFile="bdt-photonid-inputs-CaloTopoClusters.json",
+                                       mvaModelFile=dataFolder + "bdt-photonid-weights-CaloTopoClusters.onnx",
+                                       mvaInputsFile=dataFolder + "bdt-photonid-inputs-CaloTopoClusters.json",
                                        OutputLevel=INFO)
             TopAlg += [photonIDAlg]
 
@@ -815,7 +865,7 @@ if doSWClustering:
         setupSWClusters(EMBCaloClusterInputsWithNoise,
                         EMBCaloClusterReadouts,
                         "EMBCaloClustersWithNoise" if filterNoiseThreshold < 0 else "EMBCaloClustersWithNoiseFiltered",
-                        0.3,
+                        0.1,  # large number of clusters with noise, consider raising to 0.3 if not looking at low-energy cluster reconstruction, or use filtered cells
                         applyUpDownstreamCorrections,
                         applyMVAClusterEnergyCalibration,
                         addShapeParameters,
@@ -853,8 +903,9 @@ if doTopoClustering:
                       EMBCaloTopoClusterReadouts,
                       EMBCaloTopoClusterPositioningTools,
                       "EMBCaloTopoClusters",
-                      "neighbours_map_ecalB_thetamodulemerged.root",
-                      "cellNoise_map_electronicsNoiseLevel_ecalB_thetamodulemerged.root",
+                      0.0,
+                      dataFolder + "neighbours_map_ecalB_thetamodulemerged.root",
+                      dataFolder + "cellNoise_map_electronicsNoiseLevel_ecalB_thetamodulemerged.root",
                       applyUpDownstreamCorrections,
                       applyMVAClusterEnergyCalibration,
                       addShapeParameters,
@@ -869,8 +920,9 @@ if doTopoClustering:
                           EMBCaloTopoClusterReadouts,
                           EMBCaloTopoClusterPositioningTools,
                           "EMBCaloTopoClustersWithNoise" if filterNoiseThreshold < 0 else "EMBCaloTopoClustersWithNoiseFiltered",
-                          "neighbours_map_ecalB_thetamodulemerged.root",
-                          "cellNoise_map_electronicsNoiseLevel_ecalB_thetamodulemerged.root",
+                          0.1,
+                          dataFolder + "neighbours_map_ecalB_thetamodulemerged.root",
+                          dataFolder + "cellNoise_map_electronicsNoiseLevel_ecalB_thetamodulemerged.root",
                           applyUpDownstreamCorrections,
                           applyMVAClusterEnergyCalibration,
                           addShapeParameters,
@@ -894,17 +946,20 @@ if doTopoClustering:
                           CaloTopoClusterReadouts,
                           CaloTopoClusterPositioningTools,
                           "CaloTopoClusters",
-                          "neighbours_map_ecalB_thetamodulemerged_hcalB_thetaphi.root",
-                          "cellNoise_map_electronicsNoiseLevel_ecalB_thetamodulemerged_hcalB_thetaphi.root",
+                          0.0,
+                          dataFolder + "neighbours_map_ecalB_thetamodulemerged_hcalB_thetaphi.root",
+                          dataFolder + "cellNoise_map_electronicsNoiseLevel_ecalB_thetamodulemerged_hcalB_thetaphi.root",
                           False,
                           False,
                           False,
                           False)
 
 
+# Configure the output
+
 # drop the empty cells
 io_svc.outputCommands = ["keep *",
-                               "drop emptyCaloCells"]
+                         "drop emptyCaloCells"]
 
 # drop the uncalibrated cells
 if dropUncalibratedCells:
@@ -926,10 +981,18 @@ if dropUncalibratedCells:
         io_svc.outputCommands.append("drop %s" % hcalEndcapPositionedCellsName)
 
 # drop lumi, vertex, DCH, Muons (unless want to keep for event display)
-io_svc.outputCommands.append("drop Lumi*")
-# io_svc.outputCommands.append("drop Vertex*")
-# io_svc.outputCommands.append("drop DriftChamber_simHits*")
-io_svc.outputCommands.append("drop MuonTagger*")
+if dropLumiCalHits:
+    io_svc.outputCommands.append("drop Lumi*")
+if dropVertexHits:
+    io_svc.outputCommands.append("drop VertexBarrelCollection*")
+    io_svc.outputCommands.append("drop VertexEndcapCollection*")
+if dropDCHHits:
+    io_svc.outputCommands.append("drop DCHCollection**")
+if dropSiWrHits:
+    io_svc.outputCommands.append("drop SiWrBCollection*")
+    io_svc.outputCommands.append("drop SiWrDCollection*")
+if dropMuonHits:
+    io_svc.outputCommands.append("drop MuonTagger*")
 
 # drop hits/positioned cells/cluster cells if desired
 if not saveHits:
@@ -939,18 +1002,22 @@ if not saveHits:
 if not saveCells:
     io_svc.outputCommands.append("drop %s" % ecalBarrelPositionedCellsName)
     io_svc.outputCommands.append("drop %s" % ecalEndcapPositionedCellsName)
+    if addNoise:
+        io_svc.outputCommands.append("drop %sWithNoise*" % ecalBarrelPositionedCellsName)
+        io_svc.outputCommands.append("drop %sWithNoise*" % ecalEndcapPositionedCellsName)
     if resegmentECalBarrel:
         io_svc.outputCommands.append("drop %s" % ecalBarrelPositionedCellsName2)
     if runHCal:
         io_svc.outputCommands.append("drop %s" % hcalBarrelPositionedCellsName2)
         io_svc.outputCommands.append("drop %s" % hcalEndcapPositionedCellsName2)
 if not saveClusterCells:
-    io_svc.outputCommands.append("drop Calo*ClusterCells*")
+    io_svc.outputCommands.append("drop *Calo*Cluster*Cells*")
 
 # if we decorate the clusters, we can drop the non-decorated ones
-# commented in tests, for debugging
-# if addShapeParameters:
-#     io_svc.outputCommands.append("drop %s" % augmentECalBarrelClusters.inClusters)
+if addShapeParameters:
+    for algo in TopAlg:
+        if algo.__class__.__name__ == "AugmentClustersFCCee":
+            io_svc.outputCommands.append("drop %s" % algo.inClusters)
 
 
 # configure the application
