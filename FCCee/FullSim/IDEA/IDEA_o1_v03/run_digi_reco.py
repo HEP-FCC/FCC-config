@@ -147,7 +147,7 @@ audsvc.Auditors = [chra]
 from Configurables import ApplicationMgr
 application_mgr = ApplicationMgr(
     TopAlg = [
-			  inp,
+	      inp,
               vtxb_digitizer,
               vtxd_digitizer,
               siwrb_digitizer,
@@ -160,7 +160,7 @@ application_mgr = ApplicationMgr(
     EvtSel = 'NONE',
     EvtMax   = -1,
     #ExtSvc = [root_hist_svc, EventDataSvc("EventDataSvc"), geoservice, audsvc],
-    ExtSvc = [root_hist_svc, geoservice, evtsvc, audsvc],
+    ExtSvc = ['RndmGenSvc', root_hist_svc, geoservice, evtsvc, audsvc],
     StopOnSignal = True,
  )
 
