@@ -433,7 +433,7 @@ if runHCal:
 
     # Compute new cellID of cells based on new readout - removing row information
     # We use a RedoSegmentation. Using a RewriteBitField with removeIds=["row"],
-    # wont work because there are tiles with same layer/theta/phi but different row
+    # won't work because there are tiles with same layer/theta/phi but different row
     # as a consequence there will be multiple cells with same cellID in the output collection
     # and this will screw up the SW clustering
 
