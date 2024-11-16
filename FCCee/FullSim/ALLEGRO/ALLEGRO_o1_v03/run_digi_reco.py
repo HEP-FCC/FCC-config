@@ -665,8 +665,8 @@ def setupSWClusters(inputCells,
             photonIDAlg = PhotonIDTool("PhotonID" + outputClusters,
                                        inClusters=inClusters,
                                        outClusters="PhotonID" + inClusters,
-                                       mvaModelFile=dataFolder + "bdt-photonid-weights-CaloClusters.onnx",
-                                       mvaInputsFile=dataFolder + "bdt-photonid-inputs-CaloClusters.json",
+                                       mvaModelFile=dataFolder + "bdt-photonid-weights-EMBCaloClusters.onnx",
+                                       mvaInputsFile=dataFolder + "bdt-photonid-settings-EMBCaloClusters.json",
                                        OutputLevel=INFO
                                        )
             TopAlg += [photonIDAlg]
@@ -828,8 +828,8 @@ def setupTopoClusters(inputCells,
             photonIDAlg = PhotonIDTool("PhotonID" + outputClusters,
                                        inClusters=inClusters,
                                        outClusters="PhotonID" + inClusters,
-                                       mvaModelFile=dataFolder + "bdt-photonid-weights-CaloTopoClusters.onnx",
-                                       mvaInputsFile=dataFolder + "bdt-photonid-inputs-CaloTopoClusters.json",
+                                       mvaModelFile=dataFolder + "bdt-photonid-weights-EMBCaloTopoClusters.onnx",
+                                       mvaInputsFile=dataFolder + "bdt-photonid-settings-EMBCaloTopoClusters.json",
                                        OutputLevel=INFO)
             TopAlg += [photonIDAlg]
 
