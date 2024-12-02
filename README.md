@@ -1,6 +1,6 @@
 # FCC-config
 
-Collection of configuration files used in the FCC event processing chain.
+Collection of configuration files used in the [FCC](https://fcc.web.cern.ch/) event processing chain.
 
 
 ## Pre-generated samples
