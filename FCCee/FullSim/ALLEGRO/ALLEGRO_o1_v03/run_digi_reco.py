@@ -113,11 +113,11 @@ ExtSvc = []  # list of external services
 
 
 # Event counter
-from Configurables import EventCounter
-eventCounter = EventCounter("EventCounter",
-                            OutputLevel=INFO,
-                            Frequency=10)
-TopAlg += [eventCounter]
+#from Configurables import EventCounter
+#eventCounter = EventCounter("EventCounter",
+#                            OutputLevel=INFO,
+#                            Frequency=10)
+#TopAlg += [eventCounter]
 # add a message sink service if you want a summary table at the end (not needed..)
 # ExtSvc += ["Gaudi::Monitoring::MessageSvcSink"]
 
@@ -176,15 +176,11 @@ ecalBarrelReadoutName2 = "ECalBarrelModuleThetaMerged2"    # barrel, after re-se
 ecalEndcapReadoutName = "ECalEndcapTurbine"                # endcap, turbine-like (baseline)
 # - HCAL readouts
 if runHCal:
-    hcalBarrelReadoutName = "HCalBarrelReadout"            # barrel, original segmentation (row-phi)
-    hcalBarrelReadoutName2 = "BarHCal_Readout_phitheta"    # barrel, groups together cells of different row within same theta slice
-    hcalEndcapReadoutName = "HCalEndcapReadout"            # endcap, original segmentation
-    hcalEndcapReadoutName2 = "HCalEndcapReadout_phitheta"  # endcap, groups together cells of different row within same theta slice
+    hcalBarrelReadoutName = "HCalBarrelReadout"            # barrel, original segmentation (HCalPhiTheta)
+    hcalEndcapReadoutName = "HCalEndcapReadout"            # endcap, original segmentation (HCalPhiTheta)
 else:
     hcalBarrelReadoutName = ""
-    hcalBarrelReadoutName2 = ""
     hcalEndcapReadoutName = ""
-    hcalEndcapReadoutName2 = ""
 
 # - EM scale calibration (sampling fraction)
 from Configurables import CalibrateInLayersTool
@@ -243,22 +239,9 @@ if runHCal:
         detectorName="HCalBarrel",
         OutputLevel=INFO
     )
-    cellPositionHCalBarrelTool2 = CellPositionsHCalPhiThetaSegTool(
-        "CellPositionsHCalBarrel2",
-        readoutName=hcalBarrelReadoutName2,
-        detectorName="HCalBarrel",
-        OutputLevel=INFO
-    )
     cellPositionHCalEndcapTool = CellPositionsHCalPhiThetaSegTool(
         "CellPositionsHCalEndcap",
         readoutName=hcalEndcapReadoutName,
-        detectorName="HCalThreePartsEndcap",
-        numLayersHCalThreeParts=[6, 9, 22],
-        OutputLevel=INFO
-    )
-    cellPositionHCalEndcapTool2 = CellPositionsHCalPhiThetaSegTool(
-        "CellPositionsHCalEndcap2",
-        readoutName=hcalEndcapReadoutName2,
         detectorName="HCalThreePartsEndcap",
         numLayersHCalThreeParts=[6, 9, 22],
         OutputLevel=INFO
@@ -431,39 +414,6 @@ if runHCal:
                                                       OutputLevel=INFO)
     TopAlg += [createHCalBarrelCells]
 
-    # Compute new cellID of cells based on new readout - removing row information
-    # We use a RedoSegmentation. Using a RewriteBitField with removeIds=["row"],
-    # won't work because there are tiles with same layer/theta/phi but different row
-    # as a consequence there will be multiple cells with same cellID in the output collection
-    # and this will screw up the SW clustering
-
-    # first we create new hits with the readout without the row information
-    # and then merge them into new cells, wihotut applying the calibration again
-    from Configurables import RedoSegmentation
-    rewriteHCalBarrel = RedoSegmentation("ReSegmentationHCalBarrel",
-                                         # old bitfield (readout)
-                                         oldReadoutName=hcalBarrelReadoutName,
-                                         # specify which fields are going to be altered (deleted/rewritten)
-                                         oldSegmentationIds=["row", "theta", "phi"],
-                                         # new bitfield (readout), with new segmentation (theta-phi grid)
-                                         newReadoutName=hcalBarrelReadoutName2,
-                                         OutputLevel=INFO,
-                                         debugPrint=200,
-                                         inhits=hcalBarrelPositionedCellsName,
-                                         outhits="HCalBarrelCellsWithoutRow")
-    TopAlg += [rewriteHCalBarrel]
-
-    hcalBarrelPositionedCellsName2 = hcalBarrelReadoutName2 + "Positioned"
-    createHCalBarrelCells2 = CreatePositionedCaloCells("CreatePositionedHCalBarrelCells2",
-                                                       doCellCalibration=False,
-                                                       positionsTool=cellPositionHCalBarrelTool2,
-                                                       addCellNoise=False,
-                                                       filterCellNoise=False,
-                                                       OutputLevel=INFO,
-                                                       hits=rewriteHCalBarrel.outhits.Path,
-                                                       cells=hcalBarrelPositionedCellsName2)
-    TopAlg += [createHCalBarrelCells2]
-
     # Create cells in HCal endcap
     hcalEndcapPositionedCellsName = hcalEndcapReadoutName + "Positioned"
     createHCalEndcapCells = CreatePositionedCaloCells("CreatePositionedHCalEndcapCells",
@@ -477,39 +427,11 @@ if runHCal:
                                                       cells=hcalEndcapPositionedCellsName)
     TopAlg += [createHCalEndcapCells]
 
-    rewriteHCalEndcap = RedoSegmentation("ReSegmentationHCalEndcap",
-                                         # old bitfield (readout)
-                                         oldReadoutName=hcalEndcapReadoutName,
-                                         # specify which fields are going to be altered (deleted/rewritten)
-                                         oldSegmentationIds=["row", "theta", "phi"],
-                                         # new bitfield (readout), with new segmentation (theta-phi grid)
-                                         newReadoutName=hcalEndcapReadoutName2,
-                                         OutputLevel=INFO,
-                                         debugPrint=200,
-                                         inhits=hcalEndcapPositionedCellsName,
-                                         outhits="HCalEndcapCellsWithoutRow")
-    TopAlg += [rewriteHCalEndcap]
-
-    hcalEndcapPositionedCellsName2 = hcalEndcapReadoutName2 + "Positioned"
-    createHCalEndcapCells2 = CreatePositionedCaloCells("CreatePositionedHCalEndcapCells2",
-                                                       doCellCalibration=False,
-                                                       positionsTool=cellPositionHCalEndcapTool2,
-                                                       addCellNoise=False,
-                                                       filterCellNoise=False,
-                                                       OutputLevel=INFO,
-                                                       hits=rewriteHCalEndcap.outhits.Path,
-                                                       cells=hcalEndcapPositionedCellsName2)
-    TopAlg += [createHCalEndcapCells2]
-
 else:
     hcalBarrelPositionedCellsName = "emptyCaloCells"
-    hcalBarrelPositionedCellsName2 = "emptyCaloCells"
     hcalEndcapPositionedCellsName = "emptyCaloCells"
-    hcalEndcapPositionedCellsName2 = "emptyCaloCells"
     cellPositionHCalBarrelTool = None
-    cellPositionHCalBarrelTool2 = None
     cellPositionHCalEndcapTool = None
-    cellPositionHCalEndcapTool2 = None
 
 # Empty cells for parts of calorimeter not implemented yet
 if doSWClustering or doTopoClustering:
@@ -876,14 +798,14 @@ if doSWClustering:
         CaloClusterInputs = {
             "ecalBarrel": ecalBarrelPositionedCellsName,
             "ecalEndcap": ecalEndcapPositionedCellsName,
-            "hcalBarrel": hcalBarrelPositionedCellsName2,
-            "hcalEndcap": hcalEndcapPositionedCellsName2,
+            "hcalBarrel": hcalBarrelPositionedCellsName,
+            "hcalEndcap": hcalEndcapPositionedCellsName,
         }
         CaloClusterReadouts = {
             "ecalBarrel": ecalBarrelReadoutName,
             "ecalEndcap": ecalEndcapReadoutName,
-            "hcalBarrel": hcalBarrelReadoutName2,
-            "hcalEndcap": hcalEndcapReadoutName2,
+            "hcalBarrel": hcalBarrelReadoutName,
+            "hcalEndcap": hcalEndcapReadoutName,
         }
         setupSWClusters(CaloClusterInputs,
                         CaloClusterReadouts,
@@ -932,22 +854,22 @@ if doTopoClustering:
     if runHCal:
         CaloTopoClusterInputs = {
             "ecalBarrel": ecalBarrelPositionedCellsName,
-            "hcalBarrel": hcalBarrelPositionedCellsName2
+            "hcalBarrel": hcalBarrelPositionedCellsName
         }
         CaloTopoClusterReadouts = {
             "ecalBarrel": ecalBarrelReadoutName,
-            "hcalBarrel": hcalBarrelReadoutName2
+            "hcalBarrel": hcalBarrelReadoutName
         }
         CaloTopoClusterPositioningTools = {
             "ecalBarrel": cellPositionEcalBarrelTool,
-            "hcalBarrel": cellPositionHCalBarrelTool2,
+            "hcalBarrel": cellPositionHCalBarrelTool,
         }
         setupTopoClusters(CaloTopoClusterInputs,
                           CaloTopoClusterReadouts,
                           CaloTopoClusterPositioningTools,
                           "CaloTopoClusters",
                           0.0,
-                          dataFolder + "neighbours_map_ecalB_thetamodulemerged_hcalB_thetaphi.root",
+                          dataFolder + "neighbours_map_ecalB_thetamodulemerged_hcalB_hcalEndcap_phitheta.root",
                           dataFolder + "cellNoise_map_electronicsNoiseLevel_ecalB_thetamodulemerged_hcalB_thetaphi.root",
                           False,
                           False,
@@ -1008,8 +930,8 @@ if not saveCells:
     if resegmentECalBarrel:
         io_svc.outputCommands.append("drop %s" % ecalBarrelPositionedCellsName2)
     if runHCal:
-        io_svc.outputCommands.append("drop %s" % hcalBarrelPositionedCellsName2)
-        io_svc.outputCommands.append("drop %s" % hcalEndcapPositionedCellsName2)
+        io_svc.outputCommands.append("drop %s" % hcalBarrelPositionedCellsName)
+        io_svc.outputCommands.append("drop %s" % hcalEndcapPositionedCellsName)
 if not saveClusterCells:
     io_svc.outputCommands.append("drop *Calo*Cluster*Cells*")
 
