@@ -854,15 +854,18 @@ if doTopoClustering:
     if runHCal:
         CaloTopoClusterInputs = {
             "ecalBarrel": ecalBarrelPositionedCellsName,
-            "hcalBarrel": hcalBarrelPositionedCellsName
+            "hcalBarrel": hcalBarrelPositionedCellsName,
+            "hcalEndcap": hcalEndcapPositionedCellsName,
         }
         CaloTopoClusterReadouts = {
             "ecalBarrel": ecalBarrelReadoutName,
-            "hcalBarrel": hcalBarrelReadoutName
+            "hcalBarrel": hcalBarrelReadoutName,
+            "hcalEndcap": hcalEndcapReadoutName,
         }
         CaloTopoClusterPositioningTools = {
             "ecalBarrel": cellPositionEcalBarrelTool,
             "hcalBarrel": cellPositionHCalBarrelTool,
+            "hcalEndcap": cellPositionHCalEndcapTool,
         }
         setupTopoClusters(CaloTopoClusterInputs,
                           CaloTopoClusterReadouts,
