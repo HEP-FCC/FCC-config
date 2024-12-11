@@ -113,11 +113,11 @@ ExtSvc = []  # list of external services
 
 
 # Event counter
-#from Configurables import EventCounter
-#eventCounter = EventCounter("EventCounter",
-#                            OutputLevel=INFO,
-#                            Frequency=10)
-#TopAlg += [eventCounter]
+from Configurables import EventCounter
+eventCounter = EventCounter("EventCounter",
+                            OutputLevel=INFO,
+                            Frequency=10)
+TopAlg += [eventCounter]
 # add a message sink service if you want a summary table at the end (not needed..)
 # ExtSvc += ["Gaudi::Monitoring::MessageSvcSink"]
 
