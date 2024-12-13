@@ -1,0 +1,27 @@
+Alias   Lb_SIGNAL   Lambda_b0
+Alias   Lbbar_SIGNAL    anti-Lambda_b0
+ChargeConj Lb_SIGNAL  Lbbar_SIGNAL
+
+Alias      MyLambda0      Lambda0
+Alias      Myanti-Lambda0 anti-Lambda0
+ChargeConj MyLambda0      Myanti-Lambda0
+Alias      MyJ/psi       J/psi
+ChargeConj MyJ/psi       MyJ/psi
+
+#
+Decay Lb_SIGNAL
+  1.000    MyLambda          MyJ/psi                 PHSP;
+Enddecay
+CDecay Lbbar_SIGNAL
+#
+Decay MyJ/psi
+  1.000     mu+  mu-                      PHOTOS  VLL;
+Enddecay
+#
+Decay MyLambda0
+  1.000        p+       pi-              PHSP;
+Enddecay
+CDecay Myanti-Lambda0
+#
+End
+#
