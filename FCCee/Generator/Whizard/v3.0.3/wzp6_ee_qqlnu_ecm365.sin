@@ -35,14 +35,14 @@ mb = 0
 alias q = u:d:s:c:b
 alias Q = U:D:S:C:B
 
-process proc = e1, E1 =>   ( q, Q, e1, ve~ )			 
-			 + ( q, Q, E1, ve )
+process proc = e1, E1 =>   ( q, Q, e1, nuebar )			 
+			 + ( q, Q, E1, nue )
 
-			 + ( q, Q, e2, vm~ )
-			 + ( q, Q, E2, vm )
+			 + ( q, Q, e2, numubar )
+			 + ( q, Q, E2, numu )
 
-			 + ( q, Q, e3, vt~ )
-	       	         + ( q, Q, E3, vt ) { $restrictions = "3+4~h1 && 5+6~h1" }
+			 + ( q, Q, e3, nutaubar )
+	       	         + ( q, Q, E3, nutau ) { $restrictions = "3+4~h1 && 5+6~h1" }
 
 			 
 beams = e1, E1 => gaussian => isr

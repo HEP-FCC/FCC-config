@@ -36,8 +36,8 @@ mb = 0
 alias q = u:d:s:c:b
 alias Q = U:D:S:C:B
 
-alias nu = ve:vm:vt
-alias nubar = ve~:vm~:vt~
+alias nu = nue:numu:nutau
+alias nubar = nuebar:numubar:nutaubar
 
 process proc = e1, E1 =>   ( q, Q, nu, nubar ) { $restrictions = "3+4~h1 && 5+6~h1" }
 
