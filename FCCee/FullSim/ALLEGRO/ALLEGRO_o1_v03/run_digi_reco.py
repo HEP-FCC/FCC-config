@@ -26,6 +26,7 @@ dataFolder = "./"                          # directory containing the calibratio
 
 # - general settings set via CLI
 from k4FWCore.parseArgs import parser
+parser.add_argument("--pandora", action="store_true", help="Run pandora PFA", default=False)
 parser.add_argument("--includeHCal", action="store_true", help="Also digitise HCal hits and create ECAL+HCAL clusters", default=False)
 parser.add_argument("--saveHits", action="store_true", help="Save G4 hits", default=False)
 parser.add_argument("--saveCells", action="store_true", help="Save cell collection", default=False)
@@ -34,8 +35,12 @@ parser.add_argument("--addCrosstalk", action="store_true", help="Add cross-talk 
 parser.add_argument("--addTracks", action="store_true", help="Add reco-level tracks (smeared truth tracks)", default=False)
 parser.add_argument("--calibrateClusters", action="store_true", help="Apply MVA calibration to clusters", default=False)
 parser.add_argument("--runPhotonID", action="store_true", help="Apply photon ID tool to clusters", default=False)
+# GM: temporarily added these options since IOSvc does not work with EDM4hep2LCIO
+parser.add_argument("--inputFiles", action="extend", nargs="+", metavar=("file1", "file2"), help="One or multiple input files")
+parser.add_argument("--outputFile", help="Output file name", default="output.root")
 
 opts = parser.parse_known_args()[0]
+runPandora = opts.pandora                 # if true, add tracks, include HCal, and run pandora PFA instead of basic clustering algorithm
 runHCal = opts.includeHCal                # if false, it will produce only ECAL clusters. if true, it will also produce ECAL+HCAL clusters
 addNoise = opts.addNoise                  # add noise or not to the cell energy
 addCrosstalk = opts.addCrosstalk          # switch on/off the crosstalk
@@ -78,7 +83,6 @@ if ecalBarrelSamplingFraction and len(ecalBarrelSamplingFraction) > 0:
 resegmentECalBarrel = False
 
 # - parameters for clustering (could also be made configurable via CLI)
-#
 doSWClustering = True
 doTopoClustering = True
 
@@ -95,7 +99,7 @@ applyMVAClusterEnergyCalibration = opts.calibrateClusters
 
 # calculate cluster energy and barycenter per layer and save it as extra parameters
 addShapeParameters = True
-ecalBarrelThetaWeights = [-1, 3.0, 3.0, 3.0, 4.25, 4.0, 4.0, 4.0, 4.0, 4.0, 4.0]  # to be recalculated for V03, separately for topo and calo clusters...
+ecalBarrelThetaWeights = [-1, 3.0, 3.0, 3.0, 4.25, 4.0, 4.0, 4.0, 4.0, 4.0, 4.0]  # to be recalculated for V03/04, separately for topo and calo clusters...
 
 # run photon ID algorithm
 # not run by default in production, but to be turned on here for the purpose of testing that the code is not broken
@@ -103,6 +107,13 @@ ecalBarrelThetaWeights = [-1, 3.0, 3.0, 3.0, 4.25, 4.0, 4.0, 4.0, 4.0, 4.0, 4.0]
 # runPhotonIDTool = False
 runPhotonIDTool = opts.runPhotonID
 logEWeightInPhotonID = False
+
+if runPandora:
+    print("PandoraPFA is requested, will set addTracks and runHCal to True, doSWClustering and doTopoClustering to False")
+    runHCal = True
+    addTracks = True
+    doSWClustering = False
+    doTopoClustering = False
 
 
 #
@@ -147,24 +158,53 @@ ExtSvc += [geoservice]
 
 
 # Input/Output handling
-from k4FWCore import IOSvc
-from Configurables import EventDataSvc
-io_svc = IOSvc("IOSvc")
-io_svc.Input = inputfile
-io_svc.Output = outputfile
-ExtSvc += [EventDataSvc("EventDataSvc")]
+if runPandora:
+    # legacy IO - cannot yet use EDM4hep2Lcio with IOSvC
+    from Configurables import k4DataSvc, PodioInput
+    evtsvc = k4DataSvc('EventDataSvc')
+    ExtSvc += [evtsvc]
+    read = PodioInput("PodioInput")
+    TopAlg.append(read)
+    evtsvc.inputs = opts.inputFiles
 
+    from Configurables import PodioOutput
+    io_svc = PodioOutput("PodioOutput", filename=opts.outputFile)
+    io_svc.outputCommands = ["keep *"]
+else:
+    from k4FWCore import IOSvc
+    from Configurables import EventDataSvc
+    io_svc = IOSvc("IOSvc")
+    # io_svc.Input = inputfile
+    # io_svc.Output = outputfile
+    io_svc.Input = opts.inputFiles
+    io_svc.Output = opts.outputFile
+    evtsvc = EventDataSvc("EventDataSvc")
+    ExtSvc += [evtsvc]
 
 # Tracking
 # Create tracks from gen particles
 if addTracks:
-    from Configurables import TracksFromGenParticles
-    tracksFromGenParticles = TracksFromGenParticles("CreateTracksFromGenParticles",
-                                                    InputGenParticles=["MCParticles"],
-                                                    OutputTracks=["TracksFromGenParticles"],
-                                                    OutputMCRecoTrackParticleAssociation=["TracksFromGenParticlesAssociation"],
-                                                    Bz=2.0,
-                                                    OutputLevel=INFO)
+    if runPandora:
+        from Configurables import TracksFromGenParticlesAlg
+        tracksFromGenParticles = TracksFromGenParticlesAlg("CreateTracksFromGenParticles",
+                                                           InputGenParticles="MCParticles",
+                                                           InputSimTrackerHits=["VertexBarrelCollection",
+                                                                                "VertexEndcapCollection",
+                                                                                "DCHCollection",
+                                                                                "SiWrBCollection",
+                                                                                "SiWrDCollection"],
+                                                           OutputTracks="TracksFromGenParticles",
+                                                           OutputMCRecoTrackParticleAssociation="TracksFromGenParticlesAssociation",
+                                                           Bz=2.0,
+                                                           OutputLevel=DEBUG)
+    else:
+        from Configurables import TracksFromGenParticles
+        tracksFromGenParticles = TracksFromGenParticles("CreateTracksFromGenParticles",
+                                                        InputGenParticles=["MCParticles"],
+                                                        OutputTracks=["TracksFromGenParticles"],
+                                                        OutputMCRecoTrackParticleAssociation=["TracksFromGenParticlesAssociation"],
+                                                        Bz=2.0,
+                                                        OutputLevel=INFO)
     TopAlg += [tracksFromGenParticles]
 
 
@@ -881,6 +921,57 @@ if doTopoClustering:
                           False)
 
 
+################################################
+#  Pandora
+################################################
+if runPandora:
+    from Configurables import MarlinProcessorWrapper
+    pandora = MarlinProcessorWrapper('DDMarlinPandora')
+    pandora.OutputLevel = DEBUG
+    pandora.ProcessorType = 'DDPandoraPFANewProcessor'
+    pandora.Parameters = {
+        "PandoraSettingsXmlFile": ["PandoraSettingsDefault.xml"],
+        "ECalMipThreshold": ["0."],
+        "HCalMipThreshold": ["0."],
+        "ECalToHadGeVCalibrationBarrel": ["1."],  # this must be calculated for ALLEGRO
+        "ECalToHadGeVCalibrationEndCap": ["1."],  # this must be calculated for ALLEGRO
+        "HCalToHadGeVCalibration": ["1."],  # this must be calculated for ALLEGRO
+        "ECalToMipCalibration": ["175.439"],  # value is from CLD -> this must be calculated for ALLEGRO
+        "HCalToMipCalibration": ["49.7512"],  # value is from CLD -> this must be calculated for ALLEGRO
+        "DigitalMuonHits": ["0"],
+        "MaxHCalHitHadronicEnergy": ["10000000."],
+        "MuonToMipCalibration": ["20703.9"],  # value is from CLD -> this must be calculated for ALLEGRO
+        "ECalToEMGeVCalibration": ["1.0"],  # this seems to be an EM scale factor for ECAL: set to 1 since input cell energy is already calibrated at EM scale
+        "HCalToEMGeVCalibration": ["1.0"],  # this seems to be an EM scale factor for HCAL: set to 1 since input cell energy is already calibrated at EM scale
+        "DetectorName": ["ALLEGRO"],
+        "UseDD4hepField": ["1"],
+        "MCParticleCollections": ["MCParticle"],
+        "ECalCaloHitCollections": [ecalBarrelPositionedCellsName],
+        # "HCalCaloHitCollections": [hcalBarrelPositionedCellsName, hcalEndcapPositionedCellsName],
+        "HCalCaloHitCollections": [hcalBarrelPositionedCellsName,],
+        "TrackCollections": ["TrackCollection"],
+    }
+    TopAlg += [pandora]
+
+    from Configurables import Lcio2EDM4hepTool
+    lcioConvTool = Lcio2EDM4hepTool("lcio2EDM4hep")
+    lcioConvTool.convertAll = True
+    lcioConvTool.collNameMapping = {
+        "MCParticle": "MCParticles",
+        "TrackCollection": "TracksFromGenParticles",
+    }
+    pandora.Lcio2EDM4hepTool = lcioConvTool
+
+    from Configurables import EDM4hep2LcioTool
+    edm4hepConvTool = EDM4hep2LcioTool("EDM4hep2lcio")
+    edm4hepConvTool.convertAll = True
+    edm4hepConvTool.collNameMapping = {
+        "MCParticles": "MCParticle",
+        "TracksFromGenParticles": "TrackCollection",
+    }
+    pandora.EDM4hep2LcioTool = edm4hepConvTool
+
+
 # Configure the output
 
 # drop the empty cells
@@ -947,6 +1038,8 @@ if addShapeParameters:
 
 
 # configure the application
+if runPandora:
+    TopAlg.append(io_svc)
 print(TopAlg)
 print(ExtSvc)
 from k4FWCore import ApplicationMgr
