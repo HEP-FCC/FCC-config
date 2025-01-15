@@ -6,7 +6,7 @@
 #
 
 # Logger
-from Gaudi.Configuration import INFO  # , DEBUG  # , VERBOSE
+from Gaudi.Configuration import INFO, DEBUG  # , VERBOSE
 # units and physical constants
 from GaudiKernel.PhysicalConstants import pi
 
