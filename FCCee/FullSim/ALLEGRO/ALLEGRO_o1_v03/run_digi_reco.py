@@ -6,7 +6,7 @@
 #
 
 # Logger
-from Gaudi.Configuration import INFO, DEBUG  # , VERBOSE
+from Gaudi.Configuration import INFO  # , DEBUG  # , VERBOSE
 # units and physical constants
 from GaudiKernel.PhysicalConstants import pi
 
@@ -15,14 +15,14 @@ from GaudiKernel.PhysicalConstants import pi
 #
 
 # - default settings, that can be overridden via CLI
-inputfile = "ALLEGRO_sim.root"            # input file produced with ddsim - can be overridden with IOSvc.Input
-outputfile = "ALLEGRO_sim_digi_reco.root" # output file produced by this steering file - can be overridden with IOSvc.Output
-Nevts = -1                                # -1 means all events in input file (can be overridden with -n or --num-events option of k4run
+inputfile = "ALLEGRO_sim.root"             # input file produced with ddsim - can be overridden with IOSvc.Input
+outputfile = "ALLEGRO_sim_digi_reco.root"  # output file produced by this steering file - can be overridden with IOSvc.Output
+Nevts = -1                                 # -1 means all events in input file (can be overridden with -n or --num-events option of k4run
 
 # - general settings not set via CLI
-filterNoiseThreshold = -1                 # if addNoise is true, and filterNoiseThreshold is >0, will filter away cells with abs(energy) below filterNoiseThreshold * expected sigma(noise)
-# dataFolder = "data/"                    # directory containing the calibration files
-dataFolder = "./"                         # directory containing the calibration files
+filterNoiseThreshold = -1                  # if addNoise is true, and filterNoiseThreshold is >0, will filter away cells with abs(energy) below filterNoiseThreshold * expected sigma(noise)
+# dataFolder = "data/"                     # directory containing the calibration files
+dataFolder = "./"                          # directory containing the calibration files
 
 # - general settings set via CLI
 from k4FWCore.parseArgs import parser
@@ -57,10 +57,10 @@ saveCells = opts.saveCells
 saveClusterCells = True
 
 dropLumiCalHits = True
-#dropVertexHits = True
-#dropDCHHits = True
-#dropSiWrHits = True
-#dropMuonHits = True
+# dropVertexHits = True
+# dropDCHHits = True
+# dropSiWrHits = True
+# dropMuonHits = True
 dropVertexHits = False
 dropDCHHits = False
 dropSiWrHits = False
@@ -72,8 +72,8 @@ ecalBarrelLayers = 11
 ecalBarrelSamplingFraction = [0.3800493723322256] * 1 + [0.13494147915064658] * 1 + [0.142866851721152] * 1 + [0.14839315921940666] * 1 + [0.15298362570665006] * 1 + [0.15709704561942747] * 1 + [0.16063717490147533] * 1 + [0.1641723795419055] * 1 + [0.16845490287689746] * 1 + [0.17111520115997653] * 1 + [0.1730605163148862] * 1
 ecalBarrelUpstreamParameters = [[0.028158491043365624, -1.564259408365951, -76.52312805346982, 0.7442903558010191, -34.894692961350195, -74.19340877431723]]
 ecalBarrelDownstreamParameters = [[0.00010587711361028165, 0.0052371999097777355, 0.69906696456064, -0.9348243433360095, -0.0364714212117143, 8.360401126995626]]
-if ecalBarrelSamplingFraction and len(ecalBarrelSamplingFraction)>0:
-    assert(ecalBarrelLayers == len(ecalBarrelSamplingFraction))
+if ecalBarrelSamplingFraction and len(ecalBarrelSamplingFraction) > 0:
+    assert (ecalBarrelLayers == len(ecalBarrelSamplingFraction))
 
 resegmentECalBarrel = False
 
@@ -160,11 +160,11 @@ ExtSvc += [EventDataSvc("EventDataSvc")]
 if addTracks:
     from Configurables import TracksFromGenParticles
     tracksFromGenParticles = TracksFromGenParticles("CreateTracksFromGenParticles",
-                                                    InputGenParticles = ["MCParticles"],
-                                                    OutputTracks = ["TracksFromGenParticles"],
-                                                    OutputMCRecoTrackParticleAssociation = ["TracksFromGenParticlesAssociation"],
-                                                    Bz = 2.0,
-                                                    OutputLevel = INFO)
+                                                    InputGenParticles=["MCParticles"],
+                                                    OutputTracks=["TracksFromGenParticles"],
+                                                    OutputMCRecoTrackParticleAssociation=["TracksFromGenParticlesAssociation"],
+                                                    Bz=2.0,
+                                                    OutputLevel=INFO)
     TopAlg += [tracksFromGenParticles]
 
 
@@ -414,7 +414,7 @@ if runHCal:
                                                       OutputLevel=INFO)
     TopAlg += [createHCalBarrelCells]
 
-    # Create cells in HCal endcap
+    # Apply calibration and positioning to cells in HCal endcap
     hcalEndcapPositionedCellsName = hcalEndcapReadoutName + "Positioned"
     createHCalEndcapCells = CreatePositionedCaloCells("CreatePositionedHCalEndcapCells",
                                                       doCellCalibration=True,
@@ -439,6 +439,7 @@ if doSWClustering or doTopoClustering:
     createemptycells = CreateEmptyCaloCellsCollection("CreateEmptyCaloCells")
     createemptycells.cells.Path = "emptyCaloCells"
     TopAlg += [createemptycells]
+
 
 # Function that sets up the sequence for producing SW clusters given an input cell collection
 def setupSWClusters(inputCells,
@@ -466,14 +467,14 @@ def setupSWClusters(inputCells,
     finT = 9
     finP = 17
     # to be tested: about -2% of energy but smaller cluster, less noise
-    #windT = 7
-    #windP = 9
-    #posT = 5
-    #posP = 7
-    #dupT = 7
-    #dupP = 9
-    #finT = 7
-    #finP = 9
+    # windT = 7
+    # windP = 9
+    # posT = 5
+    # posP = 7
+    # dupT = 7
+    # dupP = 9
+    # finT = 7
+    # finP = 9
     # - minimal energy to create a cluster in GeV (FCC-ee detectors have to reconstruct low energy particles)
     threshold = clusteringThreshold
 
@@ -594,7 +595,7 @@ def setupSWClusters(inputCells,
             TopAlg += [photonIDAlg]
 
 
-# Function that sets up the sequence for producing SW clusters given an input cell collection
+# Function that sets up the sequence for producing Topo clusters given an input cell collection
 def setupTopoClusters(inputCells,
                       inputReadouts,
                       inputPositioningTools,  # TODO: check if we still need these since the cells are positioned..
