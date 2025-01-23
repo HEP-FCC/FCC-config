@@ -201,6 +201,7 @@ if addTracks:
                                                                                        "SiWrDCollection"],
                                                                   OutputTracks=["TracksFromGenParticles"],
                                                                   OutputMCRecoTrackParticleAssociation=["TracksFromGenParticlesAssociation"],
+                                                                  OutputLevel=INFO)
     TopAlg += [tracksFromGenParticles]
 
 
