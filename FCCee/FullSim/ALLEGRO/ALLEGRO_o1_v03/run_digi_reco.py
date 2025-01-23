@@ -195,7 +195,6 @@ if addTracks:
                                                                                 "SiWrDCollection"],
                                                            OutputTracks="TracksFromGenParticles",
                                                            OutputMCRecoTrackParticleAssociation="TracksFromGenParticlesAssociation",
-                                                           Bz=2.0,
                                                            OutputLevel=DEBUG)
     else:
         from Configurables import TracksFromGenParticles
@@ -992,10 +991,6 @@ if dropUncalibratedCells:
     # drop the intermediate ecal barrel cells in case of a resegmentation
     if resegmentECalBarrel:
         io_svc.outputCommands.append("drop ECalBarrelCellsMerged")
-    # drop the intermediate hcal barrel cells before resegmentation
-    if runHCal:
-        io_svc.outputCommands.append("drop %s" % hcalBarrelPositionedCellsName)
-        io_svc.outputCommands.append("drop %s" % hcalEndcapPositionedCellsName)
 
 # drop lumi, vertex, DCH, Muons (unless want to keep for event display)
 if dropLumiCalHits:
@@ -1004,7 +999,7 @@ if dropVertexHits:
     io_svc.outputCommands.append("drop VertexBarrelCollection*")
     io_svc.outputCommands.append("drop VertexEndcapCollection*")
 if dropDCHHits:
-    io_svc.outputCommands.append("drop DCHCollection**")
+    io_svc.outputCommands.append("drop DCHCollection*")
 if dropSiWrHits:
     io_svc.outputCommands.append("drop SiWrBCollection*")
     io_svc.outputCommands.append("drop SiWrDCollection*")
@@ -1016,6 +1011,9 @@ if not saveHits:
     io_svc.outputCommands.append("drop *%sContributions" % ecalBarrelReadoutName)
     io_svc.outputCommands.append("drop *%sContributions" % ecalBarrelReadoutName2)
     io_svc.outputCommands.append("drop *%sContributions" % ecalEndcapReadoutName)
+    if runHCal:
+        io_svc.outputCommands.append("drop *%sContributions" % hcalBarrelReadoutName)
+        io_svc.outputCommands.append("drop *%sContributions" % hcalEndcapReadoutName)
 if not saveCells:
     io_svc.outputCommands.append("drop %s" % ecalBarrelPositionedCellsName)
     io_svc.outputCommands.append("drop %s" % ecalEndcapPositionedCellsName)
