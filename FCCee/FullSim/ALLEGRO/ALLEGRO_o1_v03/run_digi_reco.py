@@ -479,6 +479,52 @@ if doSWClustering or doTopoClustering:
     createemptycells.cells.Path = "emptyCaloCells"
     TopAlg += [createemptycells]
 
+# Muon cells [add longitudinal segmentation to detector?]
+from Configurables import CellPositionsSimpleCylinderPhiThetaSegTool
+cellPositionMuonBarrelTool = CellPositionsSimpleCylinderPhiThetaSegTool(
+    "CellPositionsMuonBarrel",
+    detectorName="MuonTaggerBarrel",
+    readoutName="MuonTaggerBarrelPhiTheta",
+    OutputLevel=INFO
+)
+createMuonBarrelCells = CreatePositionedCaloCells("CreatePositionedMuonBarrelCells",
+                                                  positionsTool=cellPositionMuonBarrelTool,
+                                                  doCellCalibration=False,
+                                                  # calibTool=None,
+                                                  addCrosstalk=False,
+                                                  # crosstalkTool=None
+                                                  addCellNoise=False,
+                                                  filterCellNoise=False,
+                                                  noiseTool=None,
+                                                  geometryTool=None,
+                                                  OutputLevel=INFO,
+                                                  hits="MuonTaggerBarrelPhiTheta",
+                                                  cells="MuonTaggerBarrelPhiThetaPositioned",
+                                                  )
+TopAlg += [createMuonBarrelCells]
+
+cellPositionMuonEndcapTool = CellPositionsSimpleCylinderPhiThetaSegTool(
+    "CellPositionsMuonEndcap",
+    detectorName="MuonTaggerEndcap",
+    readoutName="MuonTaggerEndcapPhiTheta",
+    OutputLevel=INFO
+)
+createMuonEndcapCells = CreatePositionedCaloCells("CreatePositionedMuonEndcapCells",
+                                                  positionsTool=cellPositionMuonEndcapTool,
+                                                  doCellCalibration=False,
+                                                  # calibTool=None,
+                                                  addCrosstalk=False,
+                                                  # crosstalkTool=None
+                                                  addCellNoise=False,
+                                                  filterCellNoise=False,
+                                                  noiseTool=None,
+                                                  geometryTool=None,
+                                                  OutputLevel=INFO,
+                                                  hits="MuonTaggerEndcapPhiTheta",
+                                                  cells="MuonTaggerEndcapPhiThetaPositioned",
+                                                  )
+TopAlg += [createMuonEndcapCells]
+
 
 # Function that sets up the sequence for producing SW clusters given an input cell collection
 def setupSWClusters(inputCells,
@@ -935,8 +981,10 @@ if runPandora:
         "ECalToHadGeVCalibrationBarrel": ["1."],  # this must be calculated for ALLEGRO
         "ECalToHadGeVCalibrationEndCap": ["1."],  # this must be calculated for ALLEGRO
         "HCalToHadGeVCalibration": ["1."],  # this must be calculated for ALLEGRO
-        "ECalToMipCalibration": ["175.439"],  # value is from CLD -> this must be calculated for ALLEGRO
-        "HCalToMipCalibration": ["49.7512"],  # value is from CLD -> this must be calculated for ALLEGRO
+        # "ECalToMipCalibration": ["175.439"],  # value is from CLD -> this must be calculated for ALLEGRO
+        # "HCalToMipCalibration": ["49.7512"],  # value is from CLD -> this must be calculated for ALLEGRO
+        "ECalToMipCalibration": ["26.0"],  # value is from CLD -> this must be calculated for ALLEGRO
+        "HCalToMipCalibration": ["5.77"],  # value is from CLD -> this must be calculated for ALLEGRO
         "DigitalMuonHits": ["0"],
         "MaxHCalHitHadronicEnergy": ["10000000."],
         "MuonToMipCalibration": ["20703.9"],  # value is from CLD -> this must be calculated for ALLEGRO
@@ -947,7 +995,8 @@ if runPandora:
         "MCParticleCollections": ["MCParticle"],
         "ECalCaloHitCollections": [ecalBarrelPositionedCellsName],
         # "HCalCaloHitCollections": [hcalBarrelPositionedCellsName, hcalEndcapPositionedCellsName],
-        "HCalCaloHitCollections": [hcalBarrelPositionedCellsName,],
+        "HCalCaloHitCollections": [hcalBarrelPositionedCellsName],
+        "MuonCaloHitCollections": ["MuonTaggerBarrelPhiThetaPositioned", "MuonTaggerEndcapPhiThetaPositioned"],
         "TrackCollections": ["TrackCollection"],
     }
     TopAlg += [pandora]
@@ -1004,7 +1053,8 @@ if dropSiWrHits:
     io_svc.outputCommands.append("drop SiWrBCollection*")
     io_svc.outputCommands.append("drop SiWrDCollection*")
 if dropMuonHits:
-    io_svc.outputCommands.append("drop MuonTagger*")
+    io_svc.outputCommands.append("drop MuonTagger*PhiTheta")   # hits
+    io_svc.outputCommands.append("drop MuonTagger*PhiThetaPositioned")   # cells
 
 # drop hits/positioned cells/cluster cells if desired
 if not saveHits:
