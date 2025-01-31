@@ -5,6 +5,9 @@ If you need to modify the geometry, follow instructions [here](https://fcc-ee-de
 
 ```
 source /cvmfs/sw-nightlies.hsf.org/key4hep/setup.sh
+# Clone this repository if not done yet
+git clone https://github.com/HEP-FCC/FCC-config/
+cd FCC-config/FCCee/FullSim/IDEA/IDEA_o1_v03/
 ```
 
 ## Running the simulation
