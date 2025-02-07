@@ -28,19 +28,19 @@ model = SM
 # Center of mass energy
 sqrts = 240 GeV
 
-# Processes
+# Processes 
 
 # ?vis_diags = true
 
-# llH, H->ZZ*->4l with l=e, mu
+# llH, H->ZZ*->4l with l=e, mu, tau
 # Z decays are handled by Pythia
 
-process proc = e1, E1 => ( e1, E1, H) + (e2, E2, H)
+process proc = e1, E1 => ( e1, E1, H) + (e2, E2, H) + (e3, E3, H)
 
 cuts = all M > 5 GeV [e1, E1]
     and all M > 5 GeV [e2, E2]
-    and all -0.998750 < cos (Theta) < 0.998750 [e1:E1:e2:E2]
-
+    and all M > 5 GeV [e3, E3]
+    and all -0.998750 < cos (Theta) < 0.998750 [e1:E1:e2:E2:e3:E3]
 
 beams = e1, E1 => gaussian => isr
 ?keep_beams  = true    
@@ -97,8 +97,8 @@ $shower_method          = "PYTHIA6"
 # MDME(188,1) !Z decay into tau4 tau4bar
 # MDME(189,1) !Z decay into nu_tau4 nu_tau4bar
 
-# Z -> e, mu
-$ps_PYTHIA_PYGIVE = "MDME(174,1)=0; MDME(175,1)=0; MDME(176,1)=0; MDME(177,1)=0; MDME(178,1)=0; MDME(179,1)=0; MDME(180,1)=0; MDME(181,1)=0; MDME(182,1)=1; MDME(183,1)=0; MDME(184,1)=1; MDME(185,1)=0; MDME(186,1)=0; MDME(187,1)=0; MDME(188,1)=0; MDME(189,1)=0; MDME(210,1)=0; MDME(211,1)=0; MDME(212,1)=0; MDME(213,1)=0; MDME(214,1)=0; MDME(215,1)=0; MDME(218,1)=0; MDME(219,1)=0; MDME(220,1)=0; MDME(222,1)=0; MDME(223,1)=0; MDME(224,1)=0; MDME(225,1)=1; MDME(226,1)=0; MSTJ(28)=0; PMAS(25,1)=125.; PMAS(25,2)=0.4143E-02; MSTJ(41)=2; MSTU(22)=2000; PARJ(21)=0.40000; PARJ(41)=0.11000; PARJ(42)=0.52000; PARJ(81)=0.25000; PARJ(82)=1.90000; MSTJ(11)=3; PARJ(54)=-0.03100; PARJ(55)=-0.00200; PARJ(1)=0.08500; PARJ(3)=0.45000; PARJ(4)=0.02500; PARJ(2)=0.31000; PARJ(11)=0.60000; PARJ(12)=0.40000; PARJ(13)=0.72000; PARJ(14)=0.43000; PARJ(15)=0.08000; PARJ(16)=0.08000; PARJ(17)=0.17000; MSTP(3)=1;MSTP(71)=1;  MSTP(151)=1; PARP(151)=0.0098; PARP(152)=2.54e-5; PARP(153)=0.646; PARP(154)=1.937; MSTJ(22)=4; PARJ(73)=2250; PARJ(74)=2500"
+# Z -> e, mu, tau
+$ps_PYTHIA_PYGIVE = "MDME(174,1)=0; MDME(175,1)=0; MDME(176,1)=0; MDME(177,1)=0; MDME(178,1)=0; MDME(179,1)=0; MDME(180,1)=0; MDME(181,1)=0; MDME(182,1)=1; MDME(183,1)=0; MDME(184,1)=1; MDME(185,1)=0; MDME(186,1)=1; MDME(187,1)=0; MDME(188,1)=0; MDME(189,1)=0; MDME(210,1)=0; MDME(211,1)=0; MDME(212,1)=0; MDME(213,1)=0; MDME(214,1)=0; MDME(215,1)=0; MDME(218,1)=0; MDME(219,1)=0; MDME(220,1)=0; MDME(222,1)=0; MDME(223,1)=0; MDME(224,1)=0; MDME(225,1)=1; MDME(226,1)=0; MSTJ(28)=0; PMAS(25,1)=125.; PMAS(25,2)=0.4143E-02; MSTJ(41)=2; MSTU(22)=2000; PARJ(21)=0.40000; PARJ(41)=0.11000; PARJ(42)=0.52000; PARJ(81)=0.25000; PARJ(82)=1.90000; MSTJ(11)=3; PARJ(54)=-0.03100; PARJ(55)=-0.00200; PARJ(1)=0.08500; PARJ(3)=0.45000; PARJ(4)=0.02500; PARJ(2)=0.31000; PARJ(11)=0.60000; PARJ(12)=0.40000; PARJ(13)=0.72000; PARJ(14)=0.43000; PARJ(15)=0.08000; PARJ(16)=0.08000; PARJ(17)=0.17000; MSTP(3)=1;MSTP(71)=1;  MSTP(151)=1; PARP(151)=0.0098; PARP(152)=2.54e-5; PARP(153)=0.646; PARP(154)=1.937; MSTJ(22)=4; PARJ(73)=2250; PARJ(74)=2500"
 
 
 

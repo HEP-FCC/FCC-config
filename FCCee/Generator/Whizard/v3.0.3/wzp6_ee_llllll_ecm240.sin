@@ -40,9 +40,10 @@ alias L = E1:E2  # Antiparticles
 # needed to avoid error: mass values in flavor combination do not coincide
 me=0
 mmu=0
+# do not set tau mass to zero!!
 
-# ee -> 6l with l = e, mu
-process proc = e1, E1 => l, L, l, L, l, L 
+# ee -> 6l with l = e, mu, tau
+process proc = e1, E1 => (l, L, l, L, l, L) + (l, L, l, L, e3, E3) + (l, L, e3, E3, e3, E3) + (e3, E3, e3, E3, e3, E3)
 
 # Cuts 
 

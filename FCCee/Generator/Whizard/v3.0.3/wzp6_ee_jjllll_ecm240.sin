@@ -34,20 +34,22 @@ sqrts = 240 GeV
 
 # onshell Z decay handled by pythia
 
-# ee -> jjllll with j = c/cbar/b/bbar/tau
-process proc = e1, E1 => (e1, E1, e1, E1, c, cbar) + (e1, E1, e1, E1, b, bbar) + (e1, E1, e1, E1, e3, E3)
-                        + (e1, E1, e2, E2, c, cbar) + (e1, E1, e2, E2, b, bbar) + (e1, E1, e2, E2, e3, E3)
-                        + (e2, E2, e2, E2, c, cbar) + (e2, E2, e2, E2, b, bbar) + (e2, E2, e2, E2, e3, E3)
+# ee -> jjllll with j = u,d,s,c,b and antiparticles, l =e,mu
+process proc = e1, E1 => (e1, E1, e1, E1, c, cbar) + (e1, E1, e1, E1, b, bbar) + (e1, E1, e1, E1, u, ubar) + (e1, E1, e1, E1, d, dbar) + (e1, E1, e1, E1, s, sbar)
+                        + (e1, E1, e2, E2, c, cbar) + (e1, E1, e2, E2, b, bbar) + (e1, E1, e2, E2, u, ubar) + (e1, E1, e2, E2, d, dbar) + (e1, E1, e2, E2, s, sbar)
+                        + (e2, E2, e2, E2, c, cbar) + (e2, E2, e2, E2, b, bbar) + (e2, E2, e2, E2, u, ubar) + (e2, E2, e2, E2, d, dbar) + (e2, E2, e2, E2, s, sbar)
 
 
 # Cuts 
 
 cuts = all M > 5 GeV [e1, E1]
     and all M > 5 GeV [e2, E2]
-    and all M > 5 GeV [e3, E3]
     and all M > 5 GeV [c, cbar]
     and all M > 5 GeV [b, bbar]
-    and all -0.998750 < cos (Theta) < 0.998750 [e1:E1:e2:E2:e3:E3:c:cbar:b:bbar]
+    and all M > 5 GeV [u, ubar]
+    and all M > 5 GeV [d, dbar]
+    and all M > 5 GeV [s, sbar]
+    and all -0.998750 < cos (Theta) < 0.998750 [e1:E1:e2:E2:u:ubar:d:dbar:s:sbar:c:cbar:b:bbar]
 
 beams = e1, E1 => gaussian => isr
 ?keep_beams  = true    
