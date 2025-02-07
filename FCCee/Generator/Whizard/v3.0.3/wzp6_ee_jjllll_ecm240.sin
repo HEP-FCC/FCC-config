@@ -28,19 +28,11 @@ model = SM
 # Center of mass energy
 sqrts = 240 GeV
 
-
-alias l = e1:e2  # Only electrons and muons
-alias L = E1:E2  # Antiparticles
-
 # Processes
 
 #?vis_diags = true
 
 # onshell Z decay handled by pythia
-
-# needed to avoid error
-me=0
-mmu=0
 
 # ee -> jjllll with j = c/cbar/b/bbar/tau
 process proc = e1, E1 => (e1, E1, e1, E1, c, cbar) + (e1, E1, e1, E1, b, bbar) + (e1, E1, e1, E1, e3, E3)
@@ -50,7 +42,12 @@ process proc = e1, E1 => (e1, E1, e1, E1, c, cbar) + (e1, E1, e1, E1, b, bbar) +
 
 # Cuts 
 
-cuts = all M > 5 GeV [e1, E1] and all M > 5 GeV [e2, E2]
+cuts = all M > 5 GeV [e1, E1]
+    and all M > 5 GeV [e2, E2]
+    and all M > 5 GeV [e3, E3]
+    and all M > 5 GeV [c, cbar]
+    and all M > 5 GeV [b, bbar]
+    and all -0.998750 < cos (Theta) < 0.998750 [e1:E1:e2:E2:e3:E3:c:cbar:b:bbar]
 
 beams = e1, E1 => gaussian => isr
 ?keep_beams  = true    

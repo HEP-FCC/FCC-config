@@ -37,6 +37,10 @@ sqrts = 240 GeV
 
 process proc = e1, E1 => ( e1, E1, H) + (e2, E2, H) + (e3, E3, H)
 
+cuts = all M > 5 GeV [e1, E1]
+    and all M > 5 GeV [e2, E2]
+    and all M > 5 GeV [e3, E3]
+    and all -0.998750 < cos (Theta) < 0.998750 [e1:E1:e2:E2:e3:E3]
 
 beams = e1, E1 => gaussian => isr
 ?keep_beams  = true    

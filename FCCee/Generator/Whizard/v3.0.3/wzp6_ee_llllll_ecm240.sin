@@ -37,7 +37,7 @@ alias L = E1:E2  # Antiparticles
 
 # onshell Z decay handled by pythia
 
-# needed to avoid error
+# needed to avoid error: mass values in flavor combination do not coincide
 me=0
 mmu=0
 
@@ -46,7 +46,9 @@ process proc = e1, E1 => l, L, l, L, l, L
 
 # Cuts 
 
-cuts = all M > 5 GeV [e1, E1] and all M > 5 GeV [e2, E2]
+cuts = all M > 5 GeV [e1, E1]
+    and all M > 5 GeV [e2, E2]
+    and all -0.998750 < cos (Theta) < 0.998750 [e1:E1:e2:E2]
 
 beams = e1, E1 => gaussian => isr
 ?keep_beams  = true    
