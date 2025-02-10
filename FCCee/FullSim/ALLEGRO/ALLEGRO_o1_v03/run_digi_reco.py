@@ -1147,7 +1147,7 @@ if runPandora:
         "ECalCaloHitCollections": [ecalBarrelPositionedCellsName],
         # "HCalCaloHitCollections": [hcalBarrelPositionedCellsName, hcalEndcapPositionedCellsName],
         "HCalCaloHitCollections": [hcalBarrelPositionedCellsName],
-        "MuonCaloHitCollections": ["MuonTaggerBarrelPhiThetaPositioned", "MuonTaggerEndcapPhiThetaPositioned"],
+        "MuonCaloHitCollections": ["MuonTaggerBarrelPhiThetaPositioned"],   #  "MuonTaggerEndcapPhiThetaPositioned"],
         "TrackCollections": ["TrackCollection"],
     }
     TopAlg += [pandora]
@@ -1169,6 +1169,63 @@ if runPandora:
         "TracksFromGenParticles": "TrackCollection",
     }
     pandora.EDM4hep2LcioTool = edm4hepConvTool
+
+    # attempt to run pandora calibration
+    pfoAnalysis = MarlinProcessorWrapper( "PfoAnalysisWrapper" )
+    pfoAnalysis.OutputLevel = DEBUG
+    pfoAnalysis.ProcessorType = ( "PfoAnalysis" )
+    outputFile = opts.outputFile.replace(".root", "_PandoraAnalysis.root")
+    pfoAnalysis.Parameters = {
+        "RootFile"                          : [outputFile],
+        "MCParticleCollection"              : ["MCParticle"],
+        "PfoCollection"                     : ["PandoraPFANewPFOs"],
+        "CollectCalibrationDetails"         : ["1"],
+        # from LC digitisers
+        # "ECalCollections"                   : ["ECALBarrel"],
+        # "HCalCollections"                   : ["HCALBarrel"],
+        # "MuonCollections"                   : ["MUON"],
+        # from ALLEGRO digitisers
+        "ECalCollections"                   : ["ECalBarrelModuleThetaMergedPositioned"],
+        "HCalCollections"                   : ["HCalBarrelReadoutPositioned"],
+        "MuonCollections"                   : ["MuonTaggerBarrelPhiThetaPositioned"],
+        "ECalCollectionsSimCaloHit"         : ["ECalBarrelModuleThetaMerged"],
+        "HCalBarrelCollectionsSimCaloHit"   : ["HCalBarrelReadout"],
+        "MuonCollectionsSimCaloHit"         : ["MuonTaggerBarrelPhiTheta"],
+    #     "BCALcollections"             : [""],  # BeamCal
+    #     "LHCALcollections"            : [""],  # ? lumi -hcal?
+    #     "LCALcollections"             : [""],  # ? lumi -ecal?
+    }
+    TopAlg += [pfoAnalysis]
+
+
+    # see https://github.com/Pandora/PFA/LCPandoraAnalysis/blob/master/scripts/PandoraPfaCalibrator.xml
+    #     https://github.com/Pandora/PFA/LCPandoraAnalysis/blob/master/include/PandoraPfaCalibrator.h
+    #     https://github.com/Pandora/PFA/LCPandoraAnalysis/blob/master/src/PandoraPfaCalibrator.cc
+    # and https://github.com/Pandora/PFA/LCPandoraAnalysis/blob/master/include/CalibrationHelper.h
+    #     https://github.com/Pandora/PFA/LCPandoraAnalysis/blob/master/include/CalibrationHelper.cc
+    # and executables in https://github.com/Pandora/PFA/LCPandoraAnalysis/blob/master/calibration
+    
+    
+    # pandoraCalibrator = MarlinProcessorWrapper( "PandoraPFACalibratorWrapper" )
+    # pandoraCalibrator.OutputLevel = DEBUG
+    # pandoraCalibrator.ProcessorType = ( "PandoraPFACalibrator" )
+    # pandoraCalibrator.Parameters = {
+    #     # "RootFile" : "PandoraPFACalibrator.root",
+    #     "MCPfoCollections"            : ["MCPFOs"],
+    #     "ReconstructedPfoCollections" : ["PandoraPFOs"],
+    #     "ECALBarrelcollections"       : ["ECalBarrelModuleThetaMergedPositioned"],
+    #     "ECALEndCapcollections"       : [""],
+    #     "HCALcollections"             : ["HCalBarrelReadoutPositioned"],
+    #     "MUONcollections"             : ["MuonTaggerBarrelPhiThetaPositioned"],
+    #     "BCALcollections"             : [""],  # what is this?
+    #     "LHCALcollections"            : [""],  # what is this?  
+    #     "LCALcollections"             : [""],  # what is this?
+    #     "ECALBarrelEncoding"          : ["system:4,cryo:1,type:3,subtype:3,layer:8,module:11,theta:10"],
+    #     "ECALEndCapEncoding"          : ["system:4,cryo:1,type:3,subtype:3,side:-2,wheel:3,layer:8,module:17,rho:8,z:8"],
+    #     "HCALEncoding"                : ["system:4,layer:5,row:9,theta:9,phi:10"],
+    #     "MUONEncoding"                : ["system:4,subsystem:1,layer:5,theta:10,phi:10"]
+    #     }
+    # TopAlg += [pandoraCalibrator]
 
 
 # Configure the output
