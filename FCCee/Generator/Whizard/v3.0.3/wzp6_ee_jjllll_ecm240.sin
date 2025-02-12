@@ -38,6 +38,9 @@ sqrts = 240 GeV
 process proc = e1, E1 => (e1, E1, e1, E1, c, cbar) + (e1, E1, e1, E1, b, bbar) + (e1, E1, e1, E1, u, ubar) + (e1, E1, e1, E1, d, dbar) + (e1, E1, e1, E1, s, sbar)
                         + (e1, E1, e2, E2, c, cbar) + (e1, E1, e2, E2, b, bbar) + (e1, E1, e2, E2, u, ubar) + (e1, E1, e2, E2, d, dbar) + (e1, E1, e2, E2, s, sbar)
                         + (e2, E2, e2, E2, c, cbar) + (e2, E2, e2, E2, b, bbar) + (e2, E2, e2, E2, u, ubar) + (e2, E2, e2, E2, d, dbar) + (e2, E2, e2, E2, s, sbar)
+                        + (e3, E3, e3, E3, c, cbar) + (e3, E3, e3, E3, b, bbar) + (e3, E3, e3, E3, u, ubar) + (e3, E3, e3, E3, d, dbar) + (e3, E3, e3, E3, s, sbar)
+                        + (e3, E3, e1, E1, c, cbar) + (e3, E3, e1, E1, b, bbar) + (e3, E3, e1, E1, u, ubar) + (e3, E3, e1, E1, d, dbar) + (e3, E3, e1, E1, s, sbar)
+                        + (e3, E3, e2, E2, c, cbar) + (e3, E3, e2, E2, b, bbar) + (e3, E3, e2, E2, u, ubar) + (e3, E3, e2, E2, d, dbar) + (e3, E3, e2, E2, s, sbar)
 
 
 # Cuts 
