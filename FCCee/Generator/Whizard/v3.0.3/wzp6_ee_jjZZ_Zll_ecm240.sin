@@ -45,7 +45,7 @@ cuts = all M > 5 GeV [c, cbar]
     and all M > 5 GeV [u, ubar]
     and all M > 5 GeV [d, dbar]
     and all M > 5 GeV [s, sbar]
-    and all -0.998750 < cos (Theta) < 0.998750 [e1:E1:e2:E2:e3:E3:u:ubar:d:dbar:s:sbar:c:cbar:b:bbar]
+    and all -0.998750 < cos (Theta) < 0.998750 [u:ubar:d:dbar:s:sbar:c:cbar:b:bbar]
 
 beams = e1, E1 => gaussian => isr
 ?keep_beams  = true    
