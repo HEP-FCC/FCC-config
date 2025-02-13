@@ -40,10 +40,7 @@ process proc = e1, E1 => (Z, Z, u, ubar) + (Z, Z, d, dbar) + (Z, Z, s, sbar) + (
 
 # Cuts 
 
-cuts = all M > 5 GeV [e1, E1]
-    and all M > 5 GeV [e2, E2]
-    and all M > 5 GeV [e3, E3]
-    and all M > 5 GeV [c, cbar]
+cuts = all M > 5 GeV [c, cbar]
     and all M > 5 GeV [b, bbar]
     and all M > 5 GeV [u, ubar]
     and all M > 5 GeV [d, dbar]
