@@ -331,6 +331,7 @@ else:
 # Create cells in ECal barrel (calibrated and positioned - optionally with xtalk and noise added)
 # from uncalibrated cells (+cellID info) from ddsim
 ecalBarrelPositionedCellsName = ecalBarrelReadoutName + "Positioned"
+ecalBarrelLinks = ecalBarrelPositionedCellsName + "SimCaloHitLinks"
 from Configurables import CreatePositionedCaloCells
 createEcalBarrelCells = CreatePositionedCaloCells("CreatePositionedECalBarrelCells",
                                                   doCellCalibration=True,
@@ -344,7 +345,8 @@ createEcalBarrelCells = CreatePositionedCaloCells("CreatePositionedECalBarrelCel
                                                   geometryTool=ecalBarrelGeometryTool,
                                                   OutputLevel=INFO,
                                                   hits=ecalBarrelReadoutName,
-                                                  cells=ecalBarrelPositionedCellsName
+                                                  cells=ecalBarrelPositionedCellsName,
+                                                  links=ecalBarrelLinks
                                                   )
 TopAlg += [createEcalBarrelCells]
 
@@ -373,6 +375,7 @@ if resegmentECalBarrel:
     # calibrated in Step 1
     # noise and xtalk off assuming they were applied earlier
     ecalBarrelPositionedCellsName2 = ecalBarrelReadoutName2 + "Positioned"
+    ecalBarrelLinks2 = ecalBarrelPositionedCellsName2 + "SimCaloHitLinks"
     createEcalBarrelCells2 = CreatePositionedCaloCells("CreatePositionedECalBarrelCells2",
                                                        doCellCalibration=False,
                                                        positionsTool=cellPositionEcalBarrelTool2,
@@ -383,7 +386,8 @@ if resegmentECalBarrel:
                                                        filterCellNoise=False,
                                                        OutputLevel=INFO,
                                                        hits="ECalBarrelCellsMerged",
-                                                       cells=ecalBarrelPositionedCellsName2)
+                                                       cells=ecalBarrelPositionedCellsName2,
+                                                       links=ecalBarrelLinks2)
     TopAlg += [
         resegmentEcalBarrelTool,
         createEcalBarrelCells2,
@@ -392,6 +396,7 @@ if resegmentECalBarrel:
 # Create cells in ECal endcap (needed if one wants to apply cell calibration,
 # which is not performed by ddsim)
 ecalEndcapPositionedCellsName = ecalEndcapReadoutName + "Positioned"
+ecalEndcapLinks = ecalEndcapPositionedCellsName + "SimCaloHitLinks"
 createEcalEndcapCells = CreatePositionedCaloCells("CreatePositionedECalEndcapCells",
                                                   doCellCalibration=True,
                                                   positionsTool=cellPositionEcalEndcapTool,
@@ -402,11 +407,13 @@ createEcalEndcapCells = CreatePositionedCaloCells("CreatePositionedECalEndcapCel
                                                   filterCellNoise=False,
                                                   OutputLevel=INFO,
                                                   hits=ecalEndcapReadoutName,
-                                                  cells=ecalEndcapPositionedCellsName)
+                                                  cells=ecalEndcapPositionedCellsName,
+                                                  links=ecalEndcapLinks)
 TopAlg += [createEcalEndcapCells]
 
 if addNoise:
     # cells with noise not filtered
+    ecalBarrelCellsNoiseLinks = ecalBarrelPositionedCellsName + "WithNoise" + "SimCaloHitLinks"
     createEcalBarrelCellsNoise = CreatePositionedCaloCells("CreatePositionedECalBarrelCellsWithNoise",
                                                            doCellCalibration=True,
                                                            calibTool=calibEcalBarrel,
@@ -419,10 +426,12 @@ if addNoise:
                                                            geometryTool=ecalBarrelGeometryTool,
                                                            OutputLevel=INFO,
                                                            hits=ecalBarrelReadoutName,
-                                                           cells=ecalBarrelPositionedCellsName + "WithNoise")
+                                                           cells=ecalBarrelPositionedCellsName + "WithNoise",
+                                                           links=ecalBarrelCellsNoiseLinks)
     TopAlg += [createEcalBarrelCellsNoise]
 
     # cells with noise filtered
+    ecalBarrelCellsNoiseFilteredLinks = ecalBarrelPositionedCellsName + "WithNoiseFiltered" + "SimCaloHitLinks"
     createEcalBarrelCellsNoiseFiltered = CreatePositionedCaloCells("CreatePositionedECalBarrelCellsWithNoiseFiltered",
                                                                    doCellCalibration=True,
                                                                    calibTool=calibEcalBarrel,
@@ -435,13 +444,15 @@ if addNoise:
                                                                    geometryTool=ecalBarrelGeometryTool,
                                                                    OutputLevel=INFO,
                                                                    hits=ecalBarrelReadoutName,  # uncalibrated & unpositioned cells without noise
-                                                                   cells=ecalBarrelPositionedCellsName + "WithNoiseFiltered"
+                                                                   cells=ecalBarrelPositionedCellsName + "WithNoiseFiltered",
+                                                                   links=ecalBarrelCellsNoiseFilteredLinks
                                                                    )
     TopAlg += [createEcalBarrelCellsNoiseFiltered]
 
 if runHCal:
     # Apply calibration and positioning to cells in HCal barrel
     hcalBarrelPositionedCellsName = hcalBarrelReadoutName + "Positioned"
+    hcalBarrelLinks = hcalBarrelPositionedCellsName + "SimCaloHitLinks"
     createHCalBarrelCells = CreatePositionedCaloCells("CreatePositionedHCalBarrelCells",
                                                       doCellCalibration=True,
                                                       calibTool=calibHCalBarrel,
@@ -450,11 +461,13 @@ if runHCal:
                                                       filterCellNoise=False,
                                                       hits=hcalBarrelReadoutName,
                                                       cells=hcalBarrelPositionedCellsName,
+                                                      links=hcalBarrelLinks,
                                                       OutputLevel=INFO)
     TopAlg += [createHCalBarrelCells]
 
     # Apply calibration and positioning to cells in HCal endcap
     hcalEndcapPositionedCellsName = hcalEndcapReadoutName + "Positioned"
+    hcalEndcapLinks = hcalEndcapPositionedCellsName + "SimCaloHitLinks"
     createHCalEndcapCells = CreatePositionedCaloCells("CreatePositionedHCalEndcapCells",
                                                       doCellCalibration=True,
                                                       calibTool=calibHCalEndcap,
@@ -463,12 +476,15 @@ if runHCal:
                                                       positionsTool=cellPositionHCalEndcapTool,
                                                       OutputLevel=INFO,
                                                       hits=hcalEndcapReadoutName,
-                                                      cells=hcalEndcapPositionedCellsName)
+                                                      cells=hcalEndcapPositionedCellsName,
+                                                      links=hcalEndcapLinks)
     TopAlg += [createHCalEndcapCells]
 
 else:
     hcalBarrelPositionedCellsName = "emptyCaloCells"
     hcalEndcapPositionedCellsName = "emptyCaloCells"
+    hcalBarrelLinks = ""
+    hcalEndcapLinks = ""
     cellPositionHCalBarrelTool = None
     cellPositionHCalEndcapTool = None
 
