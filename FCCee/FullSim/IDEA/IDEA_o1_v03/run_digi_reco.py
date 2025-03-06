@@ -97,18 +97,15 @@ siwrd_digitizer = VTXdigitizer("SiWrDdigitizer",
     OutputLevel = INFO
 )
 
-# digitize drift chamber hits, waiting to merge the digitizer for the new drift chamber
-#from Configurables import DCHsimpleDigitizerExtendedEdm
-#dch_digitizer = DCHsimpleDigitizerExtendedEdm("DCHsimpleDigitizerExtendedEdm",
-#    inputSimHits = "CDCHHits",
-#    outputDigiHits = "CDCHDigis",
-#    outputSimDigiAssociation = "DC_simDigiAssociation",
-#    readoutName = "CDCHHits",
-#    xyResolution = 0.1, # mm
-#    zResolution = 1, # mm
-#    debugMode = True,
-#    OutputLevel = INFO
-#)
+from Configurables import DCHdigi_v01
+DCHdigi = DCHdigi_v01("DCHdigi")
+DCHdigi.DCH_simhits = ["DCHCollection"]
+DCHdigi.DCH_name = "DCH_v2"
+DCHdigi.fileDataAlg = "DataAlgFORGEANT.root"
+DCHdigi.calculate_dndx = True
+DCHdigi.create_debug_histograms = True
+DCHdigi.zResolution_mm = 1
+DCHdigi.xyResolution_mm = 0.1
 
 # Create tracks from gen particles
 from Configurables import TracksFromGenParticles
@@ -139,7 +136,7 @@ out.outputCommands = ["keep *"]
 out.filename = "IDEA_sim_digi_reco.root"
 
 # Profiling
-from Configurables import AuditorSvc, ChronoAuditor
+from Configurables import AuditorSvc, ChronoAuditor, UniqueIDGenSvc
 chra = ChronoAuditor()
 audsvc = AuditorSvc()
 audsvc.Auditors = [chra]
@@ -152,7 +149,7 @@ application_mgr = ApplicationMgr(
               vtxd_digitizer,
               siwrb_digitizer,
               siwrd_digitizer,
-              #dch_digitizer,
+              DCHdigi,
               tracksFromGenParticles, 
               plotTrackDCHHitDistances,
               out
@@ -160,7 +157,7 @@ application_mgr = ApplicationMgr(
     EvtSel = 'NONE',
     EvtMax   = -1,
     #ExtSvc = [root_hist_svc, EventDataSvc("EventDataSvc"), geoservice, audsvc],
-    ExtSvc = ['RndmGenSvc', root_hist_svc, geoservice, evtsvc, audsvc],
+    ExtSvc = ['RndmGenSvc', root_hist_svc, geoservice, evtsvc, audsvc, UniqueIDGenSvc("uidSvc")],
     StopOnSignal = True,
  )
 
