@@ -102,10 +102,10 @@ dch_digitizer = DCHdigi_v01("DCHdigi",
     DCH_simhits = ["DCHCollection"],
     DCH_name = "DCH_v2",
     fileDataAlg = "DataAlgFORGEANT.root",
-    calculate_dndx = True,
+    calculate_dndx = False, # cluster counting disabled (to be validated, see FCC-config#239)
     create_debug_histograms = True,
-    zResolution_mm = 1,
-    xyResolution_mm = 0.1
+    zResolution_mm = 1, # in mm
+    xyResolution_mm = 0.1 # in mm
 )
 
 # Create tracks from gen particles
