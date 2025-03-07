@@ -98,14 +98,15 @@ siwrd_digitizer = VTXdigitizer("SiWrDdigitizer",
 )
 
 from Configurables import DCHdigi_v01
-DCHdigi = DCHdigi_v01("DCHdigi")
-DCHdigi.DCH_simhits = ["DCHCollection"]
-DCHdigi.DCH_name = "DCH_v2"
-DCHdigi.fileDataAlg = "DataAlgFORGEANT.root"
-DCHdigi.calculate_dndx = True
-DCHdigi.create_debug_histograms = True
-DCHdigi.zResolution_mm = 1
-DCHdigi.xyResolution_mm = 0.1
+dch_digitizer = DCHdigi_v01("DCHdigi",
+    DCH_simhits = ["DCHCollection"],
+    DCH_name = "DCH_v2",
+    fileDataAlg = "DataAlgFORGEANT.root",
+    calculate_dndx = True,
+    create_debug_histograms = True,
+    zResolution_mm = 1,
+    xyResolution_mm = 0.1
+)
 
 # Create tracks from gen particles
 from Configurables import TracksFromGenParticles
@@ -149,7 +150,7 @@ application_mgr = ApplicationMgr(
               vtxd_digitizer,
               siwrb_digitizer,
               siwrd_digitizer,
-              DCHdigi,
+              dch_digitizer,
               tracksFromGenParticles, 
               plotTrackDCHHitDistances,
               out
