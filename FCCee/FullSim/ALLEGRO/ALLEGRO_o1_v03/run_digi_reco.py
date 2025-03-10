@@ -74,6 +74,11 @@ ecalBarrelUpstreamParameters = [[0.028158491043365624, -1.564259408365951, -76.5
 ecalBarrelDownstreamParameters = [[0.00010587711361028165, 0.0052371999097777355, 0.69906696456064, -0.9348243433360095, -0.0364714212117143, 8.360401126995626]]
 if ecalBarrelSamplingFraction and len(ecalBarrelSamplingFraction) > 0:
     assert (ecalBarrelLayers == len(ecalBarrelSamplingFraction))
+# ECAL endcap parameters for digitisation
+ecalEndcapLayers = 98
+ecalEndcapSamplingFraction = [0.0390585] * 1+ [0.463715] * 1+ [0.0853304] * 1+ [1] * 1+ [0.0442381] * 1+ [0.0552701] * 1+ [0.245704] * 1+ [0.137059] * 1+ [0.238013] * 1+ [0.147364] * 1+ [0.0788765] * 1+ [0.219239] * 1+ [0.151537] * 1+ [0.26711] * 1+ [0.0853741] * 1+ [0.0995584] * 1+ [0.206757] * 1+ [0.16663] * 1+ [0.238659] * 1+ [0.0978915] * 1+ [0.121322] * 1+ [0.204324] * 1+ [0.175887] * 1+ [0.244135] * 1+ [0.0994313] * 1+ [0.141767] * 1+ [0.205447] * 1+ [0.186003] * 1+ [0.237895] * 1+ [0.108545] * 1+ [0.16853] * 1+ [0.205409] * 1+ [0.195066] * 1+ [0.234766] * 1+ [0.109689] * 1+ [0.152743] * 1+ [0.202067] * 1+ [0.199587] * 1+ [0.22892] * 1+ [0.117163] * 1+ [0.247339] * 1+ [0.219485] * 1+ [0.217142] * 1+ [0.248389] * 1+ [0.125487] * 1+ [0.10275] * 1+ [0.185187] * 1+ [0.18939] * 1+ [0.171225] * 1+ [0.109632] * 1+ [0.159225] * 1+ [0.172072] * 1+ [0.174928] * 1+ [0.180492] * 1+ [0.184174] * 1+ [0.18843] * 1+ [0.191688] * 1+ [0.194472] * 1+ [0.198021] * 1+ [0.200064] * 1+ [0.20313] * 1+ [0.203984] * 1+ [0.208658] * 1+ [0.198391] * 1+ [0.153334] * 1+ [0.175712] * 1+ [0.169342] * 1+ [0.176852] * 1+ [0.175731] * 1+ [0.181481] * 1+ [0.17978] * 1+ [0.18426] * 1+ [0.185028] * 1+ [0.186753] * 1+ [0.190321] * 1+ [0.189175] * 1+ [0.193018] * 1+ [0.193594] * 1+ [0.195598] * 1+ [0.1969] * 1+ [0.197713] * 1+ [0.201379] * 1+ [0.193965] * 1+ [0.223362] * 1+ [0.166243] * 1+ [0.373141] * 1+ [0.112825] * 1+ [0.469126] * 1+ [1] * 1+ [0.0954407] * 1+ [0.0706573] * 1+ [1] * 1+ [1] * 1+ [0.112354] * 1+ [1] * 1+ [1] * 1+ [1] * 1+ [1] * 1
+if ecalEndcapSamplingFraction and len(ecalEndcapSamplingFraction) > 0:
+    assert (ecalEndcapLayers == len(ecalEndcapSamplingFraction))
 
 resegmentECalBarrel = False
 
@@ -191,7 +196,7 @@ calibEcalBarrel = CalibrateInLayersTool("CalibrateECalBarrel",
                                         layerFieldName="layer")
 #   * ECAL endcap
 calibEcalEndcap = CalibrateInLayersTool("CalibrateECalEndcap",
-                                        samplingFraction=[0.16419] * 1 + [0.192898] * 1 + [0.18783] * 1 + [0.193203] * 1 + [0.193928] * 1 + [0.192286] * 1 + [0.199959] * 1 + [0.200153] * 1 + [0.212635] * 1 + [0.180345] * 1 + [0.18488] * 1 + [0.194762] * 1 + [0.197775] * 1 + [0.200504] * 1 + [0.205555] * 1 + [0.203601] * 1 + [0.210877] * 1 + [0.208376] * 1 + [0.216345] * 1 + [0.201452] * 1 + [0.202134] * 1 + [0.207566] * 1 + [0.208152] * 1 + [0.209889] * 1 + [0.211743] * 1 + [0.213188] * 1 + [0.215864] * 1 + [0.22972] * 1 + [0.192515] * 1 + [0.0103233] * 1,
+                                        samplingFraction=ecalEndcapSamplingFraction,
                                         readoutName=ecalEndcapReadoutName,
                                         layerFieldName="layer")
 
@@ -673,7 +678,8 @@ def setupTopoClusters(inputCells,
                                       noiseTool=noiseTool,
                                       # cell positions tools for all sub - systems
                                       positionsECalBarrelTool=inputPositioningTools.get('ecalBarrel', None),
-                                      # positionsEMECTool=inputPositioningTools.get('ecalEndcap', None),
+                                      positionsECalEndcapTool=inputPositioningTools.get('ecalEndcap', None),
+                                      # positionsEMECTool=inputPositioningTools.get('ecalEC', None),
                                       # positionsEMFwdTool=inputPositioningTools.get('ecalFwd', None),
                                       positionsHCalBarrelTool=inputPositioningTools.get('hcalBarrel', None),
                                       positionsHCalBarrelNoSegTool=None,
@@ -850,7 +856,21 @@ if doTopoClustering:
                       addShapeParameters,
                       runPhotonIDTool)
 
-    # no topoclusters for ECAL endcap yet: no noise and neighbour maps provided
+    # ECAL endcap topoclusters
+    EMECCaloTopoClusterInputs = {"ecalEndcap": ecalEndcapPositionedCellsName}
+    EMECCaloTopoClusterReadouts = {"ecalEndcap": ecalEndcapReadoutName}
+    EMECCaloTopoClusterPositioningTools = {"ecalEndcap": cellPositionEcalEndcapTool}
+    setupTopoClusters(EMECCaloTopoClusterInputs,
+                      EMECCaloTopoClusterReadouts,
+                      EMECCaloTopoClusterPositioningTools,
+                      "EMECCaloTopoClusters",
+                      0.0,
+                      dataFolder + "neighbours_map_ecalE_turbine.root",
+                      dataFolder + "cellNoise_map_endcapTurbine_electronicsNoiseLevel.root",
+                      False,
+                      False,
+                      False,
+                      False)
 
     # ECAL topoclusters with noise
     if addNoise:
@@ -871,16 +891,19 @@ if doTopoClustering:
     if runHCal:
         CaloTopoClusterInputs = {
             "ecalBarrel": ecalBarrelPositionedCellsName,
+            #"ecalEndcap": ecalEndcapPositionedCellsName,
             "hcalBarrel": hcalBarrelPositionedCellsName,
             "hcalEndcap": hcalEndcapPositionedCellsName,
         }
         CaloTopoClusterReadouts = {
             "ecalBarrel": ecalBarrelReadoutName,
+            #"ecalEndcap": ecalEndcapReadoutName,
             "hcalBarrel": hcalBarrelReadoutName,
             "hcalEndcap": hcalEndcapReadoutName,
         }
         CaloTopoClusterPositioningTools = {
             "ecalBarrel": cellPositionEcalBarrelTool,
+            #"ecalEndcap": None,
             "hcalBarrel": cellPositionHCalBarrelTool,
             "hcalEndcap": cellPositionHCalEndcapTool,
         }
