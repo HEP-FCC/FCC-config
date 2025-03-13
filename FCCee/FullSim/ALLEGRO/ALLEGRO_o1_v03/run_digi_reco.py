@@ -36,6 +36,7 @@ parser.add_argument("--addCrosstalk", action="store_true", help="Add cross-talk 
 parser.add_argument("--addTracks", action="store_true", help="Add reco-level tracks (smeared truth tracks)", default=False)
 parser.add_argument("--calibrateClusters", action="store_true", help="Apply MVA calibration to clusters", default=False)
 parser.add_argument("--runPhotonID", action="store_true", help="Apply photon ID tool to clusters", default=False)
+parser.add_argument("--pfaOutputFile", help="Output file name", default="")
 parser.add_argument("--trkdigi", action="store_true", help="Digitise tracker hits", default=False)
 
 opts = parser.parse_known_args()[0]
@@ -1130,7 +1131,11 @@ if runPandora:
     pfoAnalysis = MarlinProcessorWrapper("PfoAnalysisWrapper")
     pfoAnalysis.OutputLevel = DEBUG
     pfoAnalysis.ProcessorType = ("PfoAnalysis")
-    outputFile = opts.outputFile.replace(".root", "_PandoraAnalysis.root")
+    # how to use io_svc.Output instead of outputfile (overridden via cmd line)?
+    # or to set via cmd line PfoAnalysisWrapper.Parameters[RootFile] ?
+    outputFile = opts.pfaOutputFile
+    if outputFile == "":
+        outputFile = outputfile.replace(".root", "_PandoraAnalysis.root")
     pfoAnalysis.Parameters = {
         "RootFile"                          : [outputFile],
         "MCParticleCollection"              : ["MCParticle"],
