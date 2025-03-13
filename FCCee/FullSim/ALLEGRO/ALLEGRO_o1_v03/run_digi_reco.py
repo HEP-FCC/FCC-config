@@ -27,6 +27,7 @@ dataFolder = "./"                          # directory containing the calibratio
 # - general settings set via CLI
 from k4FWCore.parseArgs import parser
 parser.add_argument("--includeHCal", action="store_true", help="Also digitise HCal hits and create ECAL+HCAL clusters", default=False)
+parser.add_argument("--includeMuon", action="store_true", help="Also digitise muon hits", default=False)
 parser.add_argument("--saveHits", action="store_true", help="Save G4 hits", default=False)
 parser.add_argument("--saveCells", action="store_true", help="Save cell collection", default=False)
 parser.add_argument("--addNoise", action="store_true", help="Add noise to cells (ECAL barrel only)", default=False)
@@ -37,6 +38,7 @@ parser.add_argument("--runPhotonID", action="store_true", help="Apply photon ID 
 
 opts = parser.parse_known_args()[0]
 runHCal = opts.includeHCal                # if false, it will produce only ECAL clusters. if true, it will also produce ECAL+HCAL clusters
+runMuon = opts.includeMuon                # if false, it will not digitise muon hits
 addNoise = opts.addNoise                  # add noise or not to the cell energy
 addCrosstalk = opts.addCrosstalk          # switch on/off the crosstalk
 addTracks = opts.addTracks                # add tracks or not
@@ -83,7 +85,6 @@ if ecalEndcapSamplingFraction and len(ecalEndcapSamplingFraction) > 0:
 resegmentECalBarrel = False
 
 # - parameters for clustering (could also be made configurable via CLI)
-#
 doSWClustering = True
 doTopoClustering = True
 
@@ -163,13 +164,17 @@ ExtSvc += [EventDataSvc("EventDataSvc")]
 # Tracking
 # Create tracks from gen particles
 if addTracks:
-    from Configurables import TracksFromGenParticles
-    tracksFromGenParticles = TracksFromGenParticles("CreateTracksFromGenParticles",
-                                                    InputGenParticles=["MCParticles"],
-                                                    OutputTracks=["TracksFromGenParticles"],
-                                                    OutputMCRecoTrackParticleAssociation=["TracksFromGenParticlesAssociation"],
-                                                    Bz=2.0,
-                                                    OutputLevel=INFO)
+    from Configurables import TracksFromGenParticlesWithECalExtrap
+    tracksFromGenParticles = TracksFromGenParticlesWithECalExtrap("CreateTracksFromGenParticles",
+                                                                  InputGenParticles=["MCParticles"],
+                                                                  InputSimTrackerHits=["VertexBarrelCollection",
+                                                                                       "VertexEndcapCollection",
+                                                                                       "DCHCollection",
+                                                                                       "SiWrBCollection",
+                                                                                       "SiWrDCollection"],
+                                                                  OutputTracks=["TracksFromGenParticles"],
+                                                                  OutputMCRecoTrackParticleAssociation=["TracksFromGenParticlesAssociation"],
+                                                                  OutputLevel=INFO)
     TopAlg += [tracksFromGenParticles]
 
 
@@ -181,8 +186,9 @@ ecalBarrelReadoutName2 = "ECalBarrelModuleThetaMerged2"    # barrel, after re-se
 ecalEndcapReadoutName = "ECalEndcapTurbine"                # endcap, turbine-like (baseline)
 # - HCAL readouts
 if runHCal:
-    hcalBarrelReadoutName = "HCalBarrelReadout"            # barrel, original segmentation (HCalPhiTheta)
-    hcalEndcapReadoutName = "HCalEndcapReadout"            # endcap, original segmentation (HCalPhiTheta)
+    hcalBarrelReadoutName = "HCalBarrelReadout"            # barrel, original segmentation (phi-theta)
+    # hcalBarrelReadoutName = "HCalBarrelReadoutPhiRow"    # barrel, alternative segmentation (phi-row)
+    hcalEndcapReadoutName = "HCalEndcapReadout"            # endcap, original segmentation
 else:
     hcalBarrelReadoutName = ""
     hcalEndcapReadoutName = ""
@@ -462,6 +468,76 @@ if doSWClustering or doTopoClustering:
     TopAlg += [createemptycells]
 
 
+# Muon cells [add longitudinal segmentation to detector?]
+if runMuon:
+    from Configurables import CellPositionsSimpleCylinderPhiThetaSegTool
+    muonBarrelReadoutName = "MuonTaggerBarrelPhiTheta"
+    muonBarrelPositionedCellsName = muonBarrelReadoutName + "Positioned"
+    muonBarrelLinks = muonBarrelPositionedCellsName + "SimCaloHitLinks"
+    cellPositionMuonBarrelTool = CellPositionsSimpleCylinderPhiThetaSegTool(
+        "CellPositionsMuonBarrel",
+        detectorName="MuonTaggerBarrel",
+        readoutName=muonBarrelReadoutName,
+        OutputLevel=INFO
+    )
+
+    from Configurables import NoiseCaloCellsFlatTool
+    MuonBarrelNoiseTool = NoiseCaloCellsFlatTool("MuonBarrelNoiseTool",
+                                                 cellNoiseRMS=0.0005,  # in GeV
+                                                 filterNoiseThreshold=3,
+                                                 OutputLevel=INFO)
+    createMuonBarrelCells = CreatePositionedCaloCells("CreatePositionedMuonBarrelCells",
+                                                      positionsTool=cellPositionMuonBarrelTool,
+                                                      doCellCalibration=False,
+                                                      # calibTool=None,
+                                                      addCrosstalk=False,
+                                                      # crosstalkTool=None
+                                                      addCellNoise=False,
+                                                      # filterCellNoise=False,
+                                                      # noiseTool=None,
+                                                      filterCellNoise=True,
+                                                      noiseTool=MuonBarrelNoiseTool,
+                                                      geometryTool=None,
+                                                      OutputLevel=INFO,
+                                                      hits=muonBarrelReadoutName,
+                                                      cells=muonBarrelPositionedCellsName,
+                                                      links=muonBarrelLinks
+                                                      )
+    TopAlg += [createMuonBarrelCells]
+
+    muonEndcapReadoutName = "MuonTaggerEndcapPhiTheta"
+    muonEndcapPositionedCellsName = muonEndcapReadoutName + "Positioned"
+    muonEndcapLinks = muonEndcapPositionedCellsName + "SimCaloHitLinks"
+    cellPositionMuonEndcapTool = CellPositionsSimpleCylinderPhiThetaSegTool(
+        "CellPositionsMuonEndcap",
+        detectorName="MuonTaggerEndcap",
+        readoutName=muonEndcapReadoutName,
+        OutputLevel=INFO
+    )
+    createMuonEndcapCells = CreatePositionedCaloCells("CreatePositionedMuonEndcapCells",
+                                                      positionsTool=cellPositionMuonEndcapTool,
+                                                      doCellCalibration=False,
+                                                      # calibTool=None,
+                                                      addCrosstalk=False,
+                                                      # crosstalkTool=None
+                                                      addCellNoise=False,
+                                                      filterCellNoise=False,
+                                                      noiseTool=None,
+                                                      geometryTool=None,
+                                                      OutputLevel=INFO,
+                                                      hits=muonEndcapReadoutName,
+                                                      cells=muonEndcapPositionedCellsName,
+                                                      links=muonEndcapLinks
+                                                      )
+    TopAlg += [createMuonEndcapCells]
+else:
+    muonBarrelReadoutName = ""
+    muonEndcapReadoutName = ""
+    muonBarrelPositionedCellsName = ""
+    muonEndcapPositionedCellsName = ""
+    muonBarrelLinks = ""
+    muonEndcapLinks = ""
+
 # Function that sets up the sequence for producing SW clusters given an input cell collection
 def setupSWClusters(inputCells,
                     inputReadouts,
@@ -619,7 +695,6 @@ def setupSWClusters(inputCells,
 # Function that sets up the sequence for producing Topo clusters given an input cell collection
 def setupTopoClusters(inputCells,
                       inputReadouts,
-                      inputPositioningTools,  # TODO: check if we still need these since the cells are positioned..
                       outputClusters,
                       clusteringThreshold,
                       neighboursMap,
@@ -631,7 +706,6 @@ def setupTopoClusters(inputCells,
 
     global TopAlg
 
-    from Configurables import CaloTopoClusterInputTool
     from Configurables import TopoCaloNeighbours
     from Configurables import TopoCaloNoisyCells
     from Configurables import CaloTopoClusterFCCee
@@ -640,24 +714,6 @@ def setupTopoClusters(inputCells,
     seedSigma = 6
     neighbourSigma = 2
     lastNeighbourSigma = 0
-
-    # tool collecting the input cells
-    topoClusterInputTool = CaloTopoClusterInputTool(outputClusters + "InputTool",
-                                                    ecalBarrelReadoutName=inputReadouts.get("ecalBarrel", ""),
-                                                    ecalEndcapReadoutName=inputReadouts.get("ecalEndcap", ""),
-                                                    ecalFwdReadoutName=inputReadouts.get("ecalFwd", ""),
-                                                    hcalBarrelReadoutName=inputReadouts.get("hcalBarrel", ""),
-                                                    hcalExtBarrelReadoutName=inputReadouts.get("hcalExtBarrel", ""),
-                                                    hcalEndcapReadoutName=inputReadouts.get("hcalEndcap", ""),
-                                                    hcalFwdReadoutName=inputReadouts.get("hcalFwd", ""),
-                                                    OutputLevel=INFO)
-    topoClusterInputTool.ecalBarrelCells.Path = inputCells.get("ecalBarrel", "emptyCaloCells")
-    topoClusterInputTool.ecalEndcapCells.Path = inputCells.get("ecalEndcap", "emptyCaloCells")
-    topoClusterInputTool.ecalFwdCells.Path = inputCells.get("ecalFwd", "emptyCaloCells")
-    topoClusterInputTool.hcalBarrelCells.Path = inputCells.get("hcalBarrel", "emptyCaloCells")
-    topoClusterInputTool.hcalExtBarrelCells.Path = inputCells.get("hcalExtBarrel", "emptyCaloCells")
-    topoClusterInputTool.hcalEndcapCells.Path = inputCells.get("hcalEndcap", "emptyCaloCells")
-    topoClusterInputTool.hcalFwdCells.Path = inputCells.get("hcalFwd", "emptyCaloCells")
 
     # tool providing the map of cell neighbours
     neighboursTool = TopoCaloNeighbours(outputClusters + "NeighboursMap",
@@ -669,32 +725,26 @@ def setupTopoClusters(inputCells,
                                    fileName=noiseMap,
                                    OutputLevel=INFO)
 
+    # list of input cells
+    cells = list(inputCells.values())
+    # EM barrel readout name (if present)
+    readoutName = ""
+    if ecalBarrelReadoutName in inputReadouts:
+        readoutName = ecalBarrelReadoutName
+
     # algorithm creating the topoclusters
     clusterAlg = CaloTopoClusterFCCee("Create" + outputClusters,
-                                      TopoClusterInput=topoClusterInputTool,
-                                      # expects neighbours map from cellid->vec < neighbourIds >
+                                      cells=cells,
+                                      clusters=outputClusters,
+                                      clusterCells=outputClusters.replace("Clusters", "Cluster") + "Cells",
                                       neigboursTool=neighboursTool,
-                                      # tool to get noise level per cellid
                                       noiseTool=noiseTool,
-                                      # cell positions tools for all sub - systems
-                                      positionsECalBarrelTool=inputPositioningTools.get('ecalBarrel', None),
-                                      positionsECalEndcapTool=inputPositioningTools.get('ecalEndcap', None),
-                                      # positionsEMECTool=inputPositioningTools.get('ecalEC', None),
-                                      # positionsEMFwdTool=inputPositioningTools.get('ecalFwd', None),
-                                      positionsHCalBarrelTool=inputPositioningTools.get('hcalBarrel', None),
-                                      positionsHCalBarrelNoSegTool=None,
-                                      positionsHCalExtBarrelTool=inputPositioningTools.get('hcalEndcap', None),
-                                      # positionsHECTool=inputPositioningTools.get('hcalEndcap', None),
-                                      # positionsHFwdTool=inputPositioningTools.get('hcalFwd', None),
-                                      noSegmentationHCal=False,
-                                      # algorithm parameters
+                                      readoutName=readoutName,
                                       seedSigma=seedSigma,
                                       neighbourSigma=neighbourSigma,
                                       lastNeighbourSigma=lastNeighbourSigma,
                                       minClusterEnergy=clusteringThreshold,
                                       OutputLevel=INFO)
-    clusterAlg.clusters.Path = outputClusters
-    clusterAlg.clusterCells.Path = outputClusters.replace("Clusters", "Cluster") + "Cells"
     TopAlg += [clusterAlg]
 
     if applyUpDownstreamCorrections:
@@ -843,10 +893,8 @@ if doTopoClustering:
     # ECAL barrel topoclusters
     EMBCaloTopoClusterInputs = {"ecalBarrel": ecalBarrelPositionedCellsName}
     EMBCaloTopoClusterReadouts = {"ecalBarrel": ecalBarrelReadoutName}
-    EMBCaloTopoClusterPositioningTools = {"ecalBarrel": cellPositionEcalBarrelTool}
     setupTopoClusters(EMBCaloTopoClusterInputs,
                       EMBCaloTopoClusterReadouts,
-                      EMBCaloTopoClusterPositioningTools,
                       "EMBCaloTopoClusters",
                       0.0,
                       dataFolder + "neighbours_map_ecalB_thetamodulemerged.root",
@@ -859,10 +907,8 @@ if doTopoClustering:
     # ECAL endcap topoclusters
     EMECCaloTopoClusterInputs = {"ecalEndcap": ecalEndcapPositionedCellsName}
     EMECCaloTopoClusterReadouts = {"ecalEndcap": ecalEndcapReadoutName}
-    EMECCaloTopoClusterPositioningTools = {"ecalEndcap": cellPositionEcalEndcapTool}
     setupTopoClusters(EMECCaloTopoClusterInputs,
                       EMECCaloTopoClusterReadouts,
-                      EMECCaloTopoClusterPositioningTools,
                       "EMECCaloTopoClusters",
                       0.0,
                       dataFolder + "neighbours_map_ecalE_turbine.root",
@@ -877,7 +923,6 @@ if doTopoClustering:
         EMBCaloTopoClusterInputsWithNoise = {"ecalBarrel": ecalBarrelPositionedCellsName + "WithNoise" if filterNoiseThreshold < 0 else ecalBarrelPositionedCellsName + "WithNoiseFiltered"}
         setupTopoClusters(EMBCaloTopoClusterInputsWithNoise,
                           EMBCaloTopoClusterReadouts,
-                          EMBCaloTopoClusterPositioningTools,
                           "EMBCaloTopoClustersWithNoise" if filterNoiseThreshold < 0 else "EMBCaloTopoClustersWithNoiseFiltered",
                           0.1,
                           dataFolder + "neighbours_map_ecalB_thetamodulemerged.root",
@@ -891,29 +936,23 @@ if doTopoClustering:
     if runHCal:
         CaloTopoClusterInputs = {
             "ecalBarrel": ecalBarrelPositionedCellsName,
-            #"ecalEndcap": ecalEndcapPositionedCellsName,
+            "ecalEndcap": ecalEndcapPositionedCellsName,
             "hcalBarrel": hcalBarrelPositionedCellsName,
             "hcalEndcap": hcalEndcapPositionedCellsName,
         }
         CaloTopoClusterReadouts = {
             "ecalBarrel": ecalBarrelReadoutName,
-            #"ecalEndcap": ecalEndcapReadoutName,
+            "ecalEndcap": ecalEndcapReadoutName,
             "hcalBarrel": hcalBarrelReadoutName,
             "hcalEndcap": hcalEndcapReadoutName,
         }
-        CaloTopoClusterPositioningTools = {
-            "ecalBarrel": cellPositionEcalBarrelTool,
-            #"ecalEndcap": None,
-            "hcalBarrel": cellPositionHCalBarrelTool,
-            "hcalEndcap": cellPositionHCalEndcapTool,
-        }
+        # note: the neighbour map links ecal and hcal barrels, and hcal barrel-endcap, but does not link (yet) the others
         setupTopoClusters(CaloTopoClusterInputs,
                           CaloTopoClusterReadouts,
-                          CaloTopoClusterPositioningTools,
                           "CaloTopoClusters",
                           0.0,
-                          dataFolder + "neighbours_map_ecalB_thetamodulemerged_hcalB_hcalEndcap_phitheta.root",
-                          dataFolder + "cellNoise_map_electronicsNoiseLevel_ecalB_thetamodulemerged_hcalB_thetaphi.root",
+                          dataFolder + "neighbours_map_ecalB_thetamodulemerged_ecalE_turbine_hcalB_hcalEndcap_phitheta.root",
+                          dataFolder + "cellNoise_map_electronicsNoiseLevel_ecalB_ECalBarrelModuleThetaMerged_ecalE_ECalEndcapTurbine_hcalB_HCalBarrelReadout_hcalE_HCalEndcapReadout.root",
                           False,
                           False,
                           False,
@@ -940,10 +979,6 @@ if dropUncalibratedCells:
     # drop the intermediate ecal barrel cells in case of a resegmentation
     if resegmentECalBarrel:
         io_svc.outputCommands.append("drop ECalBarrelCellsMerged")
-    # drop the intermediate hcal barrel cells before resegmentation
-    if runHCal:
-        io_svc.outputCommands.append("drop %s" % hcalBarrelPositionedCellsName)
-        io_svc.outputCommands.append("drop %s" % hcalEndcapPositionedCellsName)
 
 # drop lumi, vertex, DCH, Muons (unless want to keep for event display)
 if dropLumiCalHits:
@@ -952,18 +987,22 @@ if dropVertexHits:
     io_svc.outputCommands.append("drop VertexBarrelCollection*")
     io_svc.outputCommands.append("drop VertexEndcapCollection*")
 if dropDCHHits:
-    io_svc.outputCommands.append("drop DCHCollection**")
+    io_svc.outputCommands.append("drop DCHCollection*")
 if dropSiWrHits:
     io_svc.outputCommands.append("drop SiWrBCollection*")
     io_svc.outputCommands.append("drop SiWrDCollection*")
 if dropMuonHits:
-    io_svc.outputCommands.append("drop MuonTagger*")
+    io_svc.outputCommands.append("drop MuonTagger*PhiTheta")   # hits
+    io_svc.outputCommands.append("drop MuonTagger*PhiThetaPositioned")   # cells
 
 # drop hits/positioned cells/cluster cells if desired
 if not saveHits:
     io_svc.outputCommands.append("drop *%sContributions" % ecalBarrelReadoutName)
     io_svc.outputCommands.append("drop *%sContributions" % ecalBarrelReadoutName2)
     io_svc.outputCommands.append("drop *%sContributions" % ecalEndcapReadoutName)
+    if runHCal:
+        io_svc.outputCommands.append("drop *%sContributions" % hcalBarrelReadoutName)
+        io_svc.outputCommands.append("drop *%sContributions" % hcalEndcapReadoutName)
 if not saveCells:
     io_svc.outputCommands.append("drop %s" % ecalBarrelPositionedCellsName)
     io_svc.outputCommands.append("drop %s" % ecalEndcapPositionedCellsName)
@@ -977,6 +1016,9 @@ if not saveCells:
         io_svc.outputCommands.append("drop %s" % hcalEndcapPositionedCellsName)
 if not saveClusterCells:
     io_svc.outputCommands.append("drop *Calo*Cluster*Cells*")
+# drop hits<->cells links if either of the two collections are not saved
+if not saveHits or not saveCells:
+    io_svc.outputCommands.append("drop *SimCaloHitLinks")
 
 # if we decorate the clusters, we can drop the non-decorated ones
 if addShapeParameters:
