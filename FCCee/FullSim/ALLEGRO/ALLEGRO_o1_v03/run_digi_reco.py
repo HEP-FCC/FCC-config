@@ -41,7 +41,7 @@ parser.add_argument("--inputFiles", action="extend", nargs="+", metavar=("file1"
 parser.add_argument("--outputFile", help="Output file name", default="output.root")
 
 opts = parser.parse_known_args()[0]
-runPandora = opts.pandora                 # if true, add tracks, include HCal, and run pandora PFA instead of basic clustering algorithm
+runPandora = opts.pandora                 # if true, add tracks, include HCal and Muon, and run pandora PFA instead of basic clustering algorithm
 runHCal = opts.includeHCal                # if false, it will produce only ECAL clusters. if true, it will also produce ECAL+HCAL clusters
 runMuon = opts.includeMuon                # if false, it will not digitise muon hits
 addNoise = opts.addNoise                  # add noise or not to the cell energy
@@ -106,7 +106,7 @@ applyMVAClusterEnergyCalibration = opts.calibrateClusters
 
 # calculate cluster energy and barycenter per layer and save it as extra parameters
 addShapeParameters = True
-ecalBarrelThetaWeights = [-1, 3.0, 3.0, 3.0, 4.25, 4.0, 4.0, 4.0, 4.0, 4.0, 4.0]  # to be recalculated for V03/04, separately for topo and calo clusters...
+ecalBarrelThetaWeights = [-1, 3.0, 3.0, 3.0, 4.25, 4.0, 4.0, 4.0, 4.0, 4.0, 4.0]  # to be recalculated for V03, separately for topo and calo clusters...
 
 # run photon ID algorithm
 # not run by default in production, but to be turned on here for the purpose of testing that the code is not broken
@@ -116,8 +116,9 @@ runPhotonIDTool = opts.runPhotonID
 logEWeightInPhotonID = False
 
 if runPandora:
-    print("PandoraPFA is requested, will set addTracks and runHCal to True, doSWClustering and doTopoClustering to False")
+    print("PandoraPFA is requested, will set addTracks, runHCal and runMuon to True, doSWClustering and doTopoClustering to False")
     runHCal = True
+    runMuon = True
     addTracks = True
     doSWClustering = False
     doTopoClustering = False
@@ -165,28 +166,15 @@ ExtSvc += [geoservice]
 
 
 # Input/Output handling
-if runPandora:
-    # legacy IO - cannot yet use EDM4hep2Lcio with IOSvC
-    from Configurables import k4DataSvc, PodioInput
-    evtsvc = k4DataSvc('EventDataSvc')
-    ExtSvc += [evtsvc]
-    read = PodioInput("PodioInput")
-    TopAlg.append(read)
-    evtsvc.inputs = opts.inputFiles
-
-    from Configurables import PodioOutput
-    io_svc = PodioOutput("PodioOutput", filename=opts.outputFile)
-    io_svc.outputCommands = ["keep *"]
-else:
-    from k4FWCore import IOSvc
-    from Configurables import EventDataSvc
-    io_svc = IOSvc("IOSvc")
-    # io_svc.Input = inputfile
-    # io_svc.Output = outputfile
-    io_svc.Input = opts.inputFiles
-    io_svc.Output = opts.outputFile
-    evtsvc = EventDataSvc("EventDataSvc")
-    ExtSvc += [evtsvc]
+from k4FWCore import IOSvc
+from Configurables import EventDataSvc
+io_svc = IOSvc("IOSvc")
+# io_svc.Input = inputfile
+# io_svc.Output = outputfile
+io_svc.Input = opts.inputFiles
+io_svc.Output = opts.outputFile
+evtsvc = EventDataSvc("EventDataSvc")
+ExtSvc += [evtsvc]
 
 # Tracking
 # Create tracks from gen particles
