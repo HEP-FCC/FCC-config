@@ -36,9 +36,7 @@ parser.add_argument("--addCrosstalk", action="store_true", help="Add cross-talk 
 parser.add_argument("--addTracks", action="store_true", help="Add reco-level tracks (smeared truth tracks)", default=False)
 parser.add_argument("--calibrateClusters", action="store_true", help="Apply MVA calibration to clusters", default=False)
 parser.add_argument("--runPhotonID", action="store_true", help="Apply photon ID tool to clusters", default=False)
-# GM: temporarily added these options since IOSvc does not work with EDM4hep2LCIO
-# parser.add_argument("--inputFiles", action="extend", nargs="+", metavar=("file1", "file2"), help="One or multiple input files")
-# parser.add_argument("--outputFile", help="Output file name", default="output.root")
+parser.add_argument("--pfaOutputFile", help="Output file name", default="")
 
 opts = parser.parse_known_args()[0]
 runPandora = opts.pandora                 # if true, add tracks, include HCal and Muon, and run pandora PFA instead of basic clustering algorithm
@@ -171,8 +169,6 @@ from Configurables import EventDataSvc
 io_svc = IOSvc("IOSvc")
 io_svc.Input = inputfile
 io_svc.Output = outputfile
-# io_svc.Input = opts.inputFiles
-# io_svc.Output = opts.outputFile
 evtsvc = EventDataSvc("EventDataSvc")
 ExtSvc += [evtsvc]
 
@@ -1033,7 +1029,11 @@ if runPandora:
     pfoAnalysis = MarlinProcessorWrapper("PfoAnalysisWrapper")
     pfoAnalysis.OutputLevel = DEBUG
     pfoAnalysis.ProcessorType = ("PfoAnalysis")
-    outputFile = opts.outputFile.replace(".root", "_PandoraAnalysis.root")
+    # how to use io_svc.Output instead of outputfile (overridden via cmd line)?
+    # or to set via cmd line PfoAnalysisWrapper.Parameters[RootFile] ?
+    outputFile = opts.pfaOutputFile
+    if outputFile == "":
+        outputFile = outputfile.replace(".root", "_PandoraAnalysis.root")
     pfoAnalysis.Parameters = {
         "RootFile"                          : [outputFile],
         "MCParticleCollection"              : ["MCParticle"],
