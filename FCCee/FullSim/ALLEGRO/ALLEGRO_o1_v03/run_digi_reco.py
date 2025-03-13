@@ -37,8 +37,8 @@ parser.add_argument("--addTracks", action="store_true", help="Add reco-level tra
 parser.add_argument("--calibrateClusters", action="store_true", help="Apply MVA calibration to clusters", default=False)
 parser.add_argument("--runPhotonID", action="store_true", help="Apply photon ID tool to clusters", default=False)
 # GM: temporarily added these options since IOSvc does not work with EDM4hep2LCIO
-parser.add_argument("--inputFiles", action="extend", nargs="+", metavar=("file1", "file2"), help="One or multiple input files")
-parser.add_argument("--outputFile", help="Output file name", default="output.root")
+# parser.add_argument("--inputFiles", action="extend", nargs="+", metavar=("file1", "file2"), help="One or multiple input files")
+# parser.add_argument("--outputFile", help="Output file name", default="output.root")
 
 opts = parser.parse_known_args()[0]
 runPandora = opts.pandora                 # if true, add tracks, include HCal and Muon, and run pandora PFA instead of basic clustering algorithm
@@ -169,10 +169,10 @@ ExtSvc += [geoservice]
 from k4FWCore import IOSvc
 from Configurables import EventDataSvc
 io_svc = IOSvc("IOSvc")
-# io_svc.Input = inputfile
-# io_svc.Output = outputfile
-io_svc.Input = opts.inputFiles
-io_svc.Output = opts.outputFile
+io_svc.Input = inputfile
+io_svc.Output = outputfile
+# io_svc.Input = opts.inputFiles
+# io_svc.Output = opts.outputFile
 evtsvc = EventDataSvc("EventDataSvc")
 ExtSvc += [evtsvc]
 
@@ -481,52 +481,6 @@ if doSWClustering or doTopoClustering:
     createemptycells = CreateEmptyCaloCellsCollection("CreateEmptyCaloCells")
     createemptycells.cells.Path = "emptyCaloCells"
     TopAlg += [createemptycells]
-
-# Muon cells [add longitudinal segmentation to detector?]
-from Configurables import CellPositionsSimpleCylinderPhiThetaSegTool
-cellPositionMuonBarrelTool = CellPositionsSimpleCylinderPhiThetaSegTool(
-    "CellPositionsMuonBarrel",
-    detectorName="MuonTaggerBarrel",
-    readoutName="MuonTaggerBarrelPhiTheta",
-    OutputLevel=INFO
-)
-createMuonBarrelCells = CreatePositionedCaloCells("CreatePositionedMuonBarrelCells",
-                                                  positionsTool=cellPositionMuonBarrelTool,
-                                                  doCellCalibration=False,
-                                                  # calibTool=None,
-                                                  addCrosstalk=False,
-                                                  # crosstalkTool=None
-                                                  addCellNoise=False,
-                                                  filterCellNoise=False,
-                                                  noiseTool=None,
-                                                  geometryTool=None,
-                                                  OutputLevel=INFO,
-                                                  hits="MuonTaggerBarrelPhiTheta",
-                                                  cells="MuonTaggerBarrelPhiThetaPositioned",
-                                                  )
-TopAlg += [createMuonBarrelCells]
-
-cellPositionMuonEndcapTool = CellPositionsSimpleCylinderPhiThetaSegTool(
-    "CellPositionsMuonEndcap",
-    detectorName="MuonTaggerEndcap",
-    readoutName="MuonTaggerEndcapPhiTheta",
-    OutputLevel=INFO
-)
-createMuonEndcapCells = CreatePositionedCaloCells("CreatePositionedMuonEndcapCells",
-                                                  positionsTool=cellPositionMuonEndcapTool,
-                                                  doCellCalibration=False,
-                                                  # calibTool=None,
-                                                  addCrosstalk=False,
-                                                  # crosstalkTool=None
-                                                  addCellNoise=False,
-                                                  filterCellNoise=False,
-                                                  noiseTool=None,
-                                                  geometryTool=None,
-                                                  OutputLevel=INFO,
-                                                  hits="MuonTaggerEndcapPhiTheta",
-                                                  cells="MuonTaggerEndcapPhiThetaPositioned",
-                                                  )
-TopAlg += [createMuonEndcapCells]
 
 
 # Muon cells [add longitudinal segmentation to detector?]
@@ -1050,8 +1004,10 @@ if runPandora:
         "ECalCaloHitCollections": [ecalBarrelPositionedCellsName],
         # "HCalCaloHitCollections": [hcalBarrelPositionedCellsName, hcalEndcapPositionedCellsName],
         "HCalCaloHitCollections": [hcalBarrelPositionedCellsName],
-        "MuonCaloHitCollections": ["MuonTaggerBarrelPhiThetaPositioned"],   #  "MuonTaggerEndcapPhiThetaPositioned"],
+        "MuonCaloHitCollections": [muonBarrelPositionedCellsName],   #  muonEndcapPositionedCellsName],
+        "RelCaloHitCollections": [ecalBarrelLinks, hcalBarrelLinks, muonBarrelLinks],
         "TrackCollections": ["TrackCollection"],
+        "RelTrackCollections": ["TracksFromGenParticlesAssociation"],
     }
     TopAlg += [pandora]
 
@@ -1074,9 +1030,9 @@ if runPandora:
     pandora.EDM4hep2LcioTool = edm4hepConvTool
 
     # attempt to run pandora calibration
-    pfoAnalysis = MarlinProcessorWrapper( "PfoAnalysisWrapper" )
+    pfoAnalysis = MarlinProcessorWrapper("PfoAnalysisWrapper")
     pfoAnalysis.OutputLevel = DEBUG
-    pfoAnalysis.ProcessorType = ( "PfoAnalysis" )
+    pfoAnalysis.ProcessorType = ("PfoAnalysis")
     outputFile = opts.outputFile.replace(".root", "_PandoraAnalysis.root")
     pfoAnalysis.Parameters = {
         "RootFile"                          : [outputFile],
@@ -1088,12 +1044,12 @@ if runPandora:
         # "HCalCollections"                   : ["HCALBarrel"],
         # "MuonCollections"                   : ["MUON"],
         # from ALLEGRO digitisers
-        "ECalCollections"                   : ["ECalBarrelModuleThetaMergedPositioned"],
-        "HCalCollections"                   : ["HCalBarrelReadoutPositioned"],
-        "MuonCollections"                   : ["MuonTaggerBarrelPhiThetaPositioned"],
-        "ECalCollectionsSimCaloHit"         : ["ECalBarrelModuleThetaMerged"],
-        "HCalBarrelCollectionsSimCaloHit"   : ["HCalBarrelReadout"],
-        "MuonCollectionsSimCaloHit"         : ["MuonTaggerBarrelPhiTheta"],
+        "ECalCollections"                   : [ecalBarrelPositionedCellsName],
+        "HCalCollections"                   : [hcalBarrelPositionedCellsName],
+        "MuonCollections"                   : [muonBarrelPositionedCellsName],
+        "ECalCollectionsSimCaloHit"         : [ecalBarrelReadoutName],
+        "HCalBarrelCollectionsSimCaloHit"   : [hcalBarrelReadoutName],
+        "MuonCollectionsSimCaloHit"         : [muonBarrelReadoutName],
     #     "BCALcollections"             : [""],  # BeamCal
     #     "LHCALcollections"            : [""],  # ? lumi -hcal?
     #     "LCALcollections"             : [""],  # ? lumi -ecal?
@@ -1200,8 +1156,6 @@ if addShapeParameters:
 
 
 # configure the application
-if runPandora:
-    TopAlg.append(io_svc)
 print(TopAlg)
 print(ExtSvc)
 from k4FWCore import ApplicationMgr
