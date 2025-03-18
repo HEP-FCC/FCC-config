@@ -26,7 +26,7 @@ alias nubar = nuebar:numubar:nutaubar
 #?vis_diags = true
 
 
-process proc = e1, E1 => H, nu, nubar
+process proc = e1, E1 => H, nu, nubar  { $restrictions = "!Z:A" }
 
 beams = e1, E1 => gaussian => isr
 ?keep_beams  = true    # do not use this option, makes Pythia crash

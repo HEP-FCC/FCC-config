@@ -38,7 +38,7 @@ alias nubar = nuebar:numubar:nutaubar
 # ?vis_diags = true
 
 
-process proc = e1, E1 =>  nu, nubar, H { $restrictions = "1+3~Z" }
+process proc = e1, E1 =>  e1, E1, H { $restrictions = "1+3~Z" }
 
 beams = e1, E1 => gaussian => isr
 ?keep_beams  = true    
