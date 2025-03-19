@@ -26,6 +26,7 @@ dataFolder = "./"                          # directory containing the calibratio
 
 # - general settings set via CLI
 from k4FWCore.parseArgs import parser
+parser.add_argument("--pandora", action="store_true", help="Run pandora PFA", default=False)
 parser.add_argument("--includeHCal", action="store_true", help="Also digitise HCal hits and create ECAL+HCAL clusters", default=False)
 parser.add_argument("--includeMuon", action="store_true", help="Also digitise muon hits", default=False)
 parser.add_argument("--saveHits", action="store_true", help="Save G4 hits", default=False)
@@ -35,13 +36,17 @@ parser.add_argument("--addCrosstalk", action="store_true", help="Add cross-talk 
 parser.add_argument("--addTracks", action="store_true", help="Add reco-level tracks (smeared truth tracks)", default=False)
 parser.add_argument("--calibrateClusters", action="store_true", help="Apply MVA calibration to clusters", default=False)
 parser.add_argument("--runPhotonID", action="store_true", help="Apply photon ID tool to clusters", default=False)
+parser.add_argument("--pfaOutputFile", help="Output file name", default="")
+parser.add_argument("--trkdigi", action="store_true", help="Digitise tracker hits", default=False)
 
 opts = parser.parse_known_args()[0]
+runPandora = opts.pandora                 # if true, add tracks, include HCal and Muon, and run pandora PFA instead of basic clustering algorithm
 runHCal = opts.includeHCal                # if false, it will produce only ECAL clusters. if true, it will also produce ECAL+HCAL clusters
 runMuon = opts.includeMuon                # if false, it will not digitise muon hits
 addNoise = opts.addNoise                  # add noise or not to the cell energy
 addCrosstalk = opts.addCrosstalk          # switch on/off the crosstalk
 addTracks = opts.addTracks                # add tracks or not
+digitiseTrackerHits = opts.trkdigi        # digitise tracker hits (smear truth)
 
 # - what to save in output file
 #
@@ -110,6 +115,14 @@ ecalBarrelThetaWeights = [-1, 3.0, 3.0, 3.0, 4.25, 4.0, 4.0, 4.0, 4.0, 4.0, 4.0]
 runPhotonIDTool = opts.runPhotonID
 logEWeightInPhotonID = False
 
+if runPandora:
+    print("PandoraPFA is requested, will set addTracks, runHCal and runMuon to True, doSWClustering and doTopoClustering to False")
+    runHCal = True
+    runMuon = True
+    addTracks = True
+    doSWClustering = False
+    doTopoClustering = False
+
 
 #
 # ALGORITHMS AND SERVICES SETUP
@@ -158,7 +171,11 @@ from Configurables import EventDataSvc
 io_svc = IOSvc("IOSvc")
 io_svc.Input = inputfile
 io_svc.Output = outputfile
-ExtSvc += [EventDataSvc("EventDataSvc")]
+evtsvc = EventDataSvc("EventDataSvc")
+ExtSvc += [evtsvc]
+
+if addTracks or digitiseTrackerHits:
+    ExtSvc += ["RndmGenSvc"]
 
 
 # Tracking
@@ -174,11 +191,106 @@ if addTracks:
                                                                                        "SiWrDCollection"],
                                                                   OutputTracks=["TracksFromGenParticles"],
                                                                   OutputMCRecoTrackParticleAssociation=["TracksFromGenParticlesAssociation"],
+                                                                  TrackerIDs=[1,2,3,23,24],  # from DectDimensions.xml
                                                                   OutputLevel=INFO)
     TopAlg += [tracksFromGenParticles]
 
 
-# Digitisation (merging hits into cells, EM scale calibration via sampling fractions)
+# Tracker digitisation
+if digitiseTrackerHits:
+    from Configurables import VTXdigitizer
+    import math
+    innerVertexResolution_x = 0.003 # [mm], assume 3 µm resolution for ARCADIA sensor
+    innerVertexResolution_y = 0.003 # [mm], assume 3 µm resolution for ARCADIA sensor
+    innerVertexResolution_t = 1000 # [ns]
+    outerVertexResolution_x = 0.050/math.sqrt(12) # [mm], assume ATLASPix3 sensor with 50 µm pitch
+    outerVertexResolution_y = 0.150/math.sqrt(12) # [mm], assume ATLASPix3 sensor with 150 µm pitch
+    outerVertexResolution_t = 1000 # [ns]
+
+    vtxb_digitizer = VTXdigitizer("VTXBdigitizer",
+                                  inputSimHits = "VertexBarrelCollection",
+                                  outputDigiHits = "VTXBDigis",
+                                  outputSimDigiAssociation = "VTXBSimDigiLinks",
+                                  detectorName = "Vertex",
+                                  readoutName = "VertexBarrelCollection",
+                                  xResolution = [innerVertexResolution_x, innerVertexResolution_x, innerVertexResolution_x,
+                                                 outerVertexResolution_x, outerVertexResolution_x], # mm, r-phi direction
+                                  yResolution = [innerVertexResolution_y, innerVertexResolution_y, innerVertexResolution_y,
+                                                 outerVertexResolution_y, outerVertexResolution_y], # mm, z direction
+                                  tResolution = [innerVertexResolution_t, innerVertexResolution_t, innerVertexResolution_t,
+                                                 outerVertexResolution_t, outerVertexResolution_t],
+                                  forceHitsOntoSurface = False,
+                                  OutputLevel = INFO
+                                  )
+    TopAlg += [vtxb_digitizer]
+
+    vtxd_digitizer  = VTXdigitizer("VTXDdigitizer",
+                                   inputSimHits = "VertexEndcapCollection",
+                                   outputDigiHits = "VTXDDigis",
+                                   outputSimDigiAssociation = "VTXDSimDigiLinks",
+                                   detectorName = "Vertex",
+                                   readoutName = "VertexEndcapCollection",
+                                   xResolution = [outerVertexResolution_x, outerVertexResolution_x, outerVertexResolution_x], # mm, r direction
+                                   yResolution = [outerVertexResolution_y, outerVertexResolution_y, outerVertexResolution_y], # mm, phi direction
+                                   tResolution = [outerVertexResolution_t, outerVertexResolution_t, outerVertexResolution_t], # ns
+                                   forceHitsOntoSurface = False,
+                                   OutputLevel = INFO
+                                   )
+    TopAlg += [vtxd_digitizer]
+
+    # digitise silicon wrapper hits
+    siWrapperResolution_x   = 0.050/math.sqrt(12) # [mm]
+    siWrapperResolution_y   = 1.0/math.sqrt(12) # [mm]
+    siWrapperResolution_t   = 0.040 # [ns], assume 40 ps timing resolution for a single layer -> Should lead to <30 ps resolution when >1 hit
+    
+    siwrb_digitizer = VTXdigitizer("SiWrBdigitizer",
+                                   inputSimHits = "SiWrBCollection",
+                                   outputDigiHits = "SiWrBDigis",
+                                   outputSimDigiAssociation = "SiWrBSimDigiLinks",
+                                   detectorName = "SiWrB",
+                                   readoutName = "SiWrBCollection",
+                                   xResolution = [siWrapperResolution_x, siWrapperResolution_x], # mm, r-phi direction
+                                   yResolution = [siWrapperResolution_y, siWrapperResolution_y], # mm, z direction
+                                   tResolution = [siWrapperResolution_t, siWrapperResolution_t],
+                                   forceHitsOntoSurface = False,
+                                   OutputLevel = INFO
+                                   )
+    TopAlg += [siwrb_digitizer]
+
+    siwrd_digitizer = VTXdigitizer("SiWrDdigitizer",
+                                   inputSimHits = "SiWrDCollection",
+                                   outputDigiHits = "SiWrDDigis",
+                                   outputSimDigiAssociation = "SiWrDSimDigiLinks",
+                                   detectorName = "SiWrD",
+                                   readoutName = "SiWrDCollection",
+                                   xResolution = [siWrapperResolution_x, siWrapperResolution_x], # mm, r-phi direction
+                                   yResolution = [siWrapperResolution_y, siWrapperResolution_y], # mm, z direction
+                                   tResolution = [siWrapperResolution_t, siWrapperResolution_t],
+                                   forceHitsOntoSurface = False,
+                                   OutputLevel = INFO
+                                   )
+    TopAlg += [siwrd_digitizer]
+
+    from Configurables import UniqueIDGenSvc
+    ExtSvc += [UniqueIDGenSvc("uidSvc")]
+    from Configurables import DCHdigi_v01
+    # "https://fccsw.web.cern.ch/fccsw/filesFoSimDigiReco/IDEA/DataAlgFORGEANT.root"
+    dch_digitizer = DCHdigi_v01("DCHdigi",
+                                DCH_simhits = ["DCHCollection"],
+                                DCH_name = "DCH_v2",
+                                fileDataAlg = dataFolder + "DataAlgFORGEANT.root",
+                                calculate_dndx = False, # cluster counting disabled (to be validated, see FCC-config#239)
+                                create_debug_histograms = False,
+                                # zResolution_mm = 30., # in mm - Note: At this point, the z resolution comes without the stereo measurement
+                                # xyResolution_mm = 0.1 # in mm
+                                # no smearing
+                                zResolution_mm = 0., # in mm - Note: At this point, the z resolution comes without the stereo measurement
+                                xyResolution_mm = 0. # in mm
+                                )
+    TopAlg += [dch_digitizer]
+
+
+# Calorimeter digitisation (merging hits into cells, EM scale calibration via sampling fractions)
 
 # - ECAL readouts
 ecalBarrelReadoutName = "ECalBarrelModuleThetaMerged"      # barrel, original segmentation (baseline)
@@ -959,6 +1071,128 @@ if doTopoClustering:
                           False)
 
 
+################################################
+#  Pandora
+################################################
+if runPandora:
+    from Configurables import MarlinProcessorWrapper
+    pandora = MarlinProcessorWrapper('DDMarlinPandora')
+    pandora.OutputLevel = DEBUG
+    pandora.ProcessorType = 'DDPandoraPFANewProcessor'
+    pandora.Parameters = {
+        "PandoraSettingsXmlFile": ["PandoraSettingsDefault.xml"],
+        "ECalMipThreshold": ["0."],
+        "HCalMipThreshold": ["0."],
+        "ECalToHadGeVCalibrationBarrel": ["1."],  # this must be calculated for ALLEGRO
+        "ECalToHadGeVCalibrationEndCap": ["1."],  # this must be calculated for ALLEGRO
+        "HCalToHadGeVCalibration": ["1."],  # this must be calculated for ALLEGRO
+        # "ECalToMipCalibration": ["175.439"],  # value is from CLD -> this must be calculated for ALLEGRO
+        # "HCalToMipCalibration": ["49.7512"],  # value is from CLD -> this must be calculated for ALLEGRO
+        "ECalToMipCalibration": ["26.0"],  # value is from CLD -> this must be calculated for ALLEGRO
+        "HCalToMipCalibration": ["5.77"],  # value is from CLD -> this must be calculated for ALLEGRO
+        "DigitalMuonHits": ["0"],
+        "MaxHCalHitHadronicEnergy": ["10000000."],
+        "MuonToMipCalibration": ["20703.9"],  # value is from CLD -> this must be calculated for ALLEGRO
+        "ECalToEMGeVCalibration": ["1.0"],  # this seems to be an EM scale factor for ECAL: set to 1 since input cell energy is already calibrated at EM scale
+        "HCalToEMGeVCalibration": ["1.0"],  # this seems to be an EM scale factor for HCAL: set to 1 since input cell energy is already calibrated at EM scale
+        "DetectorName": ["ALLEGRO"],
+        "UseDD4hepField": ["1"],
+        "MCParticleCollections": ["MCParticle"],
+        "ECalCaloHitCollections": [ecalBarrelPositionedCellsName],
+        # "HCalCaloHitCollections": [hcalBarrelPositionedCellsName, hcalEndcapPositionedCellsName],
+        "HCalCaloHitCollections": [hcalBarrelPositionedCellsName],
+        "MuonCaloHitCollections": [muonBarrelPositionedCellsName],   #  muonEndcapPositionedCellsName],
+        "RelCaloHitCollections": [ecalBarrelLinks, hcalBarrelLinks, muonBarrelLinks],
+        "TrackCollections": ["TrackCollection"],
+        "RelTrackCollections": ["TracksFromGenParticlesAssociation"],
+        "TrackSystemName" : [""],  # disable marlin track fitting
+        "EMStochasticTerm": ["0.08"],
+        "EMConstantTerm": ["0.008"],
+        "HadConstantTerm": ["0.03"],
+        "HadStochasticTerm": ["0.4"],
+    }
+    TopAlg += [pandora]
+
+    from Configurables import Lcio2EDM4hepTool
+    lcioConvTool = Lcio2EDM4hepTool("lcio2EDM4hep")
+    lcioConvTool.convertAll = True
+    lcioConvTool.collNameMapping = {
+        "MCParticle": "MCParticles",
+        "TrackCollection": "TracksFromGenParticles",
+    }
+    pandora.Lcio2EDM4hepTool = lcioConvTool
+
+    from Configurables import EDM4hep2LcioTool
+    edm4hepConvTool = EDM4hep2LcioTool("EDM4hep2lcio")
+    edm4hepConvTool.convertAll = True
+    edm4hepConvTool.collNameMapping = {
+        "MCParticles": "MCParticle",
+        "TracksFromGenParticles": "TrackCollection",
+    }
+    pandora.EDM4hep2LcioTool = edm4hepConvTool
+
+    # attempt to run pandora calibration
+    pfoAnalysis = MarlinProcessorWrapper("PfoAnalysisWrapper")
+    pfoAnalysis.OutputLevel = DEBUG
+    pfoAnalysis.ProcessorType = ("PfoAnalysis")
+    # how to use io_svc.Output instead of outputfile (overridden via cmd line)?
+    # or to set via cmd line PfoAnalysisWrapper.Parameters[RootFile] ?
+    outputFile = opts.pfaOutputFile
+    if outputFile == "":
+        outputFile = outputfile.replace(".root", "_PandoraAnalysis.root")
+    pfoAnalysis.Parameters = {
+        "RootFile"                          : [outputFile],
+        "MCParticleCollection"              : ["MCParticle"],
+        "PfoCollection"                     : ["PandoraPFANewPFOs"],
+        "CollectCalibrationDetails"         : ["1"],
+        # from LC digitisers
+        # "ECalCollections"                   : ["ECALBarrel"],
+        # "HCalCollections"                   : ["HCALBarrel"],
+        # "MuonCollections"                   : ["MUON"],
+        # from ALLEGRO digitisers
+        "ECalCollections"                   : [ecalBarrelPositionedCellsName],
+        "HCalCollections"                   : [hcalBarrelPositionedCellsName],
+        "MuonCollections"                   : [muonBarrelPositionedCellsName],
+        "ECalCollectionsSimCaloHit"         : [ecalBarrelReadoutName],
+        "HCalBarrelCollectionsSimCaloHit"   : [hcalBarrelReadoutName],
+        "MuonCollectionsSimCaloHit"         : [muonBarrelReadoutName],
+    #     "BCALcollections"             : [""],  # BeamCal
+    #     "LHCALcollections"            : [""],  # ? lumi -hcal?
+    #     "LCALcollections"             : [""],  # ? lumi -ecal?
+    }
+    TopAlg += [pfoAnalysis]
+
+
+    # see https://github.com/Pandora/PFA/LCPandoraAnalysis/blob/master/scripts/PandoraPfaCalibrator.xml
+    #     https://github.com/Pandora/PFA/LCPandoraAnalysis/blob/master/include/PandoraPfaCalibrator.h
+    #     https://github.com/Pandora/PFA/LCPandoraAnalysis/blob/master/src/PandoraPfaCalibrator.cc
+    # and https://github.com/Pandora/PFA/LCPandoraAnalysis/blob/master/include/CalibrationHelper.h
+    #     https://github.com/Pandora/PFA/LCPandoraAnalysis/blob/master/include/CalibrationHelper.cc
+    # and executables in https://github.com/Pandora/PFA/LCPandoraAnalysis/blob/master/calibration
+    
+    
+    # pandoraCalibrator = MarlinProcessorWrapper( "PandoraPFACalibratorWrapper" )
+    # pandoraCalibrator.OutputLevel = DEBUG
+    # pandoraCalibrator.ProcessorType = ( "PandoraPFACalibrator" )
+    # pandoraCalibrator.Parameters = {
+    #     # "RootFile" : "PandoraPFACalibrator.root",
+    #     "MCPfoCollections"            : ["MCPFOs"],
+    #     "ReconstructedPfoCollections" : ["PandoraPFOs"],
+    #     "ECALBarrelcollections"       : ["ECalBarrelModuleThetaMergedPositioned"],
+    #     "ECALEndCapcollections"       : [""],
+    #     "HCALcollections"             : ["HCalBarrelReadoutPositioned"],
+    #     "MUONcollections"             : ["MuonTaggerBarrelPhiThetaPositioned"],
+    #     "BCALcollections"             : [""],  # what is this?
+    #     "LHCALcollections"            : [""],  # what is this?  
+    #     "LCALcollections"             : [""],  # what is this?
+    #     "ECALBarrelEncoding"          : ["system:4,cryo:1,type:3,subtype:3,layer:8,module:11,theta:10"],
+    #     "ECALEndCapEncoding"          : ["system:4,cryo:1,type:3,subtype:3,side:-2,wheel:3,layer:8,module:17,rho:8,z:8"],
+    #     "HCALEncoding"                : ["system:4,layer:5,row:9,theta:9,phi:10"],
+    #     "MUONEncoding"                : ["system:4,subsystem:1,layer:5,theta:10,phi:10"]
+    #     }
+    # TopAlg += [pandoraCalibrator]
+
+
 # Configure the output
 
 # drop the empty cells
@@ -1041,3 +1275,5 @@ applicationMgr = ApplicationMgr(
 
 for algo in applicationMgr.TopAlg:
     algo.AuditExecute = True
+    # for debug
+    # algo.OutputLevel = DEBUG
