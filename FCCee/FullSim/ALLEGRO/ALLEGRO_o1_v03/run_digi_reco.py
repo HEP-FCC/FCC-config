@@ -1106,6 +1106,11 @@ if runPandora:
         "RelCaloHitCollections": [ecalBarrelLinks, hcalBarrelLinks, muonBarrelLinks],
         "TrackCollections": ["TrackCollection"],
         "RelTrackCollections": ["TracksFromGenParticlesAssociation"],
+        "TrackSystemName" : [""],  # disable marlin track fitting
+        "EMStochasticTerm": ["0.08"],
+        "EMConstantTerm": ["0.008"],
+        "HadConstantTerm": ["0.03"],
+        "HadStochasticTerm": ["0.4"],
     }
     TopAlg += [pandora]
 
