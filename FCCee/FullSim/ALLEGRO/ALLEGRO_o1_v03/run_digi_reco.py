@@ -37,6 +37,7 @@ parser.add_argument("--addTracks", action="store_true", help="Add reco-level tra
 parser.add_argument("--calibrateClusters", action="store_true", help="Apply MVA calibration to clusters", default=False)
 parser.add_argument("--runPhotonID", action="store_true", help="Apply photon ID tool to clusters", default=False)
 parser.add_argument("--pfaOutputFile", help="Output file name", default="")
+parser.add_argument("--trkdigi", action="store_true", help="Digitise tracker hits", default=False)
 
 opts = parser.parse_known_args()[0]
 runPandora = opts.pandora                 # if true, add tracks, include HCal and Muon, and run pandora PFA instead of basic clustering algorithm
@@ -45,6 +46,7 @@ runMuon = opts.includeMuon                # if false, it will not digitise muon 
 addNoise = opts.addNoise                  # add noise or not to the cell energy
 addCrosstalk = opts.addCrosstalk          # switch on/off the crosstalk
 addTracks = opts.addTracks                # add tracks or not
+digitiseTrackerHits = opts.trkdigi        # digitise tracker hits (smear truth)
 
 # - what to save in output file
 #
@@ -172,6 +174,10 @@ io_svc.Output = outputfile
 evtsvc = EventDataSvc("EventDataSvc")
 ExtSvc += [evtsvc]
 
+if addTracks or digitiseTrackerHits:
+    ExtSvc += ["RndmGenSvc"]
+
+
 # Tracking
 # Create tracks from gen particles
 if addTracks:
@@ -185,11 +191,106 @@ if addTracks:
                                                                                        "SiWrDCollection"],
                                                                   OutputTracks=["TracksFromGenParticles"],
                                                                   OutputMCRecoTrackParticleAssociation=["TracksFromGenParticlesAssociation"],
+                                                                  TrackerIDs=[1,2,3,23,24],  # from DectDimensions.xml
                                                                   OutputLevel=INFO)
     TopAlg += [tracksFromGenParticles]
 
 
-# Digitisation (merging hits into cells, EM scale calibration via sampling fractions)
+# Tracker digitisation
+if digitiseTrackerHits:
+    from Configurables import VTXdigitizer
+    import math
+    innerVertexResolution_x = 0.003 # [mm], assume 3 µm resolution for ARCADIA sensor
+    innerVertexResolution_y = 0.003 # [mm], assume 3 µm resolution for ARCADIA sensor
+    innerVertexResolution_t = 1000 # [ns]
+    outerVertexResolution_x = 0.050/math.sqrt(12) # [mm], assume ATLASPix3 sensor with 50 µm pitch
+    outerVertexResolution_y = 0.150/math.sqrt(12) # [mm], assume ATLASPix3 sensor with 150 µm pitch
+    outerVertexResolution_t = 1000 # [ns]
+
+    vtxb_digitizer = VTXdigitizer("VTXBdigitizer",
+                                  inputSimHits = "VertexBarrelCollection",
+                                  outputDigiHits = "VTXBDigis",
+                                  outputSimDigiAssociation = "VTXBSimDigiLinks",
+                                  detectorName = "Vertex",
+                                  readoutName = "VertexBarrelCollection",
+                                  xResolution = [innerVertexResolution_x, innerVertexResolution_x, innerVertexResolution_x,
+                                                 outerVertexResolution_x, outerVertexResolution_x], # mm, r-phi direction
+                                  yResolution = [innerVertexResolution_y, innerVertexResolution_y, innerVertexResolution_y,
+                                                 outerVertexResolution_y, outerVertexResolution_y], # mm, z direction
+                                  tResolution = [innerVertexResolution_t, innerVertexResolution_t, innerVertexResolution_t,
+                                                 outerVertexResolution_t, outerVertexResolution_t],
+                                  forceHitsOntoSurface = False,
+                                  OutputLevel = INFO
+                                  )
+    TopAlg += [vtxb_digitizer]
+
+    vtxd_digitizer  = VTXdigitizer("VTXDdigitizer",
+                                   inputSimHits = "VertexEndcapCollection",
+                                   outputDigiHits = "VTXDDigis",
+                                   outputSimDigiAssociation = "VTXDSimDigiLinks",
+                                   detectorName = "Vertex",
+                                   readoutName = "VertexEndcapCollection",
+                                   xResolution = [outerVertexResolution_x, outerVertexResolution_x, outerVertexResolution_x], # mm, r direction
+                                   yResolution = [outerVertexResolution_y, outerVertexResolution_y, outerVertexResolution_y], # mm, phi direction
+                                   tResolution = [outerVertexResolution_t, outerVertexResolution_t, outerVertexResolution_t], # ns
+                                   forceHitsOntoSurface = False,
+                                   OutputLevel = INFO
+                                   )
+    TopAlg += [vtxd_digitizer]
+
+    # digitise silicon wrapper hits
+    siWrapperResolution_x   = 0.050/math.sqrt(12) # [mm]
+    siWrapperResolution_y   = 1.0/math.sqrt(12) # [mm]
+    siWrapperResolution_t   = 0.040 # [ns], assume 40 ps timing resolution for a single layer -> Should lead to <30 ps resolution when >1 hit
+    
+    siwrb_digitizer = VTXdigitizer("SiWrBdigitizer",
+                                   inputSimHits = "SiWrBCollection",
+                                   outputDigiHits = "SiWrBDigis",
+                                   outputSimDigiAssociation = "SiWrBSimDigiLinks",
+                                   detectorName = "SiWrB",
+                                   readoutName = "SiWrBCollection",
+                                   xResolution = [siWrapperResolution_x, siWrapperResolution_x], # mm, r-phi direction
+                                   yResolution = [siWrapperResolution_y, siWrapperResolution_y], # mm, z direction
+                                   tResolution = [siWrapperResolution_t, siWrapperResolution_t],
+                                   forceHitsOntoSurface = False,
+                                   OutputLevel = INFO
+                                   )
+    TopAlg += [siwrb_digitizer]
+
+    siwrd_digitizer = VTXdigitizer("SiWrDdigitizer",
+                                   inputSimHits = "SiWrDCollection",
+                                   outputDigiHits = "SiWrDDigis",
+                                   outputSimDigiAssociation = "SiWrDSimDigiLinks",
+                                   detectorName = "SiWrD",
+                                   readoutName = "SiWrDCollection",
+                                   xResolution = [siWrapperResolution_x, siWrapperResolution_x], # mm, r-phi direction
+                                   yResolution = [siWrapperResolution_y, siWrapperResolution_y], # mm, z direction
+                                   tResolution = [siWrapperResolution_t, siWrapperResolution_t],
+                                   forceHitsOntoSurface = False,
+                                   OutputLevel = INFO
+                                   )
+    TopAlg += [siwrd_digitizer]
+
+    from Configurables import UniqueIDGenSvc
+    ExtSvc += [UniqueIDGenSvc("uidSvc")]
+    from Configurables import DCHdigi_v01
+    # "https://fccsw.web.cern.ch/fccsw/filesFoSimDigiReco/IDEA/DataAlgFORGEANT.root"
+    dch_digitizer = DCHdigi_v01("DCHdigi",
+                                DCH_simhits = ["DCHCollection"],
+                                DCH_name = "DCH_v2",
+                                fileDataAlg = dataFolder + "DataAlgFORGEANT.root",
+                                calculate_dndx = False, # cluster counting disabled (to be validated, see FCC-config#239)
+                                create_debug_histograms = False,
+                                # zResolution_mm = 30., # in mm - Note: At this point, the z resolution comes without the stereo measurement
+                                # xyResolution_mm = 0.1 # in mm
+                                # no smearing
+                                zResolution_mm = 0., # in mm - Note: At this point, the z resolution comes without the stereo measurement
+                                xyResolution_mm = 0. # in mm
+                                )
+    TopAlg += [dch_digitizer]
+
+
+# Calorimeter digitisation (merging hits into cells, EM scale calibration via sampling fractions)
 
 # - ECAL readouts
 ecalBarrelReadoutName = "ECalBarrelModuleThetaMerged"      # barrel, original segmentation (baseline)
@@ -1004,6 +1105,11 @@ if runPandora:
         "RelCaloHitCollections": [ecalBarrelLinks, hcalBarrelLinks, muonBarrelLinks],
         "TrackCollections": ["TrackCollection"],
         "RelTrackCollections": ["TracksFromGenParticlesAssociation"],
+        "TrackSystemName" : [""],  # disable marlin track fitting
+        "EMStochasticTerm": ["0.08"],
+        "EMConstantTerm": ["0.008"],
+        "HadConstantTerm": ["0.03"],
+        "HadStochasticTerm": ["0.4"],
     }
     TopAlg += [pandora]
 
@@ -1169,3 +1275,5 @@ applicationMgr = ApplicationMgr(
 
 for algo in applicationMgr.TopAlg:
     algo.AuditExecute = True
+    # for debug
+    # algo.OutputLevel = DEBUG
