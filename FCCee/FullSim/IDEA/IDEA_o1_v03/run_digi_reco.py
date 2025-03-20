@@ -108,6 +108,21 @@ dch_digitizer = DCHdigi_v01("DCHdigi",
     xyResolution_mm = 0.1 # in mm
 )
 
+from Configurables import DDPlanarDigi
+
+muon_digitizer = DDPlanarDigi()
+muon_digitizer.SubDetectorName = "Muon-System"
+muon_digitizer.EncodingStringParameterName = "MuonSystemReadoutID"
+muon_digitizer.CellIDBits = "23"
+muon_digitizer.IsStrip = False
+muon_digitizer.ResolutionU = [0.4, 0,4, 0,4]
+muon_digitizer.ResolutionV = [0.4, 0,4, 0,4]
+muon_digitizer.ForceHitsOntoSurface = True
+muon_digitizer.SimTrackerHitCollectionName = ["MuonSystemCollection"]
+muon_digitizer.SimTrkHitRelCollection = ["MSTrackerHitRelations"]
+muon_digitizer.TrackerHitCollectionName = ["MSTrackerHits"]
+muon_digitizer.OutputLevel = 1  # DEBUG level
+
 # Create tracks from gen particles
 from Configurables import TracksFromGenParticles
 tracksFromGenParticles = TracksFromGenParticles("TracksFromGenParticles",
@@ -151,6 +166,7 @@ application_mgr = ApplicationMgr(
               siwrb_digitizer,
               siwrd_digitizer,
               dch_digitizer,
+              muon_digitizer,
               tracksFromGenParticles, 
               plotTrackDCHHitDistances,
               out
