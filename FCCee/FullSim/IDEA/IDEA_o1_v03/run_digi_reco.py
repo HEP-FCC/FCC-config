@@ -104,18 +104,18 @@ dch_digitizer = DCHdigi_v01("DCHdigi",
 from Configurables import DDPlanarDigi
 
 muon_digitizer = DDPlanarDigi()
-muon_digitizer.SubDetectorName = "Muon-System"
-muon_digitizer.EncodingStringParameterName = "MuonSystemReadoutID"
-muon_digitizer.CellIDBits = "23"
-muon_digitizer.IsStrip = False
-muon_digitizer.ResolutionU = [0.4, 0,4, 0,4]
-muon_digitizer.ResolutionV = [0.4, 0,4, 0,4]
-muon_digitizer.Efficiency = 0.95
-muon_digitizer.ForceHitsOntoSurface = True
-muon_digitizer.SimTrackerHitCollectionName = ["MuonSystemCollection"]
-muon_digitizer.SimTrkHitRelCollection = ["MSTrackerHitRelations"]
-muon_digitizer.TrackerHitCollectionName = ["MSTrackerHits"]
-#muon_digitizer.OutputLevel = 1  # DEBUG level
+    muon_digitizer.SubDetectorName = "Muon-System"
+    muon_digitizer.EncodingStringParameterName = "MuonSystemReadoutID"
+    muon_digitizer.CellIDBits = "23"
+    muon_digitizer.IsStrip = False
+    muon_digitizer.ResolutionU = [0.4] # in mm, one value for all layers, or different values on the # of layers
+    muon_digitizer.ResolutionV = [0.4] # in mm, one value for all layers, or different values on the # of layers
+    muon_digitizer.Efficiency = 0.95
+    muon_digitizer.ForceHitsOntoSurface = True
+    muon_digitizer.SimTrackerHitCollectionName = ["MuonSystemCollection"]
+    muon_digitizer.SimTrkHitRelCollection = ["MSTrackerHitRelations"]
+    muon_digitizer.TrackerHitCollectionName = ["MSTrackerHits"]
+    #muon_digitizer.OutputLevel = 1  # DEBUG level
 
 # Create tracks from gen particles
 from Configurables import TracksFromGenParticles
