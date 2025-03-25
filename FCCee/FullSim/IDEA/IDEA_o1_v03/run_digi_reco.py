@@ -110,13 +110,16 @@ dch_digitizer = DCHdigi_v01("DCHdigi",
 
 # Create tracks from gen particles
 from Configurables import TracksFromGenParticles
-tracksFromGenParticles = TracksFromGenParticles("TracksFromGenParticles",
+tracksFromGenParticles = TracksFromGenParticles("CreateTracksFromGenParticles",
                                                 InputGenParticles = ["MCParticles"],
-                                                InputSimTrackerHits=["VertexBarrelCollection",
-                                                                     "VertexEndcapCollection",
-                                                                     "DCHCollection",
-                                                                     "SiWrBCollection",
-                                                                     "SiWrDCollection"],
+                                                # disabling the following (to get track states at start/end)
+                                                # does not work with legacy io
+                                                InputSimTrackerHits=[#"VertexBarrelCollection",
+                                                                     #"VertexEndcapCollection",
+                                                                     #"DCHCollection",
+                                                                     #"SiWrBCollection",
+                                                                     #"SiWrDCollection"
+                                                ],
                                                 OutputTracks = ["TracksFromGenParticles"],
                                                 OutputMCRecoTrackParticleAssociation = ["TracksFromGenParticlesAssociation"],
                                                 ExtrapolateToECal=False,
