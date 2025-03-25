@@ -2,19 +2,12 @@ import os
 
 from Gaudi.Configuration import *
 
-# For when we will migrate to IOSvc (remove the output below as well)
 # Loading the input SIM file, defining output file
-#from k4FWCore import IOSvc
-#io_svc = IOSvc("IOSvc")
-#io_svc.Input = "IDEA_sim.root"
-#io_svc.Output = "IDEA_sim_digi_reco.root"
-
-# For now still use the old IO service
-from Configurables import k4DataSvc, PodioInput
-evtsvc = k4DataSvc('EventDataSvc')
-evtsvc.input = "IDEA_sim.root"
-inp = PodioInput('InputReader')
-inp.AuditExecute = True
+from k4FWCore import IOSvc
+from Configurables import EventDataSvc
+io_svc = IOSvc("IOSvc")
+io_svc.Input = "IDEA_sim.root"
+io_svc.Output = "IDEA_sim_digi_reco.root"
 
 
 ################## Simulation setup
@@ -112,13 +105,12 @@ dch_digitizer = DCHdigi_v01("DCHdigi",
 from Configurables import TracksFromGenParticles
 tracksFromGenParticles = TracksFromGenParticles("CreateTracksFromGenParticles",
                                                 InputGenParticles = ["MCParticles"],
-                                                # disabling the following (to get track states at start/end)
-                                                # does not work with legacy io
-                                                InputSimTrackerHits=[#"VertexBarrelCollection",
-                                                                     #"VertexEndcapCollection",
-                                                                     #"DCHCollection",
-                                                                     #"SiWrBCollection",
-                                                                     #"SiWrDCollection"
+                                                InputSimTrackerHits=[
+                                                    "VertexBarrelCollection",
+                                                    "VertexEndcapCollection",
+                                                    "DCHCollection",
+                                                    "SiWrBCollection",
+                                                    "SiWrDCollection"
                                                 ],
                                                 OutputTracks = ["TracksFromGenParticles"],
                                                 OutputMCRecoTrackParticleAssociation = ["TracksFromGenParticlesAssociation"],
@@ -138,11 +130,7 @@ root_hist_svc = RootHistoSink("RootHistoSink")
 root_hist_svc.FileName = "TrackHitDistances.root"
 
 ################ Output
-from Configurables import PodioOutput
-out = PodioOutput("out",
-                  OutputLevel=INFO)
-out.outputCommands = ["keep *"]
-out.filename = "IDEA_sim_digi_reco.root"
+io_svc.outputCommands = ["keep *"]
 
 # Profiling
 from Configurables import AuditorSvc, ChronoAuditor, UniqueIDGenSvc
@@ -150,10 +138,10 @@ chra = ChronoAuditor()
 audsvc = AuditorSvc()
 audsvc.Auditors = [chra]
 
-from Configurables import ApplicationMgr
+# from Configurables import ApplicationMgr
+from k4FWCore import ApplicationMgr
 application_mgr = ApplicationMgr(
     TopAlg = [
-	      inp,
               vtxb_digitizer,
               vtxd_digitizer,
               siwrb_digitizer,
@@ -161,12 +149,10 @@ application_mgr = ApplicationMgr(
               dch_digitizer,
               tracksFromGenParticles, 
               plotTrackDCHHitDistances,
-              out
               ],
     EvtSel = 'NONE',
     EvtMax   = -1,
-    #ExtSvc = [root_hist_svc, EventDataSvc("EventDataSvc"), geoservice, audsvc],
-    ExtSvc = ['RndmGenSvc', root_hist_svc, geoservice, evtsvc, audsvc, UniqueIDGenSvc("uidSvc")],
+    ExtSvc = ['RndmGenSvc', root_hist_svc, EventDataSvc("EventDataSvc"), geoservice, audsvc, UniqueIDGenSvc("uidSvc")],
     StopOnSignal = True,
  )
 
