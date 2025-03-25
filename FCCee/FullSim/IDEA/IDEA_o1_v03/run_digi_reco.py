@@ -138,7 +138,6 @@ chra = ChronoAuditor()
 audsvc = AuditorSvc()
 audsvc.Auditors = [chra]
 
-# from Configurables import ApplicationMgr
 from k4FWCore import ApplicationMgr
 application_mgr = ApplicationMgr(
     TopAlg = [
