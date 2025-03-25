@@ -111,11 +111,11 @@ dch_digitizer = DCHdigi_v01("DCHdigi",
 # Create tracks from gen particles
 from Configurables import TracksFromGenParticles
 tracksFromGenParticles = TracksFromGenParticles("TracksFromGenParticles",
-                                               InputGenParticles = ["MCParticles"],
-                                               OutputTracks = ["TracksFromGenParticles"],
-                                               OutputMCRecoTrackParticleAssociation = ["TracksFromGenParticlesAssociation"],
-                                               Bz = 2.0,
-                                               OutputLevel = INFO)
+                                                InputGenParticles = ["MCParticles"],
+                                                OutputTracks = ["TracksFromGenParticles"],
+                                                OutputMCRecoTrackParticleAssociation = ["TracksFromGenParticlesAssociation"],
+                                                ExtrapolateToECal=False,
+                                                OutputLevel = INFO)
 
 # produce a TH1 with distances between gen tracks and simTrackerHits
 from Configurables import PlotTrackHitDistances, RootHistSvc

@@ -169,17 +169,20 @@ if addTracks or digitiseTrackerHits:
 # Tracking
 # Create tracks from gen particles
 if addTracks:
-    from Configurables import TracksFromGenParticlesWithECalExtrap
-    tracksFromGenParticles = TracksFromGenParticlesWithECalExtrap("CreateTracksFromGenParticles",
-                                                                  InputGenParticles=["MCParticles"],
-                                                                  InputSimTrackerHits=["VertexBarrelCollection",
-                                                                                       "VertexEndcapCollection",
-                                                                                       "DCHCollection",
-                                                                                       "SiWrBCollection",
-                                                                                       "SiWrDCollection"],
-                                                                  OutputTracks=["TracksFromGenParticles"],
-                                                                  OutputMCRecoTrackParticleAssociation=["TracksFromGenParticlesAssociation"],
-                                                                  OutputLevel=INFO)
+    from Configurables import TracksFromGenParticles
+    tracksFromGenParticles = TracksFromGenParticles("CreateTracksFromGenParticles",
+                                                    InputGenParticles=["MCParticles"],
+                                                    InputSimTrackerHits=["VertexBarrelCollection",
+                                                                         "VertexEndcapCollection",
+                                                                         "DCHCollection",
+                                                                         "SiWrBCollection",
+                                                                         "SiWrDCollection"],
+                                                    OutputTracks=["TracksFromGenParticles"],
+                                                    OutputMCRecoTrackParticleAssociation=["TracksFromGenParticlesAssociation"],
+                                                    ExtrapolateToECal=True,
+                                                    KeepOnlyBestExtrapolation=False,
+                                                    TrackerIDs=[1,2,3,23,24],  # from DectDimensions.xml
+                                                    OutputLevel=INFO)
     TopAlg += [tracksFromGenParticles]
 
 
