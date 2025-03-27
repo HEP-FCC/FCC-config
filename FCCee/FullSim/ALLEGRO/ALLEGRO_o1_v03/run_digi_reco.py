@@ -841,10 +841,6 @@ def setupTopoClusters(inputCells,
 
     # list of input cells
     cells = list(inputCells.values())
-    # EM barrel readout name (if present)
-    readoutName = ""
-    if ecalBarrelReadoutName in inputReadouts:
-        readoutName = ecalBarrelReadoutName
 
     # algorithm creating the topoclusters
     clusterAlg = CaloTopoClusterFCCee("Create" + outputClusters,
@@ -1087,13 +1083,11 @@ if runPandora:
         "ECalToHadGeVCalibrationBarrel": ["1."],  # this must be calculated for ALLEGRO
         "ECalToHadGeVCalibrationEndCap": ["1."],  # this must be calculated for ALLEGRO
         "HCalToHadGeVCalibration": ["1."],  # this must be calculated for ALLEGRO
-        # "ECalToMipCalibration": ["175.439"],  # value is from CLD -> this must be calculated for ALLEGRO
-        # "HCalToMipCalibration": ["49.7512"],  # value is from CLD -> this must be calculated for ALLEGRO
-        "ECalToMipCalibration": ["26.0"],  # value is from CLD -> this must be calculated for ALLEGRO
-        "HCalToMipCalibration": ["5.77"],  # value is from CLD -> this must be calculated for ALLEGRO
+        "ECalToMipCalibration": ["100.0"],
+        "HCalToMipCalibration": ["100.0"],
         "DigitalMuonHits": ["0"],
         "MaxHCalHitHadronicEnergy": ["10000000."],
-        "MuonToMipCalibration": ["20703.9"],  # value is from CLD -> this must be calculated for ALLEGRO
+        "MuonToMipCalibration": ["50"],     # about 40 MeV in 20 cm of plastic scintillator
         "ECalToEMGeVCalibration": ["1.0"],  # this seems to be an EM scale factor for ECAL: set to 1 since input cell energy is already calibrated at EM scale
         "HCalToEMGeVCalibration": ["1.0"],  # this seems to be an EM scale factor for HCAL: set to 1 since input cell energy is already calibrated at EM scale
         "DetectorName": ["ALLEGRO"],
@@ -1184,7 +1178,7 @@ if runPandora:
     #     "HCALcollections"             : ["HCalBarrelReadoutPositioned"],
     #     "MUONcollections"             : ["MuonTaggerBarrelPhiThetaPositioned"],
     #     "BCALcollections"             : [""],  # what is this?
-    #     "LHCALcollections"            : [""],  # what is this?  
+    #     "LHCALcollections"            : [""],  # what is this?
     #     "LCALcollections"             : [""],  # what is this?
     #     "ECALBarrelEncoding"          : ["system:4,cryo:1,type:3,subtype:3,layer:8,module:11,theta:10"],
     #     "ECALEndCapEncoding"          : ["system:4,cryo:1,type:3,subtype:3,side:-2,wheel:3,layer:8,module:17,rho:8,z:8"],

@@ -1,5 +1,5 @@
 <!--
--- Copyright (c) 2014-2024 Key4hep-Project.
+-- Copyright (c) 2014-2025 Key4hep-Project.
 --
 -- This file is part of Key4hep.
 -- See https://key4hep.github.io/key4hep-doc/ for further info.
@@ -42,8 +42,28 @@
 
     <!-- PLUGIN SETTINGS -->
     <LCMuonId>
+      <ECalMaxMipFractionCut>0.4</ECalMaxMipFractionCut>
+      <HCalMaxMipFractionCut>0.4</HCalMaxMipFractionCut>
+      <TightMipFractionCut>0.5</TightMipFractionCut>
+      <TightMipFractionECalCut>0.5</TightMipFractionECalCut>
+      <TightMipFractionHCalCut>0.5</TightMipFractionHCalCut>
+      <MaxInnerLayer>5</MaxInnerLayer>
+      <MinECalLayers>5</MinECalLayers>
+      <MinHCalLayers>0</MinHCalLayers>
+      <ShouldPerformGapCheck>0</ShouldPerformGapCheck>
+      <MinECalLayersForFit>4</MinECalLayersForFit>
+      <MinHCalLayersForFit>4</MinHCalLayersForFit>
+      <MinMuonLayersForFit>1</MinMuonLayersForFit>
+      <ECalFitInnerLayer>1</ECalFitInnerLayer>
+      <ECalFitOuterLayer>11</ECalFitOuterLayer>
+      <ECalRmsCut0>100</ECalRmsCut0>
+      <HCalRmsCut0>100</HCalRmsCut0>
+      <HCalFitInnerLayer>12</HCalFitInnerLayer>
+      <HCalFitOuterLayer>24</HCalFitOuterLayer>
+      <MinMuonHitsCut>0</MinMuonHitsCut>
       <MinMuonTrackSegmentHitsCut>1</MinMuonTrackSegmentHitsCut>
-      <MuonRmsCut>15.625</MuonRmsCut>
+      <MuonRmsCut>100</MuonRmsCut>
+      <MaxMuonHitsCutMinValue>30</MaxMuonHitsCutMinValue>
     </LCMuonId>
     
     <!-- ALGORITHM SETTINGS -->
@@ -79,8 +99,8 @@
 	<MaxLayersToTrackLikeHit>0</MaxLayersToTrackLikeHit>
 	<TrackPathWidth>0</TrackPathWidth>
       </algorithm>
-      <MinClusterOccupiedLayers>5</MinClusterOccupiedLayers>
-      <MinClusterLayerSpan>5</MinClusterLayerSpan>
+      <MinClusterOccupiedLayers>2</MinClusterOccupiedLayers>
+      <MinClusterLayerSpan>2</MinClusterLayerSpan>
       <MaxClusterCaloHits>30</MaxClusterCaloHits>
       <!-- Input lists -->
       <InputTrackListName>Tracks</InputTrackListName>
@@ -442,7 +462,7 @@
     <algorithm type = "MuonClusterAssociation">
         <TargetClusterListName>PrimaryClusters</TargetClusterListName>
         <MuonClusterListName>MuonRemovedYokeClusters</MuonClusterListName>
-        <MinHitsInMuonCluster>3</MinHitsInMuonCluster>
+        <MinHitsInMuonCluster>2</MinHitsInMuonCluster>
         <CoilCorrectionMinInnerRadius>3719</CoilCorrectionMinInnerRadius>
     </algorithm>
 
@@ -499,5 +519,5 @@
     
     <algorithm type = "V0PfoCreation"/>
     <algorithm type = "DumpPfosMonitoring"/>
-    <algorithm type = "VisualMonitoring"/>
+    <!--algorithm type = "VisualMonitoring"/-->
 </pandora>
