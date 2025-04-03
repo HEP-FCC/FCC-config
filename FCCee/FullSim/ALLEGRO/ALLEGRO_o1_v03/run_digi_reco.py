@@ -162,7 +162,7 @@ io_svc.Input = inputfile
 io_svc.Output = outputfile
 ExtSvc += [EventDataSvc("EventDataSvc")]
 
-if addTracks or digitiseTrackerHits:
+if addTracks or digitiseTrackerHits or addNoise:
     ExtSvc += ["RndmGenSvc"]
 
 
@@ -372,7 +372,7 @@ else:
 
 # - noise tool
 if addNoise:
-    ecalBarrelNoisePath = "elecNoise_ecalBarrelFCCee_theta.root"
+    ecalBarrelNoisePath = dataFolder + "elecNoise_ecalBarrelFCCee_theta.root"
     ecalBarrelNoiseRMSHistName = "h_elecNoise_fcc_"
     from Configurables import NoiseCaloCellsVsThetaFromFileTool
     ecalBarrelNoiseTool = NoiseCaloCellsVsThetaFromFileTool("ecalBarrelNoiseTool",
