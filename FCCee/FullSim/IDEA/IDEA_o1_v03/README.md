@@ -17,6 +17,8 @@ ddsim --enableGun --gun.distribution uniform --gun.energy "10*GeV" --gun.particl
 
 ## Running the digitization and reconstruction
 ```
+# First get the data needed for the DCH cluster counting parametrization (still work in progress)
+wget --no-clobber https://fccsw.web.cern.ch/fccsw/filesForSimDigiReco/IDEA/DataAlgFORGEANT.root
 k4run run_digi_reco.py
 # you can then print the rootfile content with
 podio-dump IDEA_sim_digi_reco.root  
