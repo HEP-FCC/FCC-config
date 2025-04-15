@@ -28,10 +28,10 @@ from Configurables import DDPlanarDigi
 import math
 innerVertexResolution_x = 0.003 # [mm], assume 3 µm resolution for ARCADIA sensor
 innerVertexResolution_y = 0.003 # [mm], assume 3 µm resolution for ARCADIA sensor
-innerVertexResolution_t = -1 # [ns]
+innerVertexResolution_t = 1000 # [ns]
 outerVertexResolution_x = 0.050/math.sqrt(12) # [mm], assume ATLASPix3 sensor with 50 µm pitch
 outerVertexResolution_y = 0.150/math.sqrt(12) # [mm], assume ATLASPix3 sensor with 150 µm pitch
-outerVertexResolution_t = -1 # [ns]
+outerVertexResolution_t = 1000 # [ns]
 
 vtxb_digitizer = DDPlanarDigi("VTXBdigitizer")
 vtxb_digitizer.SubDetectorName = "Vertex"
