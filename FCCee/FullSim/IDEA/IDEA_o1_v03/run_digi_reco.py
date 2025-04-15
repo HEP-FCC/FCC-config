@@ -39,7 +39,7 @@ vtxb_digitizer.IsStrip = False
 vtxb_digitizer.ResolutionU = [innerVertexResolution_x, innerVertexResolution_x, innerVertexResolution_x, outerVertexResolution_x, outerVertexResolution_x]
 vtxb_digitizer.ResolutionV = [innerVertexResolution_y, innerVertexResolution_y, innerVertexResolution_y, outerVertexResolution_y, outerVertexResolution_y]
 vtxb_digitizer.ResolutionT = [innerVertexResolution_t, innerVertexResolution_t, innerVertexResolution_t, outerVertexResolution_t, outerVertexResolution_t]
-vtxb_digitizer.SimTrackerHitCollectionName = ["VertexBarrelCollection"]
+vtxb_digitizer.SimTrackHitCollectionName = ["VertexBarrelCollection"]
 vtxb_digitizer.SimTrkHitRelCollection = ["VTXBSimDigiLinks"]
 vtxb_digitizer.TrackerHitCollectionName = ["VTXBDigis"]
 
@@ -49,7 +49,7 @@ vtxd_digitizer.IsStrip = False
 vtxd_digitizer.ResolutionU = [outerVertexResolution_x, outerVertexResolution_x, outerVertexResolution_x]
 vtxd_digitizer.ResolutionV = [outerVertexResolution_y, outerVertexResolution_y, outerVertexResolution_y]
 vtxd_digitizer.ResolutionT = [outerVertexResolution_t, outerVertexResolution_t, outerVertexResolution_t]
-vtxd_digitizer.SimTrackerHitCollectionName = ["VertexEndcapCollection"]
+vtxd_digitizer.SimTrackHitCollectionName = ["VertexEndcapCollection"]
 vtxd_digitizer.SimTrkHitRelCollection = ["VTXDSimDigiLinks"]
 vtxd_digitizer.TrackerHitCollectionName = ["VTXDDigis"]
 
@@ -64,7 +64,7 @@ siwrb_digitizer.IsStrip = False
 siwrb_digitizer.ResolutionU = [siWrapperResolution_x, siWrapperResolution_x]
 siwrb_digitizer.ResolutionV = [siWrapperResolution_y, siWrapperResolution_y]
 siwrb_digitizer.ResolutionT = [siWrapperResolution_t, siWrapperResolution_t]
-siwrb_digitizer.SimTrackerHitCollectionName = ["SiWrBCollection"]
+siwrb_digitizer.SimTrackHitCollectionName = ["SiWrBCollection"]
 siwrb_digitizer.SimTrkHitRelCollection = ["SiWrBSimDigiLinks"]
 siwrb_digitizer.TrackerHitCollectionName = ["SiWrBDigis"]
 
@@ -74,7 +74,7 @@ siwrd_digitizer.IsStrip = False
 siwrd_digitizer.ResolutionU = [siWrapperResolution_x, siWrapperResolution_x]
 siwrd_digitizer.ResolutionV = [siWrapperResolution_y, siWrapperResolution_y]
 siwrd_digitizer.ResolutionT = [siWrapperResolution_t, siWrapperResolution_t]
-siwrd_digitizer.SimTrackerHitCollectionName = ["SiWrDCollection"]
+siwrd_digitizer.SimTrackHitCollectionName = ["SiWrDCollection"]
 siwrd_digitizer.SimTrkHitRelCollection = ["SiWrDSimDigiLinks"]
 siwrd_digitizer.TrackerHitCollectionName = ["SiWrDDigis"]
 
