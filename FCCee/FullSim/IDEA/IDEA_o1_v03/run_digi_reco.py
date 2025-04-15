@@ -28,10 +28,10 @@ from Configurables import DDPlanarDigi
 import math
 innerVertexResolution_x = 0.003 # [mm], assume 3 µm resolution for ARCADIA sensor
 innerVertexResolution_y = 0.003 # [mm], assume 3 µm resolution for ARCADIA sensor
-innerVertexResolution_t = 1000 # [ns]
+innerVertexResolution_t = -1 # [ns]
 outerVertexResolution_x = 0.050/math.sqrt(12) # [mm], assume ATLASPix3 sensor with 50 µm pitch
 outerVertexResolution_y = 0.150/math.sqrt(12) # [mm], assume ATLASPix3 sensor with 150 µm pitch
-outerVertexResolution_t = 1000 # [ns]
+outerVertexResolution_t = -1 # [ns]
 
 vtxb_digitizer = DDPlanarDigi("VTXBdigitizer")
 vtxb_digitizer.SubDetectorName = "Vertex"
@@ -42,6 +42,7 @@ vtxb_digitizer.ResolutionT = [innerVertexResolution_t, innerVertexResolution_t, 
 vtxb_digitizer.SimTrackHitCollectionName = ["VertexBarrelCollection"]
 vtxb_digitizer.SimTrkHitRelCollection = ["VTXBSimDigiLinks"]
 vtxb_digitizer.TrackerHitCollectionName = ["VTXBDigis"]
+vtxb_digitizer.ForceHitsOntoSurface = True
 
 vtxd_digitizer = DDPlanarDigi("VTXDdigitizer")
 vtxd_digitizer.SubDetectorName = "Vertex"
@@ -52,6 +53,7 @@ vtxd_digitizer.ResolutionT = [outerVertexResolution_t, outerVertexResolution_t, 
 vtxd_digitizer.SimTrackHitCollectionName = ["VertexEndcapCollection"]
 vtxd_digitizer.SimTrkHitRelCollection = ["VTXDSimDigiLinks"]
 vtxd_digitizer.TrackerHitCollectionName = ["VTXDDigis"]
+vtxd_digitizer.ForceHitsOntoSurface = True
 
 ############### Wrapper Digitizer
 siWrapperResolution_x   = 0.050/math.sqrt(12) # [mm]
@@ -67,6 +69,7 @@ siwrb_digitizer.ResolutionT = [siWrapperResolution_t, siWrapperResolution_t]
 siwrb_digitizer.SimTrackHitCollectionName = ["SiWrBCollection"]
 siwrb_digitizer.SimTrkHitRelCollection = ["SiWrBSimDigiLinks"]
 siwrb_digitizer.TrackerHitCollectionName = ["SiWrBDigis"]
+siwrb_digitizer.ForceHitsOntoSurface = True
 
 siwrd_digitizer = DDPlanarDigi("SiWrDdigitizer")
 siwrd_digitizer.SubDetectorName = "SiWrD"
@@ -77,6 +80,7 @@ siwrd_digitizer.ResolutionT = [siWrapperResolution_t, siWrapperResolution_t]
 siwrd_digitizer.SimTrackHitCollectionName = ["SiWrDCollection"]
 siwrd_digitizer.SimTrkHitRelCollection = ["SiWrDSimDigiLinks"]
 siwrd_digitizer.TrackerHitCollectionName = ["SiWrDDigis"]
+siwrd_digitizer.ForceHitsOntoSurface = True
 
 ############### DCH Digitizer
 from Configurables import DCHdigi_v01
@@ -155,7 +159,7 @@ application_mgr = ApplicationMgr(
               plotTrackDCHHitDistances,
               ],
     EvtSel = 'NONE',
-    EvtMax   = -1,
+    EvtMax   = 2,
     ExtSvc = ['RndmGenSvc', root_hist_svc, EventDataSvc("EventDataSvc"), geoservice, audsvc, UniqueIDGenSvc("uidSvc")],
     StopOnSignal = True,
  )
