@@ -143,7 +143,7 @@ application_mgr = ApplicationMgr(
               plotTrackDCHHitDistances,
               ],
     EvtSel = 'NONE',
-    EvtMax   = 2,
+    EvtMax   = -1,
     ExtSvc = ['RndmGenSvc', root_hist_svc, EventDataSvc("EventDataSvc"), geoservice, audsvc, UniqueIDGenSvc("uidSvc")],
     StopOnSignal = True,
  )
