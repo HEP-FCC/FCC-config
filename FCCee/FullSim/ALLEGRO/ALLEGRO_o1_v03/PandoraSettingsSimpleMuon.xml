@@ -69,7 +69,7 @@
 
     <LCEmShowerId>
       <RmsLowECut>80</RmsLowECut>
-      <MaxRadial90>50</MaxRadial90>
+      <MaxRadial90>70</MaxRadial90>
     </LCEmShowerId>
 
     <!-- ALGORITHM SETTINGS -->
@@ -88,17 +88,17 @@
     </algorithm>
 
     <!--algorithm type = "VisualMonitoring">
-      <ShowCurrentMCParticles>true</ShowCurrentMCParticles>
-      <ShowCurrentTracks>false</ShowCurrentTracks>
-      <ShowCurrentClusters>false</ShowCurrentClusters>
-      <ShowCurrentPfos>false</ShowCurrentPfos>
+      <ShowDetector>true</ShowDetector>
+      <DisplayEvent>true</DisplayEvent>
       <ShowCurrentVertices>false</ShowCurrentVertices>
-      <DisplayEvent>false</DisplayEvent>
-      <ShowDetector>false</ShowDetector>
-      <ShowOnlyAvailable>true</ShowOnlyAvailable>
-      <ShowAssociatedTracks>false</ShowAssociatedTracks>
+      <ShowCurrentPfos>false</ShowCurrentPfos>
       <ShowPfoVertices>false</ShowPfoVertices>
       <ShowPfoHierarchy>false</ShowPfoHierarchy>
+      <ShowOnlyAvailable>false</ShowOnlyAvailable>
+      <ShowCurrentMCParticles>true</ShowCurrentMCParticles>
+      <ShowCurrentTracks>true</ShowCurrentTracks>
+      <ShowCurrentClusters>false</ShowCurrentClusters>
+      <ShowAssociatedTracks>false</ShowAssociatedTracks>
     </algorithm-->
     
     
@@ -106,6 +106,7 @@
     <!-- https://github.com/PandoraPFA/LCContent/blob/master/include/LCParticleId/MuonReconstructionAlgorithm.h -->
     <!-- https://github.com/PandoraPFA/LCContent/blob/master/src/LCParticleId/MuonReconstructionAlgorithm.cc -->
     <algorithm type = "MuonReconstruction">
+
       <algorithm type = "ConeClustering" description = "MuonClusterFormation">
 	<TanConeAngleCoarse>0.3</TanConeAngleCoarse>
 	<ConeApproachMaxSeparation>2000</ConeApproachMaxSeparation>
@@ -120,9 +121,11 @@
 	<MaxLayersToTrackLikeHit>0</MaxLayersToTrackLikeHit>
 	<TrackPathWidth>0</TrackPathWidth>
       </algorithm>
+
       <MinClusterOccupiedLayers>2</MinClusterOccupiedLayers>
       <MinClusterLayerSpan>2</MinClusterLayerSpan>
       <MaxClusterCaloHits>30</MaxClusterCaloHits>
+
       <!-- Input lists -->
       <InputTrackListName>Tracks</InputTrackListName>
       <InputCaloHitListName>CaloHits</InputCaloHitListName>
@@ -138,13 +141,13 @@
       <ReplacementCaloHitListName>MuonRemovedCaloHits</ReplacementCaloHitListName>
       <ReplaceCurrentClusterList>false</ReplaceCurrentClusterList>
       <ReplaceCurrentPfoList>false</ReplaceCurrentPfoList>
-    </algorithm>
+    </algorithm>    
 
     <!-- Standalone photon clustering -->
     <!-- https://github.com/PandoraPFA/LCContent/blob/master/include/LCParticleId/PhotonReconstructionAlgorithm.h -->
-    <algorithm type = "PhotonReconstruction">
+    <!--algorithm type = "PhotonReconstruction"-->
         <!-- https://github.com/PandoraPFA/LCContent/blob/master/src/LCClustering/ConeClusteringAlgorithm.cc -->
-        <algorithm type = "ConeClustering" description = "PhotonClusterFormation">
+        <!--algorithm type = "ConeClustering" description = "PhotonClusterFormation">
             <ClusterSeedStrategy>0</ClusterSeedStrategy>
             <ShouldUseTrackSeed>false</ShouldUseTrackSeed>
             <ShouldUseOnlyECalHits>true</ShouldUseOnlyECalHits>
@@ -154,7 +157,7 @@
         <ReplaceCurrentClusterList>false</ReplaceCurrentClusterList>
         <ShouldMakePdfHistograms>false</ShouldMakePdfHistograms>
 	<HistogramFile>PandoraLikelihoodData9EBin.xml</HistogramFile>
-    </algorithm>
+    </algorithm-->
 
     <!-- Create PrimaryClusters -->
     <!-- Clustering parent algorithm runs a daughter clustering algorithm -->
@@ -163,20 +166,20 @@
         <algorithm type = "TopologicalAssociationParent" description = "ClusterAssociation">
             <associationAlgorithms>
                 <!-- https://github.com/PandoraPFA/LCContent/blob/master/include/LCTopologicalAssociation/LoopingTracksAlgorithm.h -->
-                <algorithm type = "LoopingTracks"/>
+                <!--algorithm type = "LoopingTracks"/-->
                 <!-- https://github.com/PandoraPFA/LCContent/blob/master/include/LCTopologicalAssociation/BrokenTracksAlgorithm.h -->
-                <algorithm type = "BrokenTracks"/>
+                <!--algorithm type = "BrokenTracks"/-->
                 <!-- https://github.com/PandoraPFA/LCContent/blob/master/include/LCTopologicalAssociation/ShowerMipMergingAlgorithm.h -->
-                <algorithm type = "ShowerMipMerging"/>
+                <!--algorithm type = "ShowerMipMerging"/-->
                 <!-- https://github.com/PandoraPFA/LCContent/blob/master/include/LCTopologicalAssociation/ShowerMipMerging2Algorithm.h -->
-                <algorithm type = "ShowerMipMerging2"/>
+                <!--algorithm type = "ShowerMipMerging2"/-->
 		
                 <!--algorithm type = "BackscatteredTracks"/-->
                 <!--algorithm type = "BackscatteredTracks2"/-->
                 <!-- https://github.com/PandoraPFA/LCContent/blob/master/include/LCTopologicalAssociation/ShowerMipMerging3Algorithm.h -->
-                <algorithm type = "ShowerMipMerging3"/>
+                <!--algorithm type = "ShowerMipMerging3"/-->
                 <!-- https://github.com/PandoraPFA/LCContent/blob/master/include/LCTopologicalAssociation/ShowerMipMerging4Algorithm.h -->
-                <algorithm type = "ShowerMipMerging4"/>
+                <!--algorithm type = "ShowerMipMerging4"/-->
                 <algorithm type = "ProximityBasedMerging">
                     <algorithm type = "TrackClusterAssociation"/>
                 </algorithm>
@@ -187,7 +190,7 @@
                     <algorithm type = "TrackClusterAssociation"/>
                 </algorithm>
                 <!-- https://github.com/PandoraPFA/LCContent/blob/master/include/LCTopologicalAssociation/HighEnergyPhotonRecoveryAlgorithm.h -->
-                <algorithm type = "HighEnergyPhotonRecovery">
+                <!--algorithm type = "HighEnergyPhotonRecovery">
                     <algorithm type = "TrackClusterAssociation"/>
                     <AdditionalClusterListNames>PhotonClusters</AdditionalClusterListNames>
                 </algorithm>
@@ -197,7 +200,7 @@
                 </algorithm>
                 <algorithm type = "IsolatedHitMerging">
                     <AdditionalClusterListNames>PhotonClusters</AdditionalClusterListNames>
-                </algorithm>
+                </algorithm-->
             </associationAlgorithms>
         </algorithm>
         <ClusterListName>PrimaryClusters</ClusterListName>
@@ -205,7 +208,8 @@
     </algorithm>
 
     <!-- Reclustering algorithms run multiple clustering algorithms -->
-    <algorithm type = "SplitTrackAssociations" instance = "SplitTrackAssociations1">
+    <!-- For high-energy jets where there might be some confusion -->
+    <!--algorithm type = "SplitTrackAssociations" instance = "SplitTrackAssociations1">
         <clusteringAlgorithms>
             <algorithm type = "ConeClustering" instance = "Reclustering1">
                 <TanConeAngleFine>0.24</TanConeAngleFine>
@@ -461,6 +465,8 @@
         <ShouldUseForcedClustering>true</ShouldUseForcedClustering>
         <algorithm type = "ForcedClustering" description = "ForcedClustering"/>
     </algorithm>
+    -->
+    <!-- end of reclustering  -->
 
     <!-- Muon clustering -->
     <algorithm type = "ClusteringParent">
@@ -480,7 +486,6 @@
         <ClusterListName>MuonRemovedYokeClusters</ClusterListName>
         <ReplaceCurrentClusterList>false</ReplaceCurrentClusterList>
     </algorithm>
-
     <algorithm type = "MuonClusterAssociation">
         <TargetClusterListName>PrimaryClusters</TargetClusterListName>
         <MuonClusterListName>MuonRemovedYokeClusters</MuonClusterListName>
@@ -497,49 +502,90 @@
         <algorithm type = "TrackClusterAssociation"/>
     </algorithm>
 
+    <!--algorithm type = "VisualMonitoring">
+      <ShowDetector>false</ShowDetector>
+      <DisplayEvent>true</DisplayEvent>
+      <ShowCurrentVertices>false</ShowCurrentVertices>
+      <ShowPfoVertices>false</ShowPfoVertices>
+      <ShowOnlyAvailable>false</ShowOnlyAvailable>
+      <ShowCurrentMCParticles>false</ShowCurrentMCParticles>
+      <ShowCurrentTracks>true</ShowCurrentTracks>
+      <ShowCurrentClusters>true</ShowCurrentClusters>
+      <ShowCurrentPfos>false</ShowCurrentPfos>
+      <ShowOnlyAvailable>false</ShowOnlyAvailable>
+      <ShowAssociatedTracks>false</ShowAssociatedTracks>
+      <ShowPfoHierarchy>false</ShowPfoHierarchy>
+    </algorithm-->
+
     <!-- Prepare particle flow objects -->
+    <!-- track-cluster association -->
     <algorithm type = "TrackPreparation">
         <CandidateListNames>Input</CandidateListNames>
         <MergedCandidateListName>PfoCandidates</MergedCandidateListName>
         <PfoTrackListName>PfoCreation</PfoTrackListName>
+	<!-- track cluster association algorithms, eg to distinguish photon PFOs from electron PFOs -->
         <trackClusterAssociationAlgorithms>
             <algorithm type = "TrackClusterAssociation"/>
+	    <!--
             <algorithm type = "LoopingTrackAssociation"/>
             <algorithm type = "TrackRecovery"/>
             <algorithm type = "TrackRecoveryHelix"/>
             <algorithm type = "TrackRecoveryInteractions"/>
+            -->
         </trackClusterAssociationAlgorithms>
     </algorithm>
 
+    <!-- fragment removal -->
     <algorithm type = "MainFragmentRemoval"/>
     <algorithm type = "NeutralFragmentRemoval"/>
     <algorithm type = "PhotonFragmentRemoval"/>
 
+    <!-- further refinements -->
     <algorithm type = "ClusterPreparation">
         <CandidateListNames>PrimaryClusters PhotonClusters</CandidateListNames>
         <MergedCandidateListName>PfoCreation</MergedCandidateListName>
     </algorithm>
-
     <algorithm type = "PhotonSplitting"/>
     <algorithm type = "PhotonFragmentMerging"/>
 
     <!-- Create particle flow objects -->
+    <!-- 1. -->
     <algorithm type = "ForceSplitTrackAssociations"/>
+    <!-- 2. create primary and photon PFOs -->
     <algorithm type = "PfoCreation">
         <OutputPfoListName>PrimaryAndPhotonPfos</OutputPfoListName>
     </algorithm>
-
+    <!-- 3. merge with MuonPfos into OutputPfos -->
     <algorithm type = "PfoPreparation">
         <CandidateListNames>PrimaryAndPhotonPfos MuonPfos</CandidateListNames>
         <MergedCandidateListName>OutputPfos</MergedCandidateListName>
     </algorithm>
-
+    
     <!-- Particle flow object modification algorithms -->
+    <!-- 1. final particle ID of PFO objects (e/mu/photons/hadrons) -->
     <!-- https://github.com/PandoraPFA/LCContent/blob/master/include/LCParticleId/FinalParticleIdAlgorithm.h -->
     <!-- https://github.com/PandoraPFA/LCContent/blob/master/src/LCParticleId/FinalParticleIdAlgorithm.cc -->
     <algorithm type = "FinalParticleId"/>
-    
-    <algorithm type = "V0PfoCreation"/>
+
+    <!-- 2. -->
+    <!-- algorithm type = "V0PfoCreation"/ -->
+
+
+    <!-- Monitoring -->
     <algorithm type = "DumpPfosMonitoring"/>
-    <!--algorithm type = "VisualMonitoring"/-->
+
+    <!--algorithm type = "VisualMonitoring">
+      <ShowDetector>false</ShowDetector>
+      <ShowCurrentVertices>false</ShowCurrentVertices>
+      <ShowPfoVertices>false</ShowPfoVertices>
+      <ShowCurrentMCParticles>false</ShowCurrentMCParticles>
+      <ShowCurrentTracks>false</ShowCurrentTracks>
+      <ShowCurrentClusters>true</ShowCurrentClusters>
+      <ShowCurrentPfos>true</ShowCurrentPfos>
+      <DisplayEvent>true</DisplayEvent>
+      <ShowOnlyAvailable>true</ShowOnlyAvailable>
+      <ShowAssociatedTracks>false</ShowAssociatedTracks>
+      <ShowPfoHierarchy>false</ShowPfoHierarchy>
+    </algorithm-->
+    
 </pandora>
