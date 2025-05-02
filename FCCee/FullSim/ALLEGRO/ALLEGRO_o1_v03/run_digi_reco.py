@@ -154,7 +154,6 @@ detectors_to_use = [
 geoservice.detectors = [
     os.path.join(path_to_detector, _det) for _det in detectors_to_use
 ]
-geoservice.OutputLevel = INFO
 ExtSvc += [geoservice]
 
 # retrieve subdetector IDs
