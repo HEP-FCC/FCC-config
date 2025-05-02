@@ -1019,32 +1019,24 @@ if doSWClustering:
                         False,
                         False)
 
-        # experimental: ECAL/HCAL/MUON clusters
-        if (runMuon):
-            EHMCaloClusterInputs = {
-                "ECAL_Barrel": ecalBarrelPositionedCellsName,
-                "ECAL_Endcap": ecalEndcapPositionedCellsName,
-                "HCAL_Barrel": hcalBarrelPositionedCellsName,
-                "HCAL_Endcap": hcalEndcapPositionedCellsName,
-                "Muon_Barrel": muonBarrelPositionedCellsName,
-                "Muon_Endcap": muonEndcapPositionedCellsName,
-            }
-            EHMCaloClusterReadouts = {
-                "ECAL_Barrel": ecalBarrelReadoutName,
-                "ECAL_Endcap": ecalEndcapReadoutName,
-                "HCAL_Barrel": hcalBarrelReadoutName,
-                "HCAL_Endcap": hcalEndcapReadoutName,
-                "Muon_Barrel": muonBarrelReadoutName,
-                "Muon_Endcap": muonEndcapReadoutName,                
-            }
-            setupSWClusters(EHMCaloClusterInputs,
-                            EHMCaloClusterReadouts,
-                            "EHMCaloClusters",
-                            0.04,
-                            False,
-                            False,
-                            False,
-                            False)
+    # experimental: MUON clusters
+    if (runMuon):
+        MuonCaloClusterInputs = {
+            "Muon_Barrel": muonBarrelPositionedCellsName,
+            "Muon_Endcap": muonEndcapPositionedCellsName,
+        }
+        MuonCaloClusterReadouts = {
+            "Muon_Barrel": muonBarrelReadoutName,
+            "Muon_Endcap": muonEndcapReadoutName,
+        }
+        setupSWClusters(MuonCaloClusterInputs,
+                        MuonCaloClusterReadouts,
+                        "MuonMCaloClusters",
+                        0.0,
+                        False,
+                        False,
+                        False,
+                        False)
 
 if doTopoClustering:
     # ECAL barrel topoclusters
