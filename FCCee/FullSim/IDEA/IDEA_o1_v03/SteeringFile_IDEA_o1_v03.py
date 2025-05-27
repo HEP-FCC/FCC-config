@@ -188,7 +188,8 @@ SIM.filter.filters = {
 }
 
 ##  a map between patterns and filter objects, using patterns to attach filters to sensitive detector
-SIM.filter.mapDetFilter = {}
+SIM.filter.mapDetFilter["DCH_v2"] = "edep0"
+SIM.filter.mapDetFilter["Muon-System"] = "edep0"
 
 ##  default filter for tracking sensitive detectors; this is applied if no other filter is used for a tracker
 SIM.filter.tracker = "edep1kev"
