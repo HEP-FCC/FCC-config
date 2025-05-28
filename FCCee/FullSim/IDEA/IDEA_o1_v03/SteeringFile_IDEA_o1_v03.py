@@ -114,6 +114,9 @@ SIM.action.event = []
 ##
 SIM.action.mapActions["DRcalo"] = "DRCaloSDAction"
 
+## Set the drift chamber action
+SIM.action.mapActions['DCH_v2'] = "Geant4TrackerAction"
+
 ##  set the default run action
 SIM.action.run = []
 
