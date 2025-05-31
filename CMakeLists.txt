@@ -1,6 +1,6 @@
 CMAKE_MINIMUM_REQUIRED(VERSION 3.12)
 
-project(FCC-config)
+project(FCC-config LANGUAGES CXX)
 
 include(GNUInstallDirs)
 
