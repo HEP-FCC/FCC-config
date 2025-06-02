@@ -38,12 +38,6 @@ Beams:eCM = 91.188  ! CM energy of collision
 ! set nu_tau mass 
 ParticleData:mass(16) = 0.0001 ! 0.1 MeV
 
-
-! shift tau mass 
-ParticleData:mass(15) = 1.77692 ! default mass: 1.77682 GeV
-
-
-
 WeakSingleBoson:ffbar2gmZ = on
 23:onMode = off
 23:onIfAny = 15
