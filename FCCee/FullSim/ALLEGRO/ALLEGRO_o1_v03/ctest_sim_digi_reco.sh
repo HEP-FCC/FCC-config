@@ -29,4 +29,4 @@ fi
 
 # run the RECO step
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd ) # workaround to have ctests working
-k4run $SCRIPT_DIR/run_digi_reco.py --includeHCal --includeMuon --trkdigi --addTracks --calibrateClusters
+k4run $SCRIPT_DIR/run_digi_reco.py --includeHCal --includeMuon --trkdigi --addTracks --calibrateClusters --saveCells
