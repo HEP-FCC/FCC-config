@@ -104,7 +104,7 @@ resegmentECalBarrel = False
 # - parameters for clustering (could also be made configurable via CLI)
 doSWClustering = True
 doTopoClustering = True
-doCreateClusterCollection = True  # create new collection with clustered cells or just link from cluster to original input cell collections
+doCreateClusterCellCollection = True  # create new collection with clustered cells or just link from cluster to original input cell collections (this applies to both SW and Topo cluster cell collections)
 
 # cluster energy corrections
 # simple parametrisations of up/downstream losses for ECAL-only clusters
@@ -603,24 +603,9 @@ if runHCal:
                                                       links=hcalEndcapLinks)
     TopAlg += [createHCalEndcapCells]
 
-# should not be needed any more
-# else:
-#     hcalBarrelPositionedCellsName = "emptyCaloCells"
-#     hcalEndcapPositionedCellsName = "emptyCaloCells"
-#     hcalBarrelLinks = ""
-#     hcalEndcapLinks = ""
-#     cellPositionHCalBarrelTool = None
-#     cellPositionHCalEndcapTool = None
-
-# Empty cells for parts of calorimeter not implemented yet
-# if doSWClustering or doTopoClustering:
-#     from Configurables import CreateEmptyCaloCellsCollection
-#     createemptycells = CreateEmptyCaloCellsCollection("CreateEmptyCaloCells")
-#     createemptycells.cells.Path = "emptyCaloCells"
-#     TopAlg += [createemptycells]
-
 
 # Muon cells [add longitudinal segmentation to detector?]
+# We use the calo digitiser since Pandora and MLPF expect muon hits to be caloHits
 if runMuon:
     from Configurables import CellPositionsSimpleCylinderPhiThetaSegTool
     muonBarrelReadoutName = "MuonTaggerBarrelPhiTheta"
@@ -691,13 +676,13 @@ else:
     muonEndcapLinks = ""
 
 
-# Create CaloHit<->MCParticle links
+# Create CaloHit<->MCParticle links (needed for training datasets for MLPF)
 from Configurables import CreateHitTruthLinks
 caloLinks = [ecalBarrelLinks, ecalEndcapLinks]
 if runHCal:
     caloLinks += [hcalBarrelLinks, hcalEndcapLinks]
 if runMuon:
-    # note: there are muon sim hits without corresponding calo hits... check why...
+    # FIXME: there are muon sim hits without corresponding calo hits... check why...
     caloLinks += [muonBarrelLinks, muonEndcapLinks]
 createHitParticleLinks = CreateHitTruthLinks("CreateHitParticleLinks",
                                              cell_hit_links=caloLinks,
@@ -735,7 +720,7 @@ def setupSWClusters(inputCells,
         dupP = 9
         finT = 7
         finP = 9
-    elif clusterType == "SmallSize":
+    elif clusterType == "MuonSize":
         # muon clusters
         windT = 3
         windP = 5
@@ -788,7 +773,7 @@ def setupSWClusters(inputCells,
                                                       nThetaFinal=finT, nPhiFinal=finP,
                                                       energyThreshold=threshold,
                                                       energySharingCorrection=False,
-                                                      createClusterCellCollection=doCreateClusterCollection,
+                                                      createClusterCellCollection=doCreateClusterCellCollection,
                                                       OutputLevel=INFO
                                                       )
     clusterAlg.clusters.Path = outputClusters
@@ -931,7 +916,7 @@ def setupTopoClusters(inputCells,
                                       lastNeighbourSigma=lastNeighbourSigma,
                                       minClusterEnergy=clusteringThreshold,
                                       calorimeterIDs=caloIDs,
-                                      createClusterCellCollection=doCreateClusterCollection,
+                                      createClusterCellCollection=doCreateClusterCellCollection,
                                       OutputLevel=INFO)
     TopAlg += [clusterAlg]
 
@@ -973,6 +958,8 @@ def setupTopoClusters(inputCells,
                                                  OutputLevel=INFO)
         TopAlg += [augmentClusterAlg]
 
+        # tool to identify resolved pi0->two photon cluster candidates
+        # see: https://indico.cern.ch/event/1483299/contributions/6488594/attachments/3056315/5403634/ALLEGRO_photon_pi0_20250424.pdf
         if addPi0RecoTool:
             from Configurables import PairCaloClustersPi0
             Pi0RecoAlg = PairCaloClustersPi0(
@@ -1109,7 +1096,7 @@ if doSWClustering:
                         False,
                         False,
                         False,
-                        "SmallSize")
+                        "MuonSize")
 
 if doTopoClustering:
     # ECAL barrel topoclusters
