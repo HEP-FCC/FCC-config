@@ -6,7 +6,7 @@
 #
 
 # Logger
-from Gaudi.Configuration import INFO, DEBUG  # , VERBOSE
+from Gaudi.Configuration import INFO, DEBUG, VERBOSE
 # units and physical constants
 from GaudiKernel.PhysicalConstants import pi
 
@@ -61,6 +61,8 @@ saveCells = opts.saveCells
 saveClusterCells = True
 
 dropLumiCalHits = True
+
+# for tracker hits there is a single hit/readout cell so not much gain by dropping them, especially if the corresponding digitised cells (smeared hits) have not been added to output
 # dropVertexHits = True
 # dropDCHHits = True
 # dropSiWrHits = True
@@ -79,6 +81,19 @@ ecalBarrelDownstreamParameters = [[0.00010587711361028165, 0.0052371999097777355
 if ecalBarrelSamplingFraction and len(ecalBarrelSamplingFraction) > 0:
     assert (ecalBarrelLayers == len(ecalBarrelSamplingFraction))
 # ECAL endcap parameters for digitisation
+# the turbine endcap has calibration "layers" in the both the z and radial
+# directions, for each of the three wheels.  So the total number of layers
+# is given by:
+#
+#   ECalEndcapNumCalibZLayersWheel1*ECalEndcapNumCalibRhoLayersWheel1
+#  +ECalEndcapNumCalibZLayersWheel2*ECalEndcapNumCalibRhoLayersWheel2
+#  +ECalEndcapNumCalibZLayersWheel3*ECalEndcapNumCalibRhoLayersWheel3
+#
+# which in the current design is 5*10+1*14+1*34 = 98
+# NB some cells near the inner and outer edges of the calorimeter are difficult
+# to calibrate as they are not part of the core of well-contained showers.
+# The calibrated values can be <0 or >1 for such cells, so these nonsenical
+# numbers are replaced by 1
 ecalEndcapLayers = 98
 ecalEndcapSamplingFraction = [0.0897818] * 1+ [0.221318] * 1+ [0.0820002] * 1+ [0.994281] * 1+ [0.0414437] * 1+ [0.1148] * 1+ [0.178831] * 1+ [0.142449] * 1+ [0.181206] * 1+ [0.342843] * 1+ [0.137479] * 1+ [0.176479] * 1+ [0.153273] * 1+ [0.195836] * 1+ [0.0780405] * 1+ [0.150202] * 1+ [0.17846] * 1+ [0.164886] * 1+ [0.175758] * 1+ [0.10836] * 1+ [0.160243] * 1+ [0.183373] * 1+ [0.171818] * 1+ [0.194848] * 1+ [0.111899] * 1+ [0.170704] * 1+ [0.188455] * 1+ [0.178164] * 1+ [0.209113] * 1+ [0.105241] * 1+ [0.180637] * 1+ [0.192206] * 1+ [0.186096] * 1+ [0.211962] * 1+ [0.112019] * 1+ [0.180344] * 1+ [0.195684] * 1+ [0.190778] * 1+ [0.218259] * 1+ [0.118516] * 1+ [0.207786] * 1+ [0.204474] * 1+ [0.207048] * 1+ [0.225913] * 1+ [0.111325] * 1+ [0.147875] * 1+ [0.195625] * 1+ [0.173326] * 1+ [0.175449] * 1+ [0.104087] * 1+ [0.153645] * 1+ [0.161263] * 1+ [0.165499] * 1+ [0.171758] * 1+ [0.175789] * 1+ [0.180657] * 1+ [0.184563] * 1+ [0.187876] * 1+ [0.191762] * 1+ [0.19426] * 1+ [0.197959] * 1+ [0.199021] * 1+ [0.204428] * 1+ [0.195709] * 1+ [0.151751] * 1+ [0.171477] * 1+ [0.165509] * 1+ [0.172565] * 1+ [0.172961] * 1+ [0.175534] * 1+ [0.177989] * 1+ [0.18026] * 1+ [0.181898] * 1+ [0.183912] * 1+ [0.185654] * 1+ [0.187515] * 1+ [0.190408] * 1+ [0.188794] * 1+ [0.193699] * 1+ [0.192287] * 1+ [0.19755] * 1+ [0.190943] * 1+ [0.218553] * 1+ [0.161085] * 1+ [0.373086] * 1+ [0.122495] * 1+ [0.21103] * 1+ [1] * 1+ [0.138686] * 1+ [0.0545171] * 1+ [1] * 1+ [1] * 1+ [0.227945] * 1+ [0.0122872] * 1+ [0.00437334] * 1+ [0.00363533] * 1+ [1] * 1+ [1] * 1
 if ecalEndcapSamplingFraction and len(ecalEndcapSamplingFraction) > 0:
@@ -89,6 +104,7 @@ resegmentECalBarrel = False
 # - parameters for clustering (could also be made configurable via CLI)
 doSWClustering = True
 doTopoClustering = True
+doCreateClusterCollection = True  # create new collection with clustered cells or just link from cluster to original input cell collections
 
 # cluster energy corrections
 # simple parametrisations of up/downstream losses for ECAL-only clusters
@@ -112,6 +128,8 @@ ecalBarrelThetaWeights = [-1, 3.0, 3.0, 3.0, 4.25, 4.0, 4.0, 4.0, 4.0, 4.0, 4.0]
 runPhotonIDTool = opts.runPhotonID
 logEWeightInPhotonID = False
 
+# resolved pi0 reconstruction by cluster pairing
+addPi0RecoTool = True
 
 #
 # ALGORITHMS AND SERVICES SETUP
@@ -162,16 +180,18 @@ tree = ET.parse(path_to_detector + 'DectDimensions.xml')
 root = tree.getroot()
 IDs = {}
 for constant in root.find('define').findall('constant'):
-    if (constant.get('name') == 'DetID_VXD_Barrel' or
-        constant.get('name') == 'DetID_VXD_Disks' or
-        constant.get('name') == 'DetID_DCH' or
-        constant.get('name') == 'DetID_SiWr_Barrel' or
-        constant.get('name') == 'DetID_SiWr_Disks' or
-        constant.get('name') == 'DetID_ECAL_Barrel' or
-        constant.get('name') == 'DetID_ECAL_Endcap' or
-        constant.get('name') == 'DetID_HCAL_Barrel' or
-        constant.get('name') == 'DetID_HCAL_Endcap' or
-        constant.get('name') == 'DetID_Muon_Barrel'):
+    if (
+        constant.get('name') == 'DetID_VXD_Barrel'
+        or constant.get('name') == 'DetID_VXD_Disks'
+        or constant.get('name') == 'DetID_DCH'
+        or constant.get('name') == 'DetID_SiWr_Barrel'
+        or constant.get('name') == 'DetID_SiWr_Disks'
+        or constant.get('name') == 'DetID_ECAL_Barrel'
+        or constant.get('name') == 'DetID_ECAL_Endcap'
+        or constant.get('name') == 'DetID_HCAL_Barrel'
+        or constant.get('name') == 'DetID_HCAL_Endcap'
+        or constant.get('name') == 'DetID_Muon_Barrel'
+    ):
         IDs[constant.get("name")[6:]] = int(constant.get('value'))
     if (constant.get('name') == 'DetID_Muon_Endcap_1'):
         IDs[constant.get("name")[6:-2]] = int(constant.get('value'))
@@ -219,74 +239,74 @@ if addTracks:
 if digitiseTrackerHits:
     from Configurables import VTXdigitizer
     import math
-    innerVertexResolution_x = 0.003 # [mm], assume 3 µm resolution for ARCADIA sensor
-    innerVertexResolution_y = 0.003 # [mm], assume 3 µm resolution for ARCADIA sensor
-    innerVertexResolution_t = 1000 # [ns]
-    outerVertexResolution_x = 0.050/math.sqrt(12) # [mm], assume ATLASPix3 sensor with 50 µm pitch
-    outerVertexResolution_y = 0.150/math.sqrt(12) # [mm], assume ATLASPix3 sensor with 150 µm pitch
-    outerVertexResolution_t = 1000 # [ns]
+    innerVertexResolution_x = 0.003  # [mm], assume 3 µm resolution for ARCADIA sensor
+    innerVertexResolution_y = 0.003  # [mm], assume 3 µm resolution for ARCADIA sensor
+    innerVertexResolution_t = 1000  # [ns]
+    outerVertexResolution_x = 0.050 / math.sqrt(12)  # [mm], assume ATLASPix3 sensor with 50 µm pitch
+    outerVertexResolution_y = 0.150 / math.sqrt(12)  # [mm], assume ATLASPix3 sensor with 150 µm pitch
+    outerVertexResolution_t = 1000  # [ns]
 
     vtxb_digitizer = VTXdigitizer("VTXBdigitizer",
-                                  inputSimHits = "VertexBarrelCollection",
-                                  outputDigiHits = "VTXBDigis",
-                                  outputSimDigiAssociation = "VTXBSimDigiLinks",
-                                  detectorName = "Vertex",
-                                  readoutName = "VertexBarrelCollection",
-                                  xResolution = [innerVertexResolution_x, innerVertexResolution_x, innerVertexResolution_x,
-                                                 outerVertexResolution_x, outerVertexResolution_x], # mm, r-phi direction
-                                  yResolution = [innerVertexResolution_y, innerVertexResolution_y, innerVertexResolution_y,
-                                                 outerVertexResolution_y, outerVertexResolution_y], # mm, z direction
-                                  tResolution = [innerVertexResolution_t, innerVertexResolution_t, innerVertexResolution_t,
-                                                 outerVertexResolution_t, outerVertexResolution_t],
-                                  forceHitsOntoSurface = False,
-                                  OutputLevel = INFO
+                                  inputSimHits="VertexBarrelCollection",
+                                  outputDigiHits="VTXBDigis",
+                                  outputSimDigiAssociation="VTXBSimDigiLinks",
+                                  detectorName="Vertex",
+                                  readoutName="VertexBarrelCollection",
+                                  xResolution=[innerVertexResolution_x, innerVertexResolution_x, innerVertexResolution_x,
+                                               outerVertexResolution_x, outerVertexResolution_x],  # mm, r-phi direction
+                                  yResolution=[innerVertexResolution_y, innerVertexResolution_y, innerVertexResolution_y,
+                                               outerVertexResolution_y, outerVertexResolution_y],  # mm, z direction
+                                  tResolution=[innerVertexResolution_t, innerVertexResolution_t, innerVertexResolution_t,
+                                               outerVertexResolution_t, outerVertexResolution_t],  # ns
+                                  forceHitsOntoSurface=False,
+                                  OutputLevel=INFO
                                   )
     TopAlg += [vtxb_digitizer]
 
-    vtxd_digitizer  = VTXdigitizer("VTXDdigitizer",
-                                   inputSimHits = "VertexEndcapCollection",
-                                   outputDigiHits = "VTXDDigis",
-                                   outputSimDigiAssociation = "VTXDSimDigiLinks",
-                                   detectorName = "Vertex",
-                                   readoutName = "VertexEndcapCollection",
-                                   xResolution = [outerVertexResolution_x, outerVertexResolution_x, outerVertexResolution_x], # mm, r direction
-                                   yResolution = [outerVertexResolution_y, outerVertexResolution_y, outerVertexResolution_y], # mm, phi direction
-                                   tResolution = [outerVertexResolution_t, outerVertexResolution_t, outerVertexResolution_t], # ns
-                                   forceHitsOntoSurface = False,
-                                   OutputLevel = INFO
-                                   )
+    vtxd_digitizer = VTXdigitizer("VTXDdigitizer",
+                                  inputSimHits="VertexEndcapCollection",
+                                  outputDigiHits="VTXDDigis",
+                                  outputSimDigiAssociation="VTXDSimDigiLinks",
+                                  detectorName="Vertex",
+                                  readoutName="VertexEndcapCollection",
+                                  xResolution=[outerVertexResolution_x, outerVertexResolution_x, outerVertexResolution_x],  # mm, r direction
+                                  yResolution=[outerVertexResolution_y, outerVertexResolution_y, outerVertexResolution_y],  # mm, phi direction
+                                  tResolution=[outerVertexResolution_t, outerVertexResolution_t, outerVertexResolution_t],  # ns
+                                  forceHitsOntoSurface=False,
+                                  OutputLevel=INFO
+                                  )
     TopAlg += [vtxd_digitizer]
 
     # digitise silicon wrapper hits
-    siWrapperResolution_x   = 0.050/math.sqrt(12) # [mm]
-    siWrapperResolution_y   = 1.0/math.sqrt(12) # [mm]
-    siWrapperResolution_t   = 0.040 # [ns], assume 40 ps timing resolution for a single layer -> Should lead to <30 ps resolution when >1 hit
+    siWrapperResolution_x = 0.050 / math.sqrt(12)  # [mm]
+    siWrapperResolution_y = 1.0 / math.sqrt(12)  # [mm]
+    siWrapperResolution_t = 0.040  # [ns], assume 40 ps timing resolution for a single layer -> Should lead to <30 ps resolution when >1 hit
 
     siwrb_digitizer = VTXdigitizer("SiWrBdigitizer",
-                                   inputSimHits = "SiWrBCollection",
-                                   outputDigiHits = "SiWrBDigis",
-                                   outputSimDigiAssociation = "SiWrBSimDigiLinks",
-                                   detectorName = "SiWrB",
-                                   readoutName = "SiWrBCollection",
-                                   xResolution = [siWrapperResolution_x, siWrapperResolution_x], # mm, r-phi direction
-                                   yResolution = [siWrapperResolution_y, siWrapperResolution_y], # mm, z direction
-                                   tResolution = [siWrapperResolution_t, siWrapperResolution_t],
-                                   forceHitsOntoSurface = False,
-                                   OutputLevel = INFO
+                                   inputSimHits="SiWrBCollection",
+                                   outputDigiHits="SiWrBDigis",
+                                   outputSimDigiAssociation="SiWrBSimDigiLinks",
+                                   detectorName="SiWrB",
+                                   readoutName="SiWrBCollection",
+                                   xResolution=[siWrapperResolution_x, siWrapperResolution_x],  # mm, r-phi direction
+                                   yResolution=[siWrapperResolution_y, siWrapperResolution_y],  # mm, z direction
+                                   tResolution=[siWrapperResolution_t, siWrapperResolution_t],  # ns
+                                   forceHitsOntoSurface=False,
+                                   OutputLevel=INFO
                                    )
     TopAlg += [siwrb_digitizer]
 
     siwrd_digitizer = VTXdigitizer("SiWrDdigitizer",
-                                   inputSimHits = "SiWrDCollection",
-                                   outputDigiHits = "SiWrDDigis",
-                                   outputSimDigiAssociation = "SiWrDSimDigiLinks",
-                                   detectorName = "SiWrD",
-                                   readoutName = "SiWrDCollection",
-                                   xResolution = [siWrapperResolution_x, siWrapperResolution_x], # mm, r-phi direction
-                                   yResolution = [siWrapperResolution_y, siWrapperResolution_y], # mm, z direction
-                                   tResolution = [siWrapperResolution_t, siWrapperResolution_t],
-                                   forceHitsOntoSurface = False,
-                                   OutputLevel = INFO
+                                   inputSimHits="SiWrDCollection",
+                                   outputDigiHits="SiWrDDigis",
+                                   outputSimDigiAssociation="SiWrDSimDigiLinks",
+                                   detectorName="SiWrD",
+                                   readoutName="SiWrDCollection",
+                                   xResolution=[siWrapperResolution_x, siWrapperResolution_x],  # mm, r-phi direction
+                                   yResolution=[siWrapperResolution_y, siWrapperResolution_y],  # mm, z direction
+                                   tResolution=[siWrapperResolution_t, siWrapperResolution_t],  # ns
+                                   forceHitsOntoSurface=False,
+                                   OutputLevel=INFO
                                    )
     TopAlg += [siwrd_digitizer]
 
@@ -295,16 +315,16 @@ if digitiseTrackerHits:
     from Configurables import DCHdigi_v01
     # "https://fccsw.web.cern.ch/fccsw/filesFoSimDigiReco/IDEA/DataAlgFORGEANT.root"
     dch_digitizer = DCHdigi_v01("DCHdigi",
-                                DCH_simhits = ["DCHCollection"],
-                                DCH_name = "DCH_v2",
-                                fileDataAlg = dataFolder + "DataAlgFORGEANT.root",
-                                calculate_dndx = False, # cluster counting disabled (to be validated, see FCC-config#239)
-                                create_debug_histograms = False,
-                                # zResolution_mm = 30., # in mm - Note: At this point, the z resolution comes without the stereo measurement
-                                # xyResolution_mm = 0.1 # in mm
+                                DCH_simhits=["DCHCollection"],
+                                DCH_name="DCH_v2",
+                                fileDataAlg=dataFolder + "DataAlgFORGEANT.root",
+                                calculate_dndx=False,  # cluster counting disabled (to be validated, see FCC-config#239)
+                                create_debug_histograms=False,
+                                # zResolution_mm=30.,  # in mm - Note: At this point, the z resolution comes without the stereo measurement
+                                # xyResolution_mm=0.1  # in mm
                                 # no smearing
-                                zResolution_mm = 0., # in mm - Note: At this point, the z resolution comes without the stereo measurement
-                                xyResolution_mm = 0. # in mm
+                                zResolution_mm=0.,  # in mm - Note: At this point, the z resolution comes without the stereo measurement
+                                xyResolution_mm=0.  # in mm
                                 )
     TopAlg += [dch_digitizer]
 
@@ -583,20 +603,21 @@ if runHCal:
                                                       links=hcalEndcapLinks)
     TopAlg += [createHCalEndcapCells]
 
-else:
-    hcalBarrelPositionedCellsName = "emptyCaloCells"
-    hcalEndcapPositionedCellsName = "emptyCaloCells"
-    hcalBarrelLinks = ""
-    hcalEndcapLinks = ""
-    cellPositionHCalBarrelTool = None
-    cellPositionHCalEndcapTool = None
+# should not be needed any more
+# else:
+#     hcalBarrelPositionedCellsName = "emptyCaloCells"
+#     hcalEndcapPositionedCellsName = "emptyCaloCells"
+#     hcalBarrelLinks = ""
+#     hcalEndcapLinks = ""
+#     cellPositionHCalBarrelTool = None
+#     cellPositionHCalEndcapTool = None
 
 # Empty cells for parts of calorimeter not implemented yet
-if doSWClustering or doTopoClustering:
-    from Configurables import CreateEmptyCaloCellsCollection
-    createemptycells = CreateEmptyCaloCellsCollection("CreateEmptyCaloCells")
-    createemptycells.cells.Path = "emptyCaloCells"
-    TopAlg += [createemptycells]
+# if doSWClustering or doTopoClustering:
+#     from Configurables import CreateEmptyCaloCellsCollection
+#     createemptycells = CreateEmptyCaloCellsCollection("CreateEmptyCaloCells")
+#     createemptycells.cells.Path = "emptyCaloCells"
+#     TopAlg += [createemptycells]
 
 
 # Muon cells [add longitudinal segmentation to detector?]
@@ -669,6 +690,23 @@ else:
     muonBarrelLinks = ""
     muonEndcapLinks = ""
 
+
+# Create CaloHit<->MCParticle links
+from Configurables import CreateHitTruthLinks
+caloLinks = [ecalBarrelLinks, ecalEndcapLinks]
+if runHCal:
+    caloLinks += [hcalBarrelLinks, hcalEndcapLinks]
+if runMuon:
+    # note: there are muon sim hits without corresponding calo hits... check why...
+    caloLinks += [muonBarrelLinks, muonEndcapLinks]
+createHitParticleLinks = CreateHitTruthLinks("CreateHitParticleLinks",
+                                             cell_hit_links=caloLinks,
+                                             mcparticles="MCParticles",
+                                             cell_mcparticle_links="CaloHitMCParticleLinks",
+                                             OutputLevel=INFO)
+TopAlg += [createHitParticleLinks]
+
+
 # Function that sets up the sequence for producing SW clusters given an input cell collection
 def setupSWClusters(inputCells,
                     inputReadouts,
@@ -677,7 +715,8 @@ def setupSWClusters(inputCells,
                     applyUpDownstreamCorrections,
                     applyMVAClusterEnergyCalibration,
                     addShapeParameters,
-                    runPhotonIDTool):
+                    runPhotonIDTool,
+                    clusterType="StandardSize"):
 
     global TopAlg
 
@@ -686,23 +725,36 @@ def setupSWClusters(inputCells,
 
     # Clustering parameters
     # - phi-theta window sizes
-    windT = 9
-    windP = 17
-    posT = 5
-    posP = 11
-    dupT = 7
-    dupP = 13
-    finT = 9
-    finP = 17
-    # to be tested: about -2% of energy but smaller cluster, less noise
-    # windT = 7
-    # windP = 9
-    # posT = 5
-    # posP = 7
-    # dupT = 7
-    # dupP = 9
-    # finT = 7
-    # finP = 9
+    if clusterType == "ReducedSize":
+        # to be tested: about -2% of energy but smaller cluster, less noise
+        windT = 7
+        windP = 9
+        posT = 5
+        posP = 7
+        dupT = 7
+        dupP = 9
+        finT = 7
+        finP = 9
+    elif clusterType == "SmallSize":
+        # muon clusters
+        windT = 3
+        windP = 5
+        posT = 3
+        posP = 5
+        dupT = 3
+        dupP = 5
+        finT = 3
+        finP = 5
+    else:  # default
+        windT = 9
+        windP = 17
+        posT = 5
+        posP = 11
+        dupT = 7
+        dupP = 13
+        finT = 9
+        finP = 17
+
     # - minimal energy to create a cluster in GeV (FCC-ee detectors have to reconstruct low energy particles)
     threshold = clusteringThreshold
 
@@ -736,7 +788,7 @@ def setupSWClusters(inputCells,
                                                       nThetaFinal=finT, nPhiFinal=finP,
                                                       energyThreshold=threshold,
                                                       energySharingCorrection=False,
-                                                      createClusterCellCollection=True,
+                                                      createClusterCellCollection=doCreateClusterCollection,
                                                       OutputLevel=INFO
                                                       )
     clusterAlg.clusters.Path = outputClusters
@@ -845,6 +897,13 @@ def setupTopoClusters(inputCells,
     from Configurables import TopoCaloNoisyCells
     from Configurables import CaloTopoClusterFCCee
 
+    # list of input cells and of calorimeter systemIDs
+    cells = []
+    caloIDs = []
+    for (k, v) in inputCells.items():
+        cells.append(v)
+        caloIDs.append(IDs[k])
+
     # Clustering parameters
     seedSigma = 6
     neighbourSigma = 2
@@ -860,9 +919,6 @@ def setupTopoClusters(inputCells,
                                    fileName=noiseMap,
                                    OutputLevel=INFO)
 
-    # list of input cells
-    cells = list(inputCells.values())
-
     # algorithm creating the topoclusters
     clusterAlg = CaloTopoClusterFCCee("Create" + outputClusters,
                                       cells=cells,
@@ -874,6 +930,8 @@ def setupTopoClusters(inputCells,
                                       neighbourSigma=neighbourSigma,
                                       lastNeighbourSigma=lastNeighbourSigma,
                                       minClusterEnergy=clusteringThreshold,
+                                      calorimeterIDs=caloIDs,
+                                      createClusterCellCollection=doCreateClusterCollection,
                                       OutputLevel=INFO)
     TopAlg += [clusterAlg]
 
@@ -914,6 +972,20 @@ def setupTopoClusters(inputCells,
                                                  do_widthTheta_logE_weights=logEWeightInPhotonID,
                                                  OutputLevel=INFO)
         TopAlg += [augmentClusterAlg]
+
+        if addPi0RecoTool:
+            from Configurables import PairCaloClustersPi0
+            Pi0RecoAlg = PairCaloClustersPi0(
+                "resolvedPi0FromClusterPair",
+                inClusters=augmentClusterAlg.outClusters.Path,
+                unpairedClusters="Unpaired" + augmentClusterAlg.outClusters.Path,
+                reconstructedPi0="ResolvedPi0Particle",
+                massPeak=0.122201, # values determined from a dedicated study
+                massLow=0.0754493,
+                massHigh=0.153543,
+                OutputLevel=INFO
+            )
+            TopAlg += [Pi0RecoAlg]
 
     if applyMVAClusterEnergyCalibration:
         # note that this only works for ecal barrel given various hardcoded quantities
@@ -1031,12 +1103,13 @@ if doSWClustering:
         }
         setupSWClusters(MuonCaloClusterInputs,
                         MuonCaloClusterReadouts,
-                        "MuonMCaloClusters",
+                        "MuonCaloClusters",
                         0.0,
                         False,
                         False,
                         False,
-                        False)
+                        False,
+                        "SmallSize")
 
 if doTopoClustering:
     # ECAL barrel topoclusters
