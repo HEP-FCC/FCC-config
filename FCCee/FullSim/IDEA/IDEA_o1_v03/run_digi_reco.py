@@ -137,6 +137,18 @@ hps = RootHistSvc("HistogramPersistencySvc")
 root_hist_svc = RootHistoSink("RootHistoSink")
 root_hist_svc.FileName = "TrackHitDistances.root"
 
+# Calculate dNdx from tracks
+from Configurables import TrackdNdxDelphesBased
+dNdxFromTracks = TrackdNdxDelphesBased("dNdxFromTracks",
+                                  InputLinkCollection=tracksFromGenParticles.OutputMCRecoTrackParticleAssociation,
+                                  OutputCollection=["DCHdNdxCollection"],
+                                  ZmaxParameterName="DCH_gas_Lhalf",
+                                  ZminParameterName="DCH_gas_Lhalf",
+                                  RminParameterName="DCH_gas_inner_cyl_R",
+                                  RmaxParameterName="DCH_gas_outer_cyl_R",
+                                  FillFactor=1.0,
+                                  OutputLevel=INFO)
+
 ################ Output
 io_svc.outputCommands = ["keep *"]
 
@@ -157,6 +169,7 @@ application_mgr = ApplicationMgr(
               muon_digitizer,
               tracksFromGenParticles, 
               plotTrackDCHHitDistances,
+              dNdxFromTracks,
               ],
     EvtSel = 'NONE',
     EvtMax   = -1,

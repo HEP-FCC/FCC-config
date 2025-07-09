@@ -234,6 +234,19 @@ if addTracks:
                                                     OutputLevel=INFO)
     TopAlg += [tracksFromGenParticles]
 
+    # Calculate dNdx from tracks
+    from Configurables import TrackdNdxDelphesBased
+    dNdxFromTracks = TrackdNdxDelphesBased("dNdxFromTracks",
+                                    InputLinkCollection=tracksFromGenParticles.OutputMCRecoTrackParticleAssociation,
+                                    OutputCollection=["DCHdNdxCollection"],
+                                    ZmaxParameterName="DCH_gas_Lhalf",
+                                    ZminParameterName="DCH_gas_Lhalf",
+                                    RminParameterName="DCH_gas_inner_cyl_R",
+                                    RmaxParameterName="DCH_gas_outer_cyl_R",
+                                    FillFactor=1.0,
+                                    OutputLevel=INFO)
+    TopAlg += [dNdxFromTracks]
+
 
 # Tracker digitisation
 if digitiseTrackerHits:
