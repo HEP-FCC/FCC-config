@@ -72,6 +72,7 @@ alias quark = u:d:s:c:b:U:D:S:C:B
 alias lepton = e1:e2:e3:E1:E2:E3
 
 # Processes
+?vis_diags = true
 process proc = e1, E1 => "W+", "W-", b, B { $omega_flags =  "-model:constant_width" }
 
 ?resonance_history = true
