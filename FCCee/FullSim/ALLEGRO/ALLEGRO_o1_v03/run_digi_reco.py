@@ -6,7 +6,7 @@
 #
 
 # Logger
-from Gaudi.Configuration import INFO, DEBUG, VERBOSE
+from Gaudi.Configuration import INFO, DEBUG, VERBOSE, ERROR
 # units and physical constants
 from GaudiKernel.PhysicalConstants import pi
 
@@ -244,7 +244,7 @@ if addTracks:
                                     RminParameterName="DCH_gas_inner_cyl_R",
                                     RmaxParameterName="DCH_gas_outer_cyl_R",
                                     FillFactor=1.0,
-                                    OutputLevel=INFO)
+                                    OutputLevel=ERROR)
     TopAlg += [dNdxFromTracks]
 
 

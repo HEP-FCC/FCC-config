@@ -147,7 +147,7 @@ dNdxFromTracks = TrackdNdxDelphesBased("dNdxFromTracks",
                                   RminParameterName="DCH_gas_inner_cyl_R",
                                   RmaxParameterName="DCH_gas_outer_cyl_R",
                                   FillFactor=1.0,
-                                  OutputLevel=INFO)
+                                  OutputLevel=ERROR)
 
 ################ Output
 io_svc.outputCommands = ["keep *"]
