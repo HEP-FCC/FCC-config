@@ -6,7 +6,7 @@
 #
 
 # Logger
-from Gaudi.Configuration import INFO, DEBUG, VERBOSE
+from Gaudi.Configuration import INFO, DEBUG, VERBOSE, ERROR
 # units and physical constants
 from GaudiKernel.PhysicalConstants import pi
 
@@ -233,6 +233,19 @@ if addTracks:
                                                                 IDs["SiWr_Disks"]],
                                                     OutputLevel=INFO)
     TopAlg += [tracksFromGenParticles]
+
+    # Calculate dNdx from tracks
+    from Configurables import TrackdNdxDelphesBased
+    dNdxFromTracks = TrackdNdxDelphesBased("dNdxFromTracks",
+                                    InputLinkCollection=tracksFromGenParticles.OutputMCRecoTrackParticleAssociation,
+                                    OutputCollection=["DCHdNdxCollection"],
+                                    ZmaxParameterName="DCH_gas_Lhalf",
+                                    ZminParameterName="DCH_gas_Lhalf",
+                                    RminParameterName="DCH_gas_inner_cyl_R",
+                                    RmaxParameterName="DCH_gas_outer_cyl_R",
+                                    FillFactor=1.0,
+                                    OutputLevel=ERROR)
+    TopAlg += [dNdxFromTracks]
 
 
 # Tracker digitisation
