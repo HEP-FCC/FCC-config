@@ -38,4 +38,4 @@ LesHouches:matchInOut = off
 
 ! 5) decay Higgs
 25:onMode = off
-25:onIfAny = 5
+25:onIfAny = 22
