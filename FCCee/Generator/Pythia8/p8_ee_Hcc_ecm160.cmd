@@ -23,10 +23,9 @@ Beams:LHEF = LHE_OUT.LHE
 
 ! Vertex smearing
 Beams:allowVertexSpread = on
-Beams:sigmaVertexX = 5.96e-3
-Beams:sigmaVertexY = 23.8E-6
-Beams:sigmaVertexZ = 0.397
-Beams:sigmaTime = 10.89 ! 36.3 ps
+Beams:sigmaVertexX = 1.47e-2   !  13.7 mum / sqrt2
+Beams:sigmaVertexY = 46.5E-6   !  36.1 nm / sqrt2
+Beams:sigmaVertexZ = 0.97      !  0.97 mm
 
 ! 4) Settings for the event generation process in the Pythia8 library.
 PartonLevel:ISR = on               ! initial-state radiation
@@ -38,4 +37,4 @@ LesHouches:matchInOut = off
 
 ! 5) decay Higgs
 25:onMode = off
-25:onIfAny = 1
+25:onIfAny = 4
