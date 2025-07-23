@@ -44,6 +44,12 @@ process proc = e1, E1 =>   ( e1, E1,  u, U )
 
 cuts =      (no abs( cos( Theta ) ) > 0.98  [ e1 ])
         and (no abs( cos( Theta ) ) > 0.98  [ E1 ])
+        and (all M > 5 GeV [e1,E1])
+        and (all M > 5 GeV [u,U])
+        and (all M > 5 GeV [d,D])
+        and (all M > 5 GeV [S,S])
+        and (all M > 5 GeV [c,C])
+        and (all M > 5 GeV [b,B])
 
 beams = e1, E1 => gaussian => isr
 ?keep_beams  = true    
