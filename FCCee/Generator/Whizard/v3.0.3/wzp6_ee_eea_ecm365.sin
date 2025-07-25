@@ -30,7 +30,7 @@ sqrts = 365 GeV
 
 # Processes 
 
-?vis_diags = true
+#?vis_diags = true
 
 # ee -> eegamma
 
