@@ -28,11 +28,11 @@ Beams:sigmaVertexY = 25.5E-6   !  36.1 nm / sqrt2
 Beams:sigmaVertexZ = 0.64      !  0.64 mm
 
 ! 4) Settings for the event generation process in the Pythia8 library.
-PartonLevel:ISR = on               ! initial-state radiation
+PartonLevel:ISR = off               ! initial-state radiation
 PartonLevel:FSR = on                ! final-state radiation
 
 Check:epTolErr = 1e-1               ! default 1e-4, necessary to allow BES
-LesHouches:matchInOut = off
+LesHouches:matchInOut = on
 
 
 ! 5) decay Higgs
