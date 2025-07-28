@@ -32,7 +32,7 @@ PartonLevel:ISR = off               ! initial-state radiation
 PartonLevel:FSR = on                ! final-state radiation
 
 Check:epTolErr = 1e-1               ! default 1e-4, necessary to allow BES
-LesHouches:matchInOut = on
+LesHouches:matchInOut = off
 
 
 ! 5) decay Higgs
