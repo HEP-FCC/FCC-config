@@ -32,14 +32,13 @@ sqrts = 160 GeV
 
 #?vis_diags = true
 
-# ee -> ZH
+# ee -> qQH + lLH + nunubarH
 
 
+process proc = e1, E1 => (u,U,H) + (d,D,H) + (c,C,H) + (s, S, H) + (b,B,H) + (e1, E1, H) + (e2, E2, H) + (e3, E3, H) + (nue, nuebar, H) + (numu, numubar, H) + (nutau, nutaubar, H)
 
-process proc = e1, E1 => Z, H
 
     
-
 beams = e1, E1 => gaussian => isr
 ?keep_beams  = true    
 ?keep_remnants = true
