@@ -1,6 +1,11 @@
 from DDSim.DD4hepSimulation import DD4hepSimulation
 from g4units import mm, GeV, MeV
 
+###################################
+# user options
+simulateCalo = True # set to False to skip the calo SD action
+###################################
+
 SIM = DD4hepSimulation()
 
 ## The compact XML file, or multiple compact files, if the last one is the closer.
@@ -98,10 +103,16 @@ SIM.vertexSigma = [0.0, 0.0, 0.0, 0.0]
 ################################################################################
 
 ##  set the default calorimeter action
-SIM.action.calo = "Geant4ScintillatorCalorimeterAction"
-
-## List of patterns matching sensitive detectors of type Calorimeter.
-SIM.action.calorimeterSDTypes = ["calorimeter", "DRcaloSiPMSD"]
+if simulateCalo:
+    SIM.action.calo = "Geant4ScintillatorCalorimeterAction"
+    ## List of patterns matching sensitive detectors of type Calorimeter.
+    SIM.action.calorimeterSDTypes = ["calorimeter", "DRcaloSiPMSD"]
+    SIM.action.mapActions["DRcalo"] = "DRCaloSDAction"
+    ## configure regex SD
+    SIM.geometry.regexSensitiveDetector["DRcalo"] = {"Match": ["(core|clad)"], "OutputLevel": 3}
+else:
+    SIM.action.calo = "Geant4VoidSensitiveAction"
+    SIM.action.mapActions["DRcalo"] = "Geant4VoidSensitiveAction"
 
 ##  set the default event action
 SIM.action.event = []
@@ -112,7 +123,6 @@ SIM.action.event = []
 ##
 ##       SIM.action.mapActions['tpc'] = "TPCSDAction"
 ##
-SIM.action.mapActions["DRcalo"] = "DRCaloSDAction"
 
 ## Set the drift chamber action
 SIM.action.mapActions['DCH_v2'] = "Geant4TrackerAction"
@@ -233,9 +243,6 @@ SIM.geometry.enablePrintPlacements = False
 
 ## Print information about Sensitives
 SIM.geometry.enablePrintSensitives = False
-
-## configure regex SD
-SIM.geometry.regexSensitiveDetector["DRcalo"] = {"Match": ["(core|clad)"], "OutputLevel": 3}
 
 ################################################################################
 ## Configuration for the GuineaPig InputFiles
@@ -630,9 +637,8 @@ def setupOpticalPhysics(kernel):
 
     return None
 
-
-SIM.physics.setupUserPhysics(setupOpticalPhysics)
-
+if simulateCalo:
+    SIM.physics.setupUserPhysics(setupOpticalPhysics)
 
 def setupDRCFastSim(kernel):
     from DDG4 import DetectorConstruction, Geant4, PhysicsList
