@@ -14,7 +14,7 @@ cd FCC-config/FCCee/FullSim/IDEA/IDEA_o1_v03/
 ```
 ddsim --enableGun --gun.distribution uniform --gun.energy "10*GeV" --gun.particle e- --numberOfEvents 10 --outputFile IDEA_sim.root --random.enableEventSeed --random.seed 42 --compactFile $K4GEO/FCCee/IDEA/compact/IDEA_o1_v03/IDEA_o1_v03.xml --steeringFile SteeringFile_IDEA_o1_v03.py
 ```
-(if you're not interested in calorimeter hits but only the material, you can use the `SteeringFile_IDEA_o1_v03_withoutCaloHit.py` to speed up)
+(if you're not interested in calorimeter hits but only the material, you can set `simulateCalo = False` to speed up)
 
 ## Running the digitization and reconstruction
 ```
