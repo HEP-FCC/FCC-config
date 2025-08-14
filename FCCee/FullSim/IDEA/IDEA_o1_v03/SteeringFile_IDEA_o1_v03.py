@@ -11,7 +11,7 @@ SIM = DD4hepSimulation()
 ## The compact XML file, or multiple compact files, if the last one is the closer.
 SIM.compactFile = ["../FCCee/IDEA/compact/IDEA_o1_v03/IDEA_o1_v03.xml"]
 ## Lorentz boost for the crossing angle, in radian!
-SIM.crossingAngleBoost = 0.0
+SIM.crossingAngleBoost = 0.015
 SIM.enableDetailedShowerMode = False
 SIM.enableG4GPS = False
 SIM.enableG4Gun = False
