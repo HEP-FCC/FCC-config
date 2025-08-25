@@ -26,16 +26,28 @@ dataFolder = "./"                          # directory containing the calibratio
 
 # - general settings set via CLI
 from k4FWCore.parseArgs import parser
-parser.add_argument("--includeHCal", action="store_true", help="Also digitise HCal hits and create ECAL+HCAL clusters", default=False)
-parser.add_argument("--includeMuon", action="store_true", help="Also digitise muon hits", default=False)
-parser.add_argument("--saveHits", action="store_true", help="Save G4 hits", default=False)
-parser.add_argument("--saveCells", action="store_true", help="Save cell collection", default=False)
-parser.add_argument("--addNoise", action="store_true", help="Add noise to cells (ECAL barrel only)", default=False)
-parser.add_argument("--addCrosstalk", action="store_true", help="Add cross-talk to cells (ECAL barrel only)", default=False)
-parser.add_argument("--addTracks", action="store_true", help="Add reco-level tracks (smeared truth tracks)", default=False)
-parser.add_argument("--calibrateClusters", action="store_true", help="Apply MVA calibration to clusters", default=False)
-parser.add_argument("--runPhotonID", action="store_true", help="Apply photon ID tool to clusters", default=False)
-parser.add_argument("--trkdigi", action="store_true", help="Digitise tracker hits", default=False)
+def str2bool(v):
+    if isinstance(v, bool):
+        return v
+    if v.lower() in ("yes", "true", "t", "y", "1"):
+        return True
+    elif v.lower() in ("no", "false", "f", "n", "0"):
+        return False
+    else:
+        raise argparse.ArgumentTypeError("Boolean value expected.")
+
+parser.add_argument("--includeHCal", type=str2bool, nargs="?", help="Also digitise HCal hits and create ECAL+HCAL clusters", const=True, default=False)
+parser.add_argument("--includeMuon", type=str2bool, nargs="?", help="Also digitise muon hits", const=True, default=False)
+parser.add_argument("--saveHits", type=str2bool, nargs="?", help="Save G4 hits", const=True, default=False)
+parser.add_argument("--saveCells", type=str2bool, nargs="?", help="Save cell collection", const=True, default=False)
+parser.add_argument("--addNoise", type=str2bool, nargs="?", help="Add noise to cells (ECAL barrel only)", const=True, default=False)
+parser.add_argument("--addCrosstalk", type=str2bool, nargs="?", help="Add cross-talk to cells (ECAL barrel only)", const=True, default=False)
+parser.add_argument("--addTracks", type=str2bool, nargs="?", help="Add reco-level tracks (smeared truth tracks)", const=True, default=False)
+parser.add_argument("--doSWClustering", type=str2bool, nargs="?", help="Enable or disable sliding window clustering", const=True, default=True)
+parser.add_argument("--doTopoClustering", type=str2bool, nargs="?", help="Enable or disable topo clustering", const=True, default=True)
+parser.add_argument("--calibrateClusters", type=str2bool, nargs="?", help="Apply MVA calibration to clusters", const=True, default=False)
+parser.add_argument("--runPhotonID", type=str2bool, nargs="?", help="Apply photon ID tool to clusters", const=True, default=False)
+parser.add_argument("--trkdigi", type=str2bool, nargs="?", help="Digitise tracker hits", const=True, default=False)
 
 opts = parser.parse_known_args()[0]
 runHCal = opts.includeHCal                # if false, it will produce only ECAL clusters. if true, it will also produce ECAL+HCAL clusters
@@ -102,8 +114,6 @@ if ecalEndcapSamplingFraction and len(ecalEndcapSamplingFraction) > 0:
 resegmentECalBarrel = False
 
 # - parameters for clustering (could also be made configurable via CLI)
-doSWClustering = True
-doTopoClustering = True
 doCreateClusterCellCollection = True  # create new collection with clustered cells or just link from cluster to original input cell collections (this applies to both SW and Topo cluster cell collections)
 
 # cluster energy corrections
@@ -1031,7 +1041,7 @@ def setupTopoClusters(inputCells,
             TopAlg += [photonIDAlg]
 
 
-if doSWClustering:
+if opts.doSWClustering:
     # SW ECAL barrel clusters
     EMBCaloClusterInputs = {"ECAL_Barrel": ecalBarrelPositionedCellsName}
     EMBCaloClusterReadouts = {"ECAL_Barrel": ecalBarrelReadoutName}
@@ -1111,7 +1121,7 @@ if doSWClustering:
                         False,
                         "MuonSize")
 
-if doTopoClustering:
+if opts.doTopoClustering:
     # ECAL barrel topoclusters
     EMBCaloTopoClusterInputs = {"ECAL_Barrel": ecalBarrelPositionedCellsName}
     EMBCaloTopoClusterReadouts = {"ECAL_Barrel": ecalBarrelReadoutName}
