@@ -26,7 +26,7 @@
 model = SM
 
 # Center of mass energy
-sqrts = 240 GeV
+sqrts = 160 GeV
 
 # Processes 
 
@@ -42,7 +42,7 @@ process proc = e1, E1 => (A, el, neutrino, Wboson) + (A, muons, neutrino, Wboson
 
 
 cuts = let subevt @meA = select if Index > 2 [A] in 
-       all E > 50 GeV [@meA] # signal p(A) = 87 GeV      
+       all E > 15 GeV [@meA] # signal p(A) = 30 GeV      
        and all 0.01 < Dist [@meA, "W+":"W-"]
        and all -0.998750 < cos (Theta) < 0.998750 [@meA]
        and all -0.998750 < cos (Theta) < 0.998750 ["W+":"W-"]
