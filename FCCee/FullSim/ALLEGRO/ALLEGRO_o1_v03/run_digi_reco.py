@@ -114,7 +114,10 @@ if ecalEndcapSamplingFraction and len(ecalEndcapSamplingFraction) > 0:
 resegmentECalBarrel = False
 
 # - parameters for clustering (could also be made configurable via CLI)
+doSWClustering = opts.doSWClustering
+doTopoClustering = opts.doTopoClustering
 doCreateClusterCellCollection = True  # create new collection with clustered cells or just link from cluster to original input cell collections (this applies to both SW and Topo cluster cell collections)
+outputSaveClusters = []  # list of clusters for which we want to create the truth links
 
 # cluster energy corrections
 # simple parametrisations of up/downstream losses for ECAL-only clusters
@@ -247,14 +250,14 @@ if addTracks:
     # Calculate dNdx from tracks
     from Configurables import TrackdNdxDelphesBased
     dNdxFromTracks = TrackdNdxDelphesBased("dNdxFromTracks",
-                                    InputLinkCollection=tracksFromGenParticles.OutputMCRecoTrackParticleAssociation,
-                                    OutputCollection=["DCHdNdxCollection"],
-                                    ZmaxParameterName="DCH_gas_Lhalf",
-                                    ZminParameterName="DCH_gas_Lhalf",
-                                    RminParameterName="DCH_gas_inner_cyl_R",
-                                    RmaxParameterName="DCH_gas_outer_cyl_R",
-                                    FillFactor=1.0,
-                                    OutputLevel=ERROR)
+                                           InputLinkCollection=tracksFromGenParticles.OutputMCRecoTrackParticleAssociation,
+                                           OutputCollection=["DCHdNdxCollection"],
+                                           ZmaxParameterName="DCH_gas_Lhalf",
+                                           ZminParameterName="DCH_gas_Lhalf",
+                                           RminParameterName="DCH_gas_inner_cyl_R",
+                                           RmaxParameterName="DCH_gas_outer_cyl_R",
+                                           FillFactor=1.0,
+                                           OutputLevel=ERROR)
     TopAlg += [dNdxFromTracks]
 
 
@@ -699,21 +702,6 @@ else:
     muonEndcapLinks = ""
 
 
-# Create CaloHit<->MCParticle links (needed for training datasets for MLPF)
-from Configurables import CreateHitTruthLinks
-caloLinks = [ecalBarrelLinks, ecalEndcapLinks]
-if runHCal:
-    caloLinks += [hcalBarrelLinks, hcalEndcapLinks]
-if runMuon:
-    # FIXME: there are muon sim hits without corresponding calo hits... check why...
-    caloLinks += [muonBarrelLinks, muonEndcapLinks]
-createHitParticleLinks = CreateHitTruthLinks("CreateHitParticleLinks",
-                                             cell_hit_links=caloLinks,
-                                             mcparticles="MCParticles",
-                                             cell_mcparticle_links="CaloHitMCParticleLinks",
-                                             OutputLevel=INFO)
-TopAlg += [createHitParticleLinks]
-
 
 # Function that sets up the sequence for producing SW clusters given an input cell collection
 def setupSWClusters(inputCells,
@@ -802,6 +790,7 @@ def setupSWClusters(inputCells,
     clusterAlg.clusters.Path = outputClusters
     clusterAlg.clusterCells.Path = outputClusters.replace("Clusters", "Cluster") + "Cells"
     TopAlg += [clusterAlg]
+    outputSaveClusters.append(outputClusters)
 
     if applyUpDownstreamCorrections:
         # note that this only works for ecal barrel given various hardcoded quantities
@@ -841,6 +830,9 @@ def setupSWClusters(inputCells,
                                                  OutputLevel=INFO
                                                  )
         TopAlg += [augmentClusterAlg]
+        # since the non-decorated version of the clusters will be dropped, we update the list of clusters for which we store the truth links
+        outputSaveClusters.append("Augmented" + clusterAlg.clusters.Path)
+        outputSaveClusters.remove(clusterAlg.clusters.Path)
 
     if applyMVAClusterEnergyCalibration:
         # note that this only works for ecal barrel given various hardcoded quantities
@@ -942,6 +934,7 @@ def setupTopoClusters(inputCells,
                                       createClusterCellCollection=doCreateClusterCellCollection,
                                       OutputLevel=INFO)
     TopAlg += [clusterAlg]
+    outputSaveClusters.append(outputClusters)
 
     if applyUpDownstreamCorrections:
         # note that this only works for ecal barrel given various hardcoded quantities
@@ -980,6 +973,9 @@ def setupTopoClusters(inputCells,
                                                  do_widthTheta_logE_weights=logEWeightInPhotonID,
                                                  OutputLevel=INFO)
         TopAlg += [augmentClusterAlg]
+        # since the non-decorated version of the clusters will be dropped, we update the list of clusters for which we store the truth links
+        outputSaveClusters.append("Augmented" + clusterAlg.clusters.Path)
+        outputSaveClusters.remove(clusterAlg.clusters.Path)
 
         # tool to identify resolved pi0->two photon cluster candidates
         # see: https://indico.cern.ch/event/1483299/contributions/6488594/attachments/3056315/5403634/ALLEGRO_photon_pi0_20250424.pdf
@@ -1041,7 +1037,7 @@ def setupTopoClusters(inputCells,
             TopAlg += [photonIDAlg]
 
 
-if opts.doSWClustering:
+if doSWClustering:
     # SW ECAL barrel clusters
     EMBCaloClusterInputs = {"ECAL_Barrel": ecalBarrelPositionedCellsName}
     EMBCaloClusterReadouts = {"ECAL_Barrel": ecalBarrelReadoutName}
@@ -1121,7 +1117,7 @@ if opts.doSWClustering:
                         False,
                         "MuonSize")
 
-if opts.doTopoClustering:
+if doTopoClustering:
     # ECAL barrel topoclusters
     EMBCaloTopoClusterInputs = {"ECAL_Barrel": ecalBarrelPositionedCellsName}
     EMBCaloTopoClusterReadouts = {"ECAL_Barrel": ecalBarrelReadoutName}
@@ -1189,6 +1185,24 @@ if opts.doTopoClustering:
                           False,
                           False,
                           False)
+
+
+# Create CaloHit<->MCParticle links (needed for training datasets for MLPF)
+# Also store Cluster<->MCParticle links (for truth matching for efficiency and purity studies)
+from Configurables import CreateTruthLinks
+caloLinks = [ecalBarrelLinks, ecalEndcapLinks]
+if runHCal:
+    caloLinks += [hcalBarrelLinks, hcalEndcapLinks]
+if runMuon:
+    caloLinks += [muonBarrelLinks, muonEndcapLinks]
+createTruthLinks = CreateTruthLinks("CreateTruthLinks",
+                                    cell_hit_links=caloLinks,
+                                    mcparticles="MCParticles",
+                                    clusters=outputSaveClusters,
+                                    cell_mcparticle_links="CaloHitMCParticleLinks",
+                                    cluster_mcparticle_links="ClusterMCParticleLinks",
+                                    OutputLevel=DEBUG)
+TopAlg += [createTruthLinks]
 
 
 # Configure the output
