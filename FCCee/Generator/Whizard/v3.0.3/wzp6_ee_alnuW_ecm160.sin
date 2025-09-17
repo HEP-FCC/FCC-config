@@ -53,8 +53,8 @@ beams = e1, E1 => gaussian => isr
 ?keep_beams  = true    
 ?keep_remnants = true
 
-gaussian_spread1 = 0.185%
-gaussian_spread2 = 0.185%
+gaussian_spread1 = 0.105%
+gaussian_spread2 = 0.105%
 
 
 ?isr_handler       = true
