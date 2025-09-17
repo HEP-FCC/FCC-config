@@ -46,6 +46,7 @@ cuts = let subevt @meA = select if Index > 2 [A] in
        and all 0.01 < Dist [@meA, "W+":"W-"]
        and all -0.998750 < cos (Theta) < 0.998750 [@meA]
        and all -0.998750 < cos (Theta) < 0.998750 ["W+":"W-"]
+       and all -0.998750 < cos (Theta) < 0.998750 [el:muons]
     
 
 beams = e1, E1 => gaussian => isr
