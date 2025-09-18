@@ -41,8 +41,16 @@ process proc = e1, E1 =>   ( e3, E1, nue,   nutaubar )
                          + ( e1, E2, numu,  nuebar   )
                          + ( e1, E3, nutau, nuebar   ) { $restrictions = "!H" }
 
-cuts =      (no abs( cos( Theta ) ) > 0.98  [ e1 ])
-        and (no abs( cos( Theta ) ) > 0.98  [ E1 ])
+cuts =      (no abs( cos( Theta ) ) > 0.998750  [ e1 ])
+        and (no abs( cos( Theta ) ) > 0.998750  [ E1 ])
+        and (no abs( cos( Theta ) ) > 0.998750  [ e2 ])
+        and (no abs( cos( Theta ) ) > 0.998750  [ E2 ])
+        and (no abs( cos( Theta ) ) > 0.998750  [ e3 ])
+        and (no abs( cos( Theta ) ) > 0.998750  [ E3 ])
+
+
+
+
 
 beams = e1, E1 => gaussian => isr
 ?keep_beams  = true    
