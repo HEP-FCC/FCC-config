@@ -42,12 +42,12 @@ process proc = e1, E1 =>    ( q, Q )
                           + ( c, C )
                           + ( b, B ) { $restrictions = "!H" }
 
-#cuts =      (no abs( cos( Theta ) ) > 0.98  [ q ])
-#        and (no abs( cos( Theta ) ) > 0.998  [ Q ])
-#        and (no abs( cos( Theta ) ) > 0.998  [ c ])
-#        and (no abs( cos( Theta ) ) > 0.998  [ C ])
-#        and (no abs( cos( Theta ) ) > 0.998  [ b ])
-#        and (no abs( cos( Theta ) ) > 0.998  [ B ])
+#cuts =      (no abs( cos( Theta ) ) > 0.998750  [ q ])
+#        and (no abs( cos( Theta ) ) > 0.998750  [ Q ])
+#        and (no abs( cos( Theta ) ) > 0.998750  [ c ])
+#        and (no abs( cos( Theta ) ) > 0.998750  [ C ])
+#        and (no abs( cos( Theta ) ) > 0.998750  [ b ])
+#        and (no abs( cos( Theta ) ) > 0.998750  [ B ])
 
 beams = e1, E1 => gaussian => isr
 ?keep_beams  = true    

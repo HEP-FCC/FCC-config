@@ -40,12 +40,8 @@ alias Q = U:D:S
 
 process proc = e1, E1 =>  ( e3, E3 ) { $restrictions = "!H" }
 
-cuts =      (no abs( cos( Theta ) ) > 0.98  [ q ])
-        and (no abs( cos( Theta ) ) > 0.98  [ Q ])
-        and (no abs( cos( Theta ) ) > 0.98  [ c ])
-        and (no abs( cos( Theta ) ) > 0.98  [ C ])
-        and (no abs( cos( Theta ) ) > 0.98  [ b ])
-        and (no abs( cos( Theta ) ) > 0.98  [ B ])
+cuts =      (no abs( cos( Theta ) ) > 0.998750  [ e3 ])
+        and (no abs( cos( Theta ) ) > 0.998750  [ E3 ])
 
 beams = e1, E1 => gaussian => isr
 ?keep_beams  = true    

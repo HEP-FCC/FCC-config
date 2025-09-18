@@ -42,8 +42,8 @@ process proc = e1, E1 =>   ( e1, E1,  u, U )
 			 + ( e1, E1,  b, B ) { $restrictions = "!H" }
 
 
-cuts =      (no abs( cos( Theta ) ) > 0.98  [ e1 ])
-        and (no abs( cos( Theta ) ) > 0.98  [ E1 ])
+cuts =      (no abs( cos( Theta ) ) > 0.998750  [ e1 ])
+        and (no abs( cos( Theta ) ) > 0.998750  [ E1 ])
         and (all M > 5 GeV [e1,E1])
         and (all M > 5 GeV [u,U])
         and (all M > 5 GeV [d,D])
