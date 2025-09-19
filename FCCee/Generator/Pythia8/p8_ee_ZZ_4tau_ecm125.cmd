@@ -23,7 +23,7 @@ Beams:sigmaVertexZ = 3.3       !  3.3 mm
 Beams:eCM = 125  ! CM energy of collision
 WeakDoubleBoson:ffbar2gmZgmZ = on
 
-! Z(bb)Z(bb)
+! Z(tautau)Z(tautau)
 23:onMode = off
 23:onIfAny = 15
 
