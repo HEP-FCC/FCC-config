@@ -40,7 +40,7 @@ process proc = e1, E1 => e1, E1, A
 
 
 cuts = let subevt @meA = select if Index > 2 [A] in 
-       all E > 50 GeV [@meA]      
+       all E > 15 GeV [@meA]      
        and all 0.01 < Dist [@meA, e1:E1]
        and all -0.998750 < cos (Theta) < 0.998750 [@meA]
        and all -0.998750 < cos (Theta) < 0.998750 [e1:E1]
