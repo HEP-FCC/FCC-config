@@ -15,7 +15,7 @@ Enddecay
 CDecay Bsbar_SIGNAL
 #
 Decay Mytau-
-  1.00        TAUOLA 5;
+  1.00        TAUOLA 0;
 Enddecay
 CDecay Mytau+
 #
