@@ -1,0 +1,19 @@
+Alias   Bu_SIGNAL   B+
+Alias   Bubar_SIGNAL    B-
+ChargeConj    Bu_SIGNAL   Bubar_SIGNAL
+#
+Alias		MyTau+	tau+
+Alias		MyTau-	tau-
+ChargeConj	MyTau+	MyTau-
+#
+Decay Bu_SIGNAL
+      1.0	MyTau+	nu_tau	SLN;
+Enddecay
+CDecay Bubar_SIGNAL
+#
+Decay MyTau+
+      1.0	TAUOLA 2;
+Enddecay
+CDecay MyTau-
+#
+End
