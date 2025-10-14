@@ -982,10 +982,11 @@ def setupTopoClusters(inputCells,
         if addPi0RecoTool:
             from Configurables import PairCaloClustersPi0
             Pi0RecoAlg = PairCaloClustersPi0(
-                "resolvedPi0FromClusterPair",
+                "resolvedPi0FromClusterPair" + outputClusters,
                 inClusters=augmentClusterAlg.outClusters.Path,
                 unpairedClusters="Unpaired" + augmentClusterAlg.outClusters.Path,
-                reconstructedPi0="ResolvedPi0Particle",
+                pairedClusters='pairedClusters' + augmentClusterAlg.outClusters.Path,
+                reconstructedPi0="ResolvedPi0Particle" + outputClusters,
                 massPeak=0.122201, # values determined from a dedicated study
                 massLow=0.0754493,
                 massHigh=0.153543,
