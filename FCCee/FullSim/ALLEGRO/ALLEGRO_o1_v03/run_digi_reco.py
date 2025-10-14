@@ -272,36 +272,43 @@ if digitiseTrackerHits:
     outerVertexResolution_y = 0.150 / math.sqrt(12)  # [mm], assume ATLASPix3 sensor with 150 µm pitch
     outerVertexResolution_t = 1000  # [ns]
 
-    vtxb_digitizer = VTXdigitizer("VTXBdigitizer",
-                                  inputSimHits="VertexBarrelCollection",
-                                  outputDigiHits="VTXBDigis",
-                                  outputSimDigiAssociation="VTXBSimDigiLinks",
-                                  detectorName="Vertex",
-                                  readoutName="VertexBarrelCollection",
-                                  xResolution=[innerVertexResolution_x, innerVertexResolution_x, innerVertexResolution_x,
-                                               outerVertexResolution_x, outerVertexResolution_x],  # mm, r-phi direction
-                                  yResolution=[innerVertexResolution_y, innerVertexResolution_y, innerVertexResolution_y,
-                                               outerVertexResolution_y, outerVertexResolution_y],  # mm, z direction
-                                  tResolution=[innerVertexResolution_t, innerVertexResolution_t, innerVertexResolution_t,
-                                               outerVertexResolution_t, outerVertexResolution_t],  # ns
-                                  forceHitsOntoSurface=False,
-                                  OutputLevel=INFO
-                                  )
-    TopAlg += [vtxb_digitizer]
+    # digitise vertex hits through "native" DDPlanarDigi
+    from Configurables import DDPlanarDigi
+    vxd_barrel_digitiser_args = {
+        "IsStrip": False,
+        "ResolutionU": [innerVertexResolution_x,innerVertexResolution_x,innerVertexResolution_x, outerVertexResolution_x, outerVertexResolution_x],
+        "ResolutionV": [innerVertexResolution_y,innerVertexResolution_y,innerVertexResolution_y, outerVertexResolution_y, outerVertexResolution_y],
+        "SimTrackHitCollectionName": ["VertexBarrelCollection"],
+        "SimTrkHitRelCollection": ["VTXBSimDigiLinks"],
+        "SubDetectorName": "VertexBarrel",
+        "TrackerHitCollectionName": ["VTXBDigis"],
+    }
 
-    vtxd_digitizer = VTXdigitizer("VTXDdigitizer",
-                                  inputSimHits="VertexEndcapCollection",
-                                  outputDigiHits="VTXDDigis",
-                                  outputSimDigiAssociation="VTXDSimDigiLinks",
-                                  detectorName="Vertex",
-                                  readoutName="VertexEndcapCollection",
-                                  xResolution=[outerVertexResolution_x, outerVertexResolution_x, outerVertexResolution_x],  # mm, r direction
-                                  yResolution=[outerVertexResolution_y, outerVertexResolution_y, outerVertexResolution_y],  # mm, phi direction
-                                  tResolution=[outerVertexResolution_t, outerVertexResolution_t, outerVertexResolution_t],  # ns
-                                  forceHitsOntoSurface=False,
-                                  OutputLevel=INFO
-                                  )
-    TopAlg += [vtxd_digitizer]
+    vxd_endcap_digitiser_args = {
+        "IsStrip": False,
+        "ResolutionU": [outerVertexResolution_x, outerVertexResolution_x, outerVertexResolution_x],
+        "ResolutionV": [outerVertexResolution_y, outerVertexResolution_y, outerVertexResolution_y],
+        "SimTrackHitCollectionName": ["VertexEndcapCollection"],
+        "SimTrkHitRelCollection": ["VTXDSimDigiLinks"],
+        "SubDetectorName": "VertexDisks",
+        "TrackerHitCollectionName": ["VTXDDigis"],
+    }
+
+
+    VXDBarrelDigitiser = DDPlanarDigi(
+        "VXDBarrelDigitiser",
+        **vxd_barrel_digitiser_args,
+        OutputLevel=INFO
+    )
+
+    VXDEndcapDigitiser = DDPlanarDigi(
+        "VXDEndcapDigitiser",
+        **vxd_endcap_digitiser_args,
+        OutputLevel=INFO
+    )
+
+    TopAlg += [ VXDBarrelDigitiser ]
+    TopAlg += [ VXDEndcapDigitiser ]
 
     # digitise silicon wrapper hits
     siWrapperResolution_x = 0.050 / math.sqrt(12)  # [mm]
