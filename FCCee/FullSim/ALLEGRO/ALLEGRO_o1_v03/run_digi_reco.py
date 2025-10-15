@@ -36,8 +36,8 @@ def str2bool(v):
     else:
         raise argparse.ArgumentTypeError("Boolean value expected.")
 
-parser.add_argument("--includeHCal", type=str2bool, nargs="?", help="Also digitise HCal hits and create ECAL+HCAL clusters", const=True, default=False)
-parser.add_argument("--includeMuon", type=str2bool, nargs="?", help="Also digitise muon hits", const=True, default=False)
+parser.add_argument("--includeHCal", type=str2bool, nargs="?", help="Also digitize HCal hits and create ECAL+HCAL clusters", const=True, default=False)
+parser.add_argument("--includeMuon", type=str2bool, nargs="?", help="Also digitize muon hits", const=True, default=False)
 parser.add_argument("--saveHits", type=str2bool, nargs="?", help="Save G4 hits", const=True, default=False)
 parser.add_argument("--saveCells", type=str2bool, nargs="?", help="Save cell collection", const=True, default=False)
 parser.add_argument("--addNoise", type=str2bool, nargs="?", help="Add noise to cells (ECAL barrel only)", const=True, default=False)
@@ -47,17 +47,17 @@ parser.add_argument("--doSWClustering", type=str2bool, nargs="?", help="Enable o
 parser.add_argument("--doTopoClustering", type=str2bool, nargs="?", help="Enable or disable topo clustering", const=True, default=True)
 parser.add_argument("--calibrateClusters", type=str2bool, nargs="?", help="Apply MVA calibration to clusters", const=True, default=False)
 parser.add_argument("--runPhotonID", type=str2bool, nargs="?", help="Apply photon ID tool to clusters", const=True, default=False)
-parser.add_argument("--trkdigi", type=str2bool, nargs="?", help="Digitise tracker hits", const=True, default=False)
-parser.add_argument("--legacytrkdigi", type=str2bool, nargs="?", help="Perform VTXdigitizer-based digitisation of tracker hits", const=True, default=False)
+parser.add_argument("--runVTXDigitizer", type=str2bool, nargs="?", help="Digitize tracker hits", const=True, default=False)
+parser.add_argument("--runLegacyVTXDigitizer", type=str2bool, nargs="?", help="Perform VTXdigitizer-based digitisation of tracker hits", const=True, default=False)
 
 opts = parser.parse_known_args()[0]
-runHCal = opts.includeHCal                # if false, it will produce only ECAL clusters. if true, it will also produce ECAL+HCAL clusters
-runMuon = opts.includeMuon                # if false, it will not digitise muon hits
-addNoise = opts.addNoise                  # add noise or not to the cell energy
-addCrosstalk = opts.addCrosstalk          # switch on/off the crosstalk
-addTracks = opts.addTracks                # add tracks or not
-digitiseTrackerHits = opts.trkdigi        # digitise tracker hits (DDPlanarDigi as default)
-digitiseVTXdigitizer = opts.legacytrkdigi # digitise tracker hits (VTXdigitizer, smear truth)
+runHCal = opts.includeHCal                          # if false, it will produce only ECAL clusters. if true, it will also produce ECAL+HCAL clusters
+runMuon = opts.includeMuon                          # if false, it will not digitize muon hits
+addNoise = opts.addNoise                            # add noise or not to the cell energy
+addCrosstalk = opts.addCrosstalk                    # switch on/off the crosstalk
+addTracks = opts.addTracks                          # add tracks or not
+digitizeTrackerHits = opts.runVTXDigitizer          # digitize tracker hits (DDPlanarDigi as default)
+digitizeVTXdigitizer = opts.runLegacyVTXDigitizer   # digitize tracker hits (VTXdigitizer, smear truth)
 
 # - what to save in output file
 #
@@ -76,7 +76,7 @@ saveClusterCells = True
 
 dropLumiCalHits = True
 
-# for tracker hits there is a single hit/readout cell so not much gain by dropping them, especially if the corresponding digitised cells (smeared hits) have not been added to output
+# for tracker hits there is a single hit/readout cell so not much gain by dropping them, especially if the corresponding digitized cells (smeared hits) have not been added to output
 # dropVertexHits = True
 # dropDCHHits = True
 # dropSiWrHits = True
@@ -222,7 +222,7 @@ io_svc.Input = inputfile
 io_svc.Output = outputfile
 ExtSvc += [EventDataSvc("EventDataSvc")]
 
-if addTracks or digitiseTrackerHits or addNoise:
+if addTracks or digitizeTrackerHits or addNoise:
     ExtSvc += ["RndmGenSvc"]
 
 
@@ -264,7 +264,7 @@ if addTracks:
 
 
 # Tracker digitisation
-if digitiseTrackerHits:
+if digitizeTrackerHits:
     from Configurables import VTXdigitizer
     import math
     # different sensors for inner/outer barrel layers
@@ -276,7 +276,7 @@ if digitiseTrackerHits:
     outerVertexResolution_y = 0.150 / math.sqrt(12)  # [mm], assume ATLASPix3 sensor with 150 µm pitch
     outerVertexResolution_t = 1000  # [ns]
 
-    if digitiseVTXdigitizer:
+    if digitizeVTXdigitizer:
         vtxb_digitizer = VTXdigitizer("VTXBdigitizer",
                                       inputSimHits="VertexBarrelCollection",
                                       outputDigiHits="VTXBDigis",
@@ -309,9 +309,9 @@ if digitiseTrackerHits:
         TopAlg += [vtxd_digitizer]
 
     else:
-        # digitise vertex hits through "native" DDPlanarDigi
+        # digitize vertex hits through "native" DDPlanarDigi
         from Configurables import DDPlanarDigi
-        vxd_barrel_digitiser_args = {
+        vxd_barrel_digitizer_args = {
             "IsStrip": False,
             "ResolutionU": [innerVertexResolution_x,innerVertexResolution_x,innerVertexResolution_x, outerVertexResolution_x, outerVertexResolution_x],
             "ResolutionV": [innerVertexResolution_y,innerVertexResolution_y,innerVertexResolution_y, outerVertexResolution_y, outerVertexResolution_y],
@@ -321,7 +321,7 @@ if digitiseTrackerHits:
             "TrackerHitCollectionName": ["VTXBDigis"],
         }
 
-        vxd_endcap_digitiser_args = {
+        vxd_endcap_digitizer_args = {
             "IsStrip": False,
             "ResolutionU": [outerVertexResolution_x, outerVertexResolution_x, outerVertexResolution_x],
             "ResolutionV": [outerVertexResolution_y, outerVertexResolution_y, outerVertexResolution_y],
@@ -332,22 +332,22 @@ if digitiseTrackerHits:
         }
 
 
-        VXDBarrelDigitiser = DDPlanarDigi(
-            "VXDBarrelDigitiser",
-            **vxd_barrel_digitiser_args,
+        VXDBarrelDigitizer = DDPlanarDigi(
+            "VXDBarrelDigitizer",
+            **vxd_barrel_digitizer_args,
             OutputLevel=INFO
         )
 
-        VXDEndcapDigitiser = DDPlanarDigi(
-            "VXDEndcapDigitiser",
-            **vxd_endcap_digitiser_args,
+        VXDEndcapDigitizer = DDPlanarDigi(
+            "VXDEndcapDigitizer",
+            **vxd_endcap_digitizer_args,
             OutputLevel=INFO
         )
 
-        TopAlg += [ VXDBarrelDigitiser ]
-        TopAlg += [ VXDEndcapDigitiser ]
+        TopAlg += [ VXDBarrelDigitizer ]
+        TopAlg += [ VXDEndcapDigitizer ]
 
-    # digitise silicon wrapper hits
+    # digitize silicon wrapper hits
     siWrapperResolution_x = 0.050 / math.sqrt(12)  # [mm]
     siWrapperResolution_y = 1.0 / math.sqrt(12)  # [mm]
     siWrapperResolution_t = 0.040  # [ns], assume 40 ps timing resolution for a single layer -> Should lead to <30 ps resolution when >1 hit
@@ -675,7 +675,7 @@ if runHCal:
 
 
 # Muon cells [add longitudinal segmentation to detector?]
-# We use the calo digitiser since Pandora and MLPF expect muon hits to be caloHits
+# We use the calo digitizer since Pandora and MLPF expect muon hits to be caloHits
 if runMuon:
     from Configurables import CellPositionsSimpleCylinderPhiThetaSegTool
     muonBarrelReadoutName = "MuonTaggerBarrelPhiTheta"
