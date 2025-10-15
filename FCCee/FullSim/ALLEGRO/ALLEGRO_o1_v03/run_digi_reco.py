@@ -47,8 +47,8 @@ parser.add_argument("--doSWClustering", type=str2bool, nargs="?", help="Enable o
 parser.add_argument("--doTopoClustering", type=str2bool, nargs="?", help="Enable or disable topo clustering", const=True, default=True)
 parser.add_argument("--calibrateClusters", type=str2bool, nargs="?", help="Apply MVA calibration to clusters", const=True, default=False)
 parser.add_argument("--runPhotonID", type=str2bool, nargs="?", help="Apply photon ID tool to clusters", const=True, default=False)
-parser.add_argument("--runDDPlanarDigi", type=str2bool, nargs="?", help="Digitize tracker hits", const=True, default=False)
-parser.add_argument("--runLegacyVTXDigitizer", type=str2bool, nargs="?", help="Perform VTXdigitizer-based digitisation of tracker hits", const=True, default=False)
+parser.add_argument("--runTrkHitDigitization", type=str2bool, nargs="?", help="Digitize tracker hits", const=True, default=False)
+parser.add_argument("--useLegacyVTXDigitizer", type=str2bool, nargs="?", help="Perform VTXdigitizer-based digitisation of tracker hits", const=True, default=False)
 
 opts = parser.parse_known_args()[0]
 runHCal = opts.includeHCal                          # if false, it will produce only ECAL clusters. if true, it will also produce ECAL+HCAL clusters
@@ -56,8 +56,8 @@ runMuon = opts.includeMuon                          # if false, it will not digi
 addNoise = opts.addNoise                            # add noise or not to the cell energy
 addCrosstalk = opts.addCrosstalk                    # switch on/off the crosstalk
 addTracks = opts.addTracks                          # add tracks or not
-digitizeTrackerHits = opts.runDDPlanarDigi          # digitize tracker hits (DDPlanarDigi as default)
-digitizeVTXdigitizer = opts.runLegacyVTXDigitizer   # digitize tracker hits (VTXdigitizer, smear truth)
+digitizeTrackerHits = opts.runTrkHitDigitization          # digitize tracker hits (DDPlanarDigi as default)
+digitizeVTXdigitizer = opts.useLegacyVTXDigitizer   # digitize tracker hits (VTXdigitizer, smear truth)
 
 # - what to save in output file
 #
