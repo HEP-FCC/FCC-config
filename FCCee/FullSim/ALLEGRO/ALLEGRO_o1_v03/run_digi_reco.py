@@ -48,6 +48,7 @@ parser.add_argument("--doTopoClustering", type=str2bool, nargs="?", help="Enable
 parser.add_argument("--calibrateClusters", type=str2bool, nargs="?", help="Apply MVA calibration to clusters", const=True, default=False)
 parser.add_argument("--runPhotonID", type=str2bool, nargs="?", help="Apply photon ID tool to clusters", const=True, default=False)
 parser.add_argument("--trkdigi", type=str2bool, nargs="?", help="Digitise tracker hits", const=True, default=False)
+parser.add_argument("--legacytrkdigi", type=str2bool, nargs="?", help="Perform VTXdigitizer-based digitisation of tracker hits", const=True, default=False)
 
 opts = parser.parse_known_args()[0]
 runHCal = opts.includeHCal                # if false, it will produce only ECAL clusters. if true, it will also produce ECAL+HCAL clusters
@@ -55,7 +56,8 @@ runMuon = opts.includeMuon                # if false, it will not digitise muon 
 addNoise = opts.addNoise                  # add noise or not to the cell energy
 addCrosstalk = opts.addCrosstalk          # switch on/off the crosstalk
 addTracks = opts.addTracks                # add tracks or not
-digitiseTrackerHits = opts.trkdigi        # digitise tracker hits (smear truth)
+digitiseTrackerHits = opts.trkdigi        # digitise tracker hits (DDPlanarDigi as default)
+digitiseVTXdigitizer = opts.legacytrkdigi # digitise tracker hits (VTXdigitizer, smear truth)
 
 # - what to save in output file
 #
@@ -220,7 +222,7 @@ io_svc.Input = inputfile
 io_svc.Output = outputfile
 ExtSvc += [EventDataSvc("EventDataSvc")]
 
-if addTracks or digitiseTrackerHits or addNoise:
+if addTracks or digitiseTrackerHits or digitiseVTXdigitizer or addNoise:
     ExtSvc += ["RndmGenSvc"]
 
 
@@ -262,7 +264,7 @@ if addTracks:
 
 
 # Tracker digitisation
-if digitiseTrackerHits:
+if digitiseTrackerHits or digitiseVTXdigitizer:
     from Configurables import VTXdigitizer
     import math
     innerVertexResolution_x = 0.003  # [mm], assume 3 µm resolution for ARCADIA sensor
@@ -272,43 +274,76 @@ if digitiseTrackerHits:
     outerVertexResolution_y = 0.150 / math.sqrt(12)  # [mm], assume ATLASPix3 sensor with 150 µm pitch
     outerVertexResolution_t = 1000  # [ns]
 
-    # digitise vertex hits through "native" DDPlanarDigi
-    from Configurables import DDPlanarDigi
-    vxd_barrel_digitiser_args = {
-        "IsStrip": False,
-        "ResolutionU": [innerVertexResolution_x,innerVertexResolution_x,innerVertexResolution_x, outerVertexResolution_x, outerVertexResolution_x],
-        "ResolutionV": [innerVertexResolution_y,innerVertexResolution_y,innerVertexResolution_y, outerVertexResolution_y, outerVertexResolution_y],
-        "SimTrackHitCollectionName": ["VertexBarrelCollection"],
-        "SimTrkHitRelCollection": ["VTXBSimDigiLinks"],
-        "SubDetectorName": "VertexBarrel",
-        "TrackerHitCollectionName": ["VTXBDigis"],
-    }
+    if digitiseVTXdigitizer:
+        vtxb_digitizer = VTXdigitizer("VTXBdigitizer",
+                                      inputSimHits="VertexBarrelCollection",
+                                      outputDigiHits="VTXBDigis",
+                                      outputSimDigiAssociation="VTXBSimDigiLinks",
+                                      detectorName="Vertex",
+                                      readoutName="VertexBarrelCollection",
+                                      xResolution=[innerVertexResolution_x, innerVertexResolution_x, innerVertexResolution_x,
+                                                   outerVertexResolution_x, outerVertexResolution_x],  # mm, r-phi direction
+                                      yResolution=[innerVertexResolution_y, innerVertexResolution_y, innerVertexResolution_y,
+                                                   outerVertexResolution_y, outerVertexResolution_y],  # mm, z direction
+                                      tResolution=[innerVertexResolution_t, innerVertexResolution_t, innerVertexResolution_t,
+                                                   outerVertexResolution_t, outerVertexResolution_t],  # ns
+                                      forceHitsOntoSurface=False,
+                                      OutputLevel=INFO
+                                      )
+        TopAlg += [vtxb_digitizer]
 
-    vxd_endcap_digitiser_args = {
-        "IsStrip": False,
-        "ResolutionU": [outerVertexResolution_x, outerVertexResolution_x, outerVertexResolution_x],
-        "ResolutionV": [outerVertexResolution_y, outerVertexResolution_y, outerVertexResolution_y],
-        "SimTrackHitCollectionName": ["VertexEndcapCollection"],
-        "SimTrkHitRelCollection": ["VTXDSimDigiLinks"],
-        "SubDetectorName": "VertexDisks",
-        "TrackerHitCollectionName": ["VTXDDigis"],
-    }
+        vtxd_digitizer = VTXdigitizer("VTXDdigitizer",
+                                      inputSimHits="VertexEndcapCollection",
+                                      outputDigiHits="VTXDDigis",
+                                      outputSimDigiAssociation="VTXDSimDigiLinks",
+                                      detectorName="Vertex",
+                                      readoutName="VertexEndcapCollection",
+                                      xResolution=[outerVertexResolution_x, outerVertexResolution_x, outerVertexResolution_x],  # mm, r direction
+                                      yResolution=[outerVertexResolution_y, outerVertexResolution_y, outerVertexResolution_y],  # mm, phi direction
+                                      tResolution=[outerVertexResolution_t, outerVertexResolution_t, outerVertexResolution_t],  # ns
+                                      forceHitsOntoSurface=False,
+                                      OutputLevel=INFO
+                                      )
+        TopAlg += [vtxd_digitizer]
+
+    else:
+        # digitise vertex hits through "native" DDPlanarDigi
+        from Configurables import DDPlanarDigi
+        vxd_barrel_digitiser_args = {
+            "IsStrip": False,
+            "ResolutionU": [innerVertexResolution_x,innerVertexResolution_x,innerVertexResolution_x, outerVertexResolution_x, outerVertexResolution_x],
+            "ResolutionV": [innerVertexResolution_y,innerVertexResolution_y,innerVertexResolution_y, outerVertexResolution_y, outerVertexResolution_y],
+            "SimTrackHitCollectionName": ["VertexBarrelCollection"],
+            "SimTrkHitRelCollection": ["VTXBSimDigiLinks"],
+            "SubDetectorName": "VertexBarrel",
+            "TrackerHitCollectionName": ["VTXBDigis"],
+        }
+
+        vxd_endcap_digitiser_args = {
+            "IsStrip": False,
+            "ResolutionU": [outerVertexResolution_x, outerVertexResolution_x, outerVertexResolution_x],
+            "ResolutionV": [outerVertexResolution_y, outerVertexResolution_y, outerVertexResolution_y],
+            "SimTrackHitCollectionName": ["VertexEndcapCollection"],
+            "SimTrkHitRelCollection": ["VTXDSimDigiLinks"],
+            "SubDetectorName": "VertexDisks",
+            "TrackerHitCollectionName": ["VTXDDigis"],
+        }
 
 
-    VXDBarrelDigitiser = DDPlanarDigi(
-        "VXDBarrelDigitiser",
-        **vxd_barrel_digitiser_args,
-        OutputLevel=INFO
-    )
+        VXDBarrelDigitiser = DDPlanarDigi(
+            "VXDBarrelDigitiser",
+            **vxd_barrel_digitiser_args,
+            OutputLevel=INFO
+        )
 
-    VXDEndcapDigitiser = DDPlanarDigi(
-        "VXDEndcapDigitiser",
-        **vxd_endcap_digitiser_args,
-        OutputLevel=INFO
-    )
+        VXDEndcapDigitiser = DDPlanarDigi(
+            "VXDEndcapDigitiser",
+            **vxd_endcap_digitiser_args,
+            OutputLevel=INFO
+        )
 
-    TopAlg += [ VXDBarrelDigitiser ]
-    TopAlg += [ VXDEndcapDigitiser ]
+        TopAlg += [ VXDBarrelDigitiser ]
+        TopAlg += [ VXDEndcapDigitiser ]
 
     # digitise silicon wrapper hits
     siWrapperResolution_x = 0.050 / math.sqrt(12)  # [mm]
