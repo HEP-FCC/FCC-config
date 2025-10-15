@@ -267,6 +267,8 @@ if addTracks:
 if digitiseTrackerHits or digitiseVTXdigitizer:
     from Configurables import VTXdigitizer
     import math
+    # different sensors for inner/outer barrel layers
+    # see https://indico.cern.ch/event/1244371/contributions/5350233
     innerVertexResolution_x = 0.003  # [mm], assume 3 µm resolution for ARCADIA sensor
     innerVertexResolution_y = 0.003  # [mm], assume 3 µm resolution for ARCADIA sensor
     innerVertexResolution_t = 1000  # [ns]
