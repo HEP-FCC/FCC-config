@@ -222,7 +222,7 @@ io_svc.Input = inputfile
 io_svc.Output = outputfile
 ExtSvc += [EventDataSvc("EventDataSvc")]
 
-if addTracks or digitiseTrackerHits or digitiseVTXdigitizer or addNoise:
+if addTracks or digitiseTrackerHits or addNoise:
     ExtSvc += ["RndmGenSvc"]
 
 
@@ -264,7 +264,7 @@ if addTracks:
 
 
 # Tracker digitisation
-if digitiseTrackerHits or digitiseVTXdigitizer:
+if digitiseTrackerHits:
     from Configurables import VTXdigitizer
     import math
     # different sensors for inner/outer barrel layers
