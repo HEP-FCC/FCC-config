@@ -35,10 +35,11 @@ sqrts = 365 GeV
 # ee -> WWgamma
 alias el = e1:E1
 alias muons = e2:E2
+alias taus = e3:E3
 alias Wboson = "W+":"W-"
-alias neutrino = nue:numu:nuebar:numubar
+alias neutrino = nue:numu:nuebar:numubar:nutau:nutaubar
 
-process proc = e1, E1 => (A, el, neutrino, Wboson) + (A, muons, neutrino, Wboson)
+process proc = e1, E1 => (A, el, neutrino, Wboson) + (A, muons, neutrino, Wboson) + (A, taus, neutrino, Wboson)
 
 
 cuts = let subevt @meA = select if Index > 2 [A] in 
@@ -46,7 +47,7 @@ cuts = let subevt @meA = select if Index > 2 [A] in
        and all 0.01 < Dist [@meA, "W+":"W-"]
        and all -0.998750 < cos (Theta) < 0.998750 [@meA]
        and all -0.998750 < cos (Theta) < 0.998750 ["W+":"W-"]
-       and all -0.998750 < cos (Theta) < 0.998750 [el:muons]
+       and all -0.998750 < cos (Theta) < 0.998750 [el:muons:taus]
     
 
 beams = e1, E1 => gaussian => isr
