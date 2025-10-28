@@ -36,8 +36,8 @@ def str2bool(v):
     else:
         raise argparse.ArgumentTypeError("Boolean value expected.")
 
-parser.add_argument("--includeHCal", type=str2bool, nargs="?", help="Also digitise HCal hits and create ECAL+HCAL clusters", const=True, default=False)
-parser.add_argument("--includeMuon", type=str2bool, nargs="?", help="Also digitise muon hits", const=True, default=False)
+parser.add_argument("--includeHCal", type=str2bool, nargs="?", help="Also digitize HCal hits and create ECAL+HCAL clusters", const=True, default=False)
+parser.add_argument("--includeMuon", type=str2bool, nargs="?", help="Also digitize muon hits", const=True, default=False)
 parser.add_argument("--saveHits", type=str2bool, nargs="?", help="Save G4 hits", const=True, default=False)
 parser.add_argument("--saveCells", type=str2bool, nargs="?", help="Save cell collection", const=True, default=False)
 parser.add_argument("--addNoise", type=str2bool, nargs="?", help="Add noise to cells (ECAL barrel only)", const=True, default=False)
