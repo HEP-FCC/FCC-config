@@ -36,28 +36,30 @@ def str2bool(v):
     else:
         raise argparse.ArgumentTypeError("Boolean value expected.")
 
-parser.add_argument("--includeHCal", type=str2bool, nargs="?", help="Also digitize HCal hits and create ECAL+HCAL clusters", const=True, default=False)
-parser.add_argument("--includeMuon", type=str2bool, nargs="?", help="Also digitize muon hits", const=True, default=False)
+parser.add_argument("--includeHCal", type=str2bool, nargs="?", help="Also digitise HCal hits and create ECAL+HCAL clusters", const=True, default=False)
+parser.add_argument("--includeMuon", type=str2bool, nargs="?", help="Also digitise muon hits", const=True, default=False)
 parser.add_argument("--saveHits", type=str2bool, nargs="?", help="Save G4 hits", const=True, default=False)
 parser.add_argument("--saveCells", type=str2bool, nargs="?", help="Save cell collection", const=True, default=False)
 parser.add_argument("--addNoise", type=str2bool, nargs="?", help="Add noise to cells (ECAL barrel only)", const=True, default=False)
 parser.add_argument("--addCrosstalk", type=str2bool, nargs="?", help="Add cross-talk to cells (ECAL barrel only)", const=True, default=False)
 parser.add_argument("--addTracks", type=str2bool, nargs="?", help="Add reco-level tracks (smeared truth tracks)", const=True, default=False)
 parser.add_argument("--doSWClustering", type=str2bool, nargs="?", help="Enable or disable sliding window clustering", const=True, default=True)
+parser.add_argument("--createClusterCellCollections", type=str2bool, nargs="?", help="Create new cluster cell collections or just link clusters to cells in standard cell collections", const=True, default=True)
 parser.add_argument("--doTopoClustering", type=str2bool, nargs="?", help="Enable or disable topo clustering", const=True, default=True)
 parser.add_argument("--calibrateClusters", type=str2bool, nargs="?", help="Apply MVA calibration to clusters", const=True, default=False)
+parser.add_argument("--reconstructPi0s", type=str2bool, nargs="?", help="Search for cluster pairs consistent with the pi0 hypothesis", const=True, default=True)
 parser.add_argument("--runPhotonID", type=str2bool, nargs="?", help="Apply photon ID tool to clusters", const=True, default=False)
-parser.add_argument("--runTrkHitDigitization", type=str2bool, nargs="?", help="Digitize tracker hits", const=True, default=False)
+parser.add_argument("--runTrkHitDigitization", type=str2bool, nargs="?", help="Digitise tracker hits", const=True, default=False)
 parser.add_argument("--useLegacyVTXDigitizer", type=str2bool, nargs="?", help="Perform VTXdigitizer-based digitisation of tracker hits", const=True, default=False)
 
 opts = parser.parse_known_args()[0]
 runHCal = opts.includeHCal                          # if false, it will produce only ECAL clusters. if true, it will also produce ECAL+HCAL clusters
-runMuon = opts.includeMuon                          # if false, it will not digitize muon hits
+runMuon = opts.includeMuon                          # if false, it will not digitise muon hits
 addNoise = opts.addNoise                            # add noise or not to the cell energy
 addCrosstalk = opts.addCrosstalk                    # switch on/off the crosstalk
 addTracks = opts.addTracks                          # add tracks or not
-digitizeTrackerHits = opts.runTrkHitDigitization          # digitize tracker hits (DDPlanarDigi as default)
-digitizeVTXdigitizer = opts.useLegacyVTXDigitizer   # digitize tracker hits (VTXdigitizer, smear truth)
+digitizeTrackerHits = opts.runTrkHitDigitization    # digitise tracker hits (DDPlanarDigi as default)
+digitizeVTXdigitizer = opts.useLegacyVTXDigitizer   # digitise tracker hits (VTXdigitizer, smear truth)
 
 # - what to save in output file
 #
@@ -70,13 +72,11 @@ dropUncalibratedCells = True
 # cluster cells are not needed for the training of the MVA energy regression nor the photon ID since needed quantities are stored in cluster shapeParameters
 saveHits = opts.saveHits
 saveCells = opts.saveCells
-# saveHits = False
-# saveCells = False
 saveClusterCells = True
 
 dropLumiCalHits = True
 
-# for tracker hits there is a single hit/readout cell so not much gain by dropping them, especially if the corresponding digitized cells (smeared hits) have not been added to output
+# for tracker hits there is a single hit/readout cell so not much gain by dropping them, especially if the corresponding digitised cells (smeared hits) have not been added to output
 # dropVertexHits = True
 # dropDCHHits = True
 # dropSiWrHits = True
@@ -118,7 +118,8 @@ resegmentECalBarrel = False
 # - parameters for clustering (could also be made configurable via CLI)
 doSWClustering = opts.doSWClustering
 doTopoClustering = opts.doTopoClustering
-doCreateClusterCellCollection = True  # create new collection with clustered cells or just link from cluster to original input cell collections (this applies to both SW and Topo cluster cell collections)
+doCreateClusterCellCollection = opts.createClusterCellCollections  # create new collection with clustered cells or just link from cluster to original input cell collections
+                                                                   # this applies to both SW and Topo cluster cell collections
 outputSaveClusters = []  # list of clusters for which we want to create the truth links
 
 # cluster energy corrections
@@ -144,7 +145,7 @@ runPhotonIDTool = opts.runPhotonID
 logEWeightInPhotonID = False
 
 # resolved pi0 reconstruction by cluster pairing
-addPi0RecoTool = True
+addPi0RecoTool = opts.reconstructPi0s
 
 #
 # ALGORITHMS AND SERVICES SETUP
@@ -309,7 +310,7 @@ if digitizeTrackerHits:
         TopAlg += [vtxd_digitizer]
 
     else:
-        # digitize vertex hits through "native" DDPlanarDigi
+        # digitise vertex hits through "native" DDPlanarDigi
         from Configurables import DDPlanarDigi
         vxd_barrel_digitizer_args = {
             "IsStrip": False,
@@ -347,7 +348,7 @@ if digitizeTrackerHits:
         TopAlg += [ VXDBarrelDigitizer ]
         TopAlg += [ VXDEndcapDigitizer ]
 
-    # digitize silicon wrapper hits
+    # digitise silicon wrapper hits
     siWrapperResolution_x = 0.050 / math.sqrt(12)  # [mm]
     siWrapperResolution_y = 1.0 / math.sqrt(12)  # [mm]
     siWrapperResolution_t = 0.040  # [ns], assume 40 ps timing resolution for a single layer -> Should lead to <30 ps resolution when >1 hit
@@ -675,7 +676,7 @@ if runHCal:
 
 
 # Muon cells [add longitudinal segmentation to detector?]
-# We use the calo digitizer since Pandora and MLPF expect muon hits to be caloHits
+# We use the calo digitiser since Pandora and MLPF expect muon hits to be caloHits
 if runMuon:
     from Configurables import CellPositionsSimpleCylinderPhiThetaSegTool
     muonBarrelReadoutName = "MuonTaggerBarrelPhiTheta"
@@ -1029,7 +1030,7 @@ def setupTopoClusters(inputCells,
                 "resolvedPi0FromClusterPair" + outputClusters,
                 inClusters=augmentClusterAlg.outClusters.Path,
                 unpairedClusters="Unpaired" + augmentClusterAlg.outClusters.Path,
-                pairedClusters='pairedClusters' + augmentClusterAlg.outClusters.Path,
+                pairedClusters="Paired" + augmentClusterAlg.outClusters.Path,
                 reconstructedPi0="ResolvedPi0Particle" + outputClusters,
                 massPeak=0.122201, # values determined from a dedicated study
                 massLow=0.0754493,
