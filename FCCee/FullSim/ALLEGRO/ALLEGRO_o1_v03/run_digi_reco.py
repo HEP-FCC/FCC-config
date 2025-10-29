@@ -44,8 +44,10 @@ parser.add_argument("--addNoise", type=str2bool, nargs="?", help="Add noise to c
 parser.add_argument("--addCrosstalk", type=str2bool, nargs="?", help="Add cross-talk to cells (ECAL barrel only)", const=True, default=False)
 parser.add_argument("--addTracks", type=str2bool, nargs="?", help="Add reco-level tracks (smeared truth tracks)", const=True, default=False)
 parser.add_argument("--doSWClustering", type=str2bool, nargs="?", help="Enable or disable sliding window clustering", const=True, default=True)
+parser.add_argument("--createClusterCellCollections", type=str2bool, nargs="?", help="Create new cluster cell collections or just link clusters to cells in standard cell collections", const=True, default=True)
 parser.add_argument("--doTopoClustering", type=str2bool, nargs="?", help="Enable or disable topo clustering", const=True, default=True)
 parser.add_argument("--calibrateClusters", type=str2bool, nargs="?", help="Apply MVA calibration to clusters", const=True, default=False)
+parser.add_argument("--reconstructPi0s", type=str2bool, nargs="?", help="Search for cluster pairs consistent with the pi0 hypothesis", const=True, default=True)
 parser.add_argument("--runPhotonID", type=str2bool, nargs="?", help="Apply photon ID tool to clusters", const=True, default=False)
 parser.add_argument("--runTrkHitDigitization", type=str2bool, nargs="?", help="Digitize tracker hits", const=True, default=False)
 parser.add_argument("--useLegacyVTXDigitizer", type=str2bool, nargs="?", help="Perform VTXdigitizer-based digitisation of tracker hits", const=True, default=False)
@@ -56,7 +58,7 @@ runMuon = opts.includeMuon                          # if false, it will not digi
 addNoise = opts.addNoise                            # add noise or not to the cell energy
 addCrosstalk = opts.addCrosstalk                    # switch on/off the crosstalk
 addTracks = opts.addTracks                          # add tracks or not
-digitizeTrackerHits = opts.runTrkHitDigitization          # digitize tracker hits (DDPlanarDigi as default)
+digitizeTrackerHits = opts.runTrkHitDigitization    # digitize tracker hits (DDPlanarDigi as default)
 digitizeVTXdigitizer = opts.useLegacyVTXDigitizer   # digitize tracker hits (VTXdigitizer, smear truth)
 
 # - what to save in output file
@@ -70,8 +72,6 @@ dropUncalibratedCells = True
 # cluster cells are not needed for the training of the MVA energy regression nor the photon ID since needed quantities are stored in cluster shapeParameters
 saveHits = opts.saveHits
 saveCells = opts.saveCells
-# saveHits = False
-# saveCells = False
 saveClusterCells = True
 
 dropLumiCalHits = True
@@ -118,7 +118,8 @@ resegmentECalBarrel = False
 # - parameters for clustering (could also be made configurable via CLI)
 doSWClustering = opts.doSWClustering
 doTopoClustering = opts.doTopoClustering
-doCreateClusterCellCollection = True  # create new collection with clustered cells or just link from cluster to original input cell collections (this applies to both SW and Topo cluster cell collections)
+doCreateClusterCellCollection = opts.createClusterCellCollections  # create new collection with clustered cells or just link from cluster to original input cell collections
+                                                                   # this applies to both SW and Topo cluster cell collections
 outputSaveClusters = []  # list of clusters for which we want to create the truth links
 
 # cluster energy corrections
@@ -144,7 +145,7 @@ runPhotonIDTool = opts.runPhotonID
 logEWeightInPhotonID = False
 
 # resolved pi0 reconstruction by cluster pairing
-addPi0RecoTool = True
+addPi0RecoTool = opts.reconstructPi0s
 
 #
 # ALGORITHMS AND SERVICES SETUP
@@ -1029,7 +1030,7 @@ def setupTopoClusters(inputCells,
                 "resolvedPi0FromClusterPair" + outputClusters,
                 inClusters=augmentClusterAlg.outClusters.Path,
                 unpairedClusters="Unpaired" + augmentClusterAlg.outClusters.Path,
-                pairedClusters='pairedClusters' + augmentClusterAlg.outClusters.Path,
+                pairedClusters="Paired" + augmentClusterAlg.outClusters.Path,
                 reconstructedPi0="ResolvedPi0Particle" + outputClusters,
                 massPeak=0.122201, # values determined from a dedicated study
                 massLow=0.0754493,
