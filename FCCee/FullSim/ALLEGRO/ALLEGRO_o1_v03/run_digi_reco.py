@@ -425,7 +425,7 @@ if runTrkHitDigitization:
     from Configurables import UniqueIDGenSvc
     ExtSvc += [UniqueIDGenSvc("uidSvc")]
     from Configurables import DCHdigi_v01
-    # "https://fccsw.web.cern.ch/fccsw/filesFoSimDigiReco/IDEA/DataAlgFORGEANT.root"
+    # "https://fccsw.web.cern.ch/fccsw/filesForSimDigiReco/IDEA/DataAlgFORGEANT.root"
     dch_digitizer = DCHdigi_v01("DCHdigi",
                                 DCH_simhits=["DCHCollection"],
                                 DCH_name="DCH_v2",
