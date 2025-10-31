@@ -210,7 +210,11 @@ sipmEdep = SimulateSiPMwithEdep("SimulateSiPMwithEdep",
     ],
     # empirical value to keep (scint npe / ceren npe) =~ 5
     scintYield = 0.565,
-    scaleADC = 0.000366 # Cheren scale ADC / 5
+    scaleADC = 0.0003897,
+    threshold = 1.5,
+    params = {"ccgv" : 0.25},
+    gateLength = 80., # ns
+    SNR = 14., # gain(10um)/gain(15um) = 0.5
 )
 
 from Configurables import SimulateSiPMwithOpticalPhoton
@@ -229,19 +233,28 @@ sipmOptical = SimulateSiPMwithOpticalPhoton("SimulateSiPMwithOpticalPhoton",
         540., 530., 520., 510., 500.,
         490., 480., 470., 460., 450.,
         440., 430., 420., 400., 350.,
-        300.
+        300., 280.
     ],
-    # Hamamatsu S14160-1310PS
+    # Hamamatsu S14160-1315PS
     sipmEfficiency = [
-        0.02, 0.025, 0.045, 0.06, 0.0675,
-        0.075, 0.0925, 0.11, 0.125, 0.14,
-        0.146, 0.152, 0.158, 0.164, 0.17,
-        0.173, 0.176, 0.178, 0.179, 0.18,
-        0.181, 0.182, 0.183, 0.184, 0.18,
-        0.173, 0.166, 0.158, 0.15, 0.12,
-        0.05
+        0.03, 0.05, 0.07, 0.1, 0.13,
+        0.14, 0.16, 0.19, 0.21, 0.23,
+        0.238, 0.246, 0.254, 0.262, 0.27,
+        0.28, 0.29, 0.3, 0.31, 0.32,
+        0.322, 0.324, 0.326, 0.328, 0.33,
+        0.33, 0.32, 0.30, 0.27, 0.22,
+        0.12, 0.
     ],
-    scaleADC = 0.00178
+    scaleADC = 0.0005762,
+    threshold = 1.5,
+    cellpitch = 15.,
+    falltimeFast = 1.7, # ns
+    gateLength = 80., # ns
+    params = {
+        "ccgv" : 0.15,
+        "falltimeslow" : 15., # ns
+        "slowcomponentfraction" : 0.5
+    },
 )
 
 # RNG for sipm emulation (TODO harmonize RNG with other modules)
@@ -286,7 +299,13 @@ rndmGenSvc = RndmGenSvc("RndmGenSvc",
 )
 
 ################ Output
-io_svc.outputCommands = ["keep *"]
+io_svc.outputCommands = [
+  "keep *",
+  "drop *scintContrib*",
+  "drop *Waveform*",
+  "drop *DRcaloSiPMreadoutTimeStruct*",
+  "drop *DRcaloSiPMreadoutWaveLen*"
+]
 
 # Profiling
 from Configurables import AuditorSvc, ChronoAuditor, UniqueIDGenSvc
