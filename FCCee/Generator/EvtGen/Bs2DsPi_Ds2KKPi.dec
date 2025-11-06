@@ -1,0 +1,19 @@
+# ==============================================
+#  Bs0 -> Ds- pi+
+#        with Ds- -> K+K-pi-
+# ==============================================
+
+# --- Bs decay
+Decay B_s0
+    1.000   D_s-   pi+    PHSP;
+Enddecay
+CDecay anti-B_s0
+
+# --- D_s decays use PHSP 
+Decay D_s-
+    1.000   K+ K- pi-     PHSP;
+Enddecay
+CDecay D_s+
+
+End
+

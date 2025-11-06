@@ -1,0 +1,18 @@
+# ==============================================
+#  B0 -> J/psi K_S0 
+#       with J/psi -> ee and J/psi -> mumu 
+#       with K_S0 decay as in DECAY.DEC 
+# ==============================================
+
+Decay B0
+    1.000   J/psi   K_S0   SVS;
+Enddecay
+CDecay anti-B0
+
+# --- J/psi decays (50% to muons, 50% to electrons)
+Decay J/psi
+    0.500   mu+   mu-      PHOTOS  VLL;
+    0.500   e+    e-       PHOTOS  VLL;
+Enddecay
+
+End

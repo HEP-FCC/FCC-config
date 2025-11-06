@@ -1,0 +1,24 @@
+# ==============================================
+# B0bar -> D0 KS0 
+#       with D0 -> K+ K-
+# ==============================================
+
+Decay anti-B_s0 
+    1.000   D0  K_S0 PHSP;
+Enddecay
+CDecay B_s0
+
+Decay D0 
+    1.000   K+  K-  PHSP;
+Enddecay
+CDecay anti-D0
+
+# --- K_S0 decays (with PDG branching ratios)
+Decay K_S0
+    0.6920   pi+   pi-     PHSP;
+    0.3069   pi0   pi0     PHSP;
+    # We could include rare decays if desired 
+    # 0.0007   pi-   e+   nu_e   PHSP;
+Enddecay
+
+End
