@@ -3,17 +3,25 @@
 #          with D0 -> KK
 # ==============================================
 
-Decay anti-B0 
-    1.000   D0  pi0 PHSP;
-Enddecay
-CDecay B0
+Alias MyB0       B0
+Alias Myanti-B0  anti-B0
+ChargeConj MyB0  Myanti-B0
+Alias MyD0       D0
+Alias Myanti-D0  anti-D0
+ChargeConj MyD0  Myanti-D0
+Alias Mypi0 pi0
 
-Decay D0 
+Decay Myanti-B0 
+    1.000   MyD0  Mypi0 PHSP;
+Enddecay
+CDecay MyB0
+
+Decay MyD0 
     1.000   K+  K-  PHSP;
 Enddecay
-CDecay anti-D0
+CDecay Myanti-D0
 
-Decay pi0
+Decay Mypi0
     1.000 gamma gamma PHSP;
 Enddecay
 

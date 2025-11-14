@@ -5,6 +5,14 @@
 #  Uses SVV HELAMP 
 # ==============================================
 
+Alias MyB0       B0
+Alias Myanti-B0  anti-B0
+ChargeConj MyB0  Myanti-B0
+Alias MyJ/psi    J/psi
+Alias MyK*0      K*0
+Alias MyantiK*0  anti-K*0
+ChargeConj MyK*0 MyantiK*0
+
 Define Hp 0.159
 Define Hz 0.775
 Define Hm 0.612
@@ -13,22 +21,22 @@ Define pHz 0.0
 Define pHm 2.712
 
 # --- B0 decay
-Decay B0
-    1.000   J/psi   K*0         SVV_HELAMP Hp pHp Hz pHz Hm pHm;
+Decay MyB0
+    1.000   MyJ/psi   MyK*0         SVV_HELAMP Hp pHp Hz pHz Hm pHm;
 Enddecay
 
-Decay anti-B0
-    1.000   J/psi   anti-K*0    SVV_HELAMP Hm pHm Hz pHz Hp pHp;
+Decay Myanti-B0
+    1.000   MyJ/psi   Myanti-K*0    SVV_HELAMP Hm pHm Hz pHz Hp pHp;
 Enddecay
 
 # --- J/psi decays (50% to muons, 50% to electrons)
-Decay J/psi
+Decay MyJ/psi
     0.500   mu+   mu-      PHOTOS  VLL;
     0.500   e+    e-       PHOTOS  VLL;
 Enddecay
 
 # --- K*0 decays to K+pi-
-Decay K*0
+Decay MyK*0
     1.000   K+     pi-    VSS;
 Enddecay
-CDecay anti-K*0
+CDecay Myanti-K*0
