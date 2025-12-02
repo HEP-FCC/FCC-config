@@ -209,10 +209,11 @@ sipmEdep = SimulateSiPMwithEdep("SimulateSiPMwithEdep",
         0.
     ],
     # empirical value to keep (scint npe / ceren npe) =~ 5
-    scintYield = 0.565,
-    scaleADC = 0.0003897,
-    threshold = 1.5,
-    params = {"ccgv" : 0.25},
+    scintYield = 0.565, # effective scintillation yield (k*13.6/keV)
+                        # k responsible for numerical aperture
+    scaleADC = 0.0003897, # equalization constant from ADC to GeV
+    threshold = 1.5, # ADC integration threshold
+    params = {"ccgv" : 0.25}, # cell-to-cell gain variation (and others if needed)
     gateLength = 80., # ns
     SNR = 14., # gain(10um)/gain(15um) = 0.5
 )
@@ -245,15 +246,16 @@ sipmOptical = SimulateSiPMwithOpticalPhoton("SimulateSiPMwithOpticalPhoton",
         0.33, 0.32, 0.30, 0.27, 0.22,
         0.12, 0.
     ],
-    scaleADC = 0.0005762,
+    scaleADC = 0.0005762, # equalization constant from ADC to GeV
     threshold = 1.5,
-    cellpitch = 15.,
+    cellpitch = 15., # um
     falltimeFast = 1.7, # ns
     gateLength = 80., # ns
     params = {
-        "ccgv" : 0.15,
+        "ccgv" : 0.15, # cell-to-cell gain variation
+                       # responsible for a single photon peak std. dev.
         "falltimeslow" : 15., # ns
-        "slowcomponentfraction" : 0.5
+        "slowcomponentfraction" : 0.5 # signal = (1-f)*fast + f*slow
     },
 )
 
