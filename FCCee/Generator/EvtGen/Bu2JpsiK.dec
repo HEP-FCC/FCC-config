@@ -1,0 +1,22 @@
+# ==============================================
+#  B+ -> J/psi K+ and c.c
+#       with J/psi -> ee and J/psi -> mumu
+# ==============================================
+
+Alias MyB+       B+
+Alias MyB-       B-
+ChargeConj MyB+  MyB-
+Alias MyJ/psi    J/psi
+
+Decay MyB+
+    1.000     MyJ/psi  K+     SVS;
+Enddecay
+CDecay MyB-
+
+# --- J/psi decays (50% to muons, 50% to electrons)
+Decay MyJ/psi
+    0.500     mu+    mu-    PHOTOS VLL;
+    0.500     e+     e-     PHOTOS VLL;
+Enddecay
+
+End

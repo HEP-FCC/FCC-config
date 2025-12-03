@@ -1,0 +1,41 @@
+# ==============================================
+#  Bs0 -> J/psi phi
+#         with J/psi -> ee and J/psi -> mumu
+#         with phi -> K+K- 
+#  Uses SVV HELAMP 
+# ==============================================
+
+Alias MyB_s0       B_s0
+Alias Myanti-B_s0  anti-B_s0
+ChargeConj MyB_s0  Myanti-B_s0
+Alias MyJ/psi      J/psi
+Alias Myphi        phi
+
+Define Hp 0.159
+Define Hz 0.775
+Define Hm 0.612
+Define pHp 1.563
+Define pHz 0.0
+Define pHm 2.712
+
+# --- Bs decay
+Decay MyB_s0
+    1.000   MyJ/psi   Myphi    SVV_HELAMP Hp pHp Hz pHz Hm pHm;
+Enddecay
+
+Decay Myanti-B_s0
+    1.000   MyJ/psi   Myphi    SVV_HELAMP Hm pHm Hz pHz Hp pHp;
+Enddecay
+
+# --- J/psi decays (50% to muons, 50% to electrons)
+Decay MyJ/psi
+    0.500   mu+   mu-      PHOTOS  VLL;
+    0.500   e+    e-       PHOTOS  VLL;
+Enddecay
+
+# --- phi decays to KK
+Decay Myphi
+    1.000   K+    K-       VSS;
+Enddecay
+
+End
