@@ -295,6 +295,16 @@ topoClusterAll = CaloTopoClusterFCCee("topoClusterAll",
     OutputLevel = INFO
 )
 
+from Configurables import CreateTruthLinks
+createTruthLinks = CreateTruthLinks("CreateTruthLinks",
+    cell_hit_links=["DRcaloSiPMreadoutDigiHit_scint_link"],
+    clusters=["TopoClusterAll"],
+    mcparticles="MCParticles",
+    cell_mcparticle_links="CaloHitMCParticleLinks_scint",
+    cluster_mcparticle_links="ClusterMCParticleLinks",
+    OutputLevel=INFO
+)
+
 from Configurables import RndmGenSvc
 rndmGenSvc = RndmGenSvc("RndmGenSvc",
   Engine = rndmEngine.name()
@@ -329,7 +339,8 @@ application_mgr = ApplicationMgr(
         dNdxFromTracks,
         sipmEdep,
         sipmOptical,
-        topoClusterAll
+        topoClusterAll,
+        createTruthLinks
     ],
     EvtSel = 'NONE',
     EvtMax = -1,
