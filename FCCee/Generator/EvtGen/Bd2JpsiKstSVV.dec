@@ -10,8 +10,8 @@ Alias Myanti-B0  anti-B0
 ChargeConj MyB0  Myanti-B0
 Alias MyJ/psi    J/psi
 Alias MyK*0      K*0
-Alias MyantiK*0  anti-K*0
-ChargeConj MyK*0 MyantiK*0
+Alias Myanti-K*0  anti-K*0
+ChargeConj MyK*0 Myanti-K*0
 
 Define Hp 0.159
 Define Hz 0.775
@@ -40,3 +40,4 @@ Decay MyK*0
     1.000   K+     pi-    VSS;
 Enddecay
 CDecay Myanti-K*0
+End
