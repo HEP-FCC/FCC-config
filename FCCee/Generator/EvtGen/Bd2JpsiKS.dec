@@ -4,15 +4,15 @@
 #       with K_S0 decay as in DECAY.DEC 
 # ==============================================
 
-Alias MyB0       B0
-Alias Myanti-B0  anti-B0
-ChargeConj MyB0  Myanti-B0
+Alias Bd_SIGNAL       B0
+Alias Bdbar_SIGNAL  anti-B0
+ChargeConj Bd_SIGNAL  Bdbar_SIGNAL
 Alias MyJ/psi    J/psi
 
-Decay MyB0
+Decay Bd_SIGNAL
     1.000   MyJ/psi   K_S0   SVS;
 Enddecay
-CDecay Myanti-B0
+CDecay Bdbar_SIGNAL
 
 # --- J/psi decays (50% to muons, 50% to electrons)
 Decay MyJ/psi

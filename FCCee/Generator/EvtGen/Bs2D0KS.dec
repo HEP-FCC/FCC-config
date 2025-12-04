@@ -3,18 +3,18 @@
 #       with D0 -> K+ K-
 # ==============================================
 
-Alias MyB_s0       B_s0
-Alias Myanti-B_s0  anti-B_s0
-ChargeConj MyB_s0  Myanti-B_s0
+Alias Bs_SIGNAL       B_s0
+Alias Bsbar_SIGNAL  anti-B_s0
+ChargeConj Bs_SIGNAL  Bsbar_SIGNAL
 Alias MyD0       D0
 Alias Myanti-D0  anti-D0
 ChargeConj MyD0  Myanti-D0
 Alias MyK_S0 K_S0
 
-Decay Myanti-B_s0 
+Decay Bsbar_SIGNAL 
     1.000   MyD0  MyK_S0 PHSP;
 Enddecay
-CDecay MyB_s0
+CDecay Bs_SIGNAL
 
 Decay MyD0 
     1.000   K+  K-  PHSP;
