@@ -5,9 +5,9 @@
 #  Uses SVV HELAMP 
 # ==============================================
 
-Alias MyB_s0       B_s0
-Alias Myanti-B_s0  anti-B_s0
-ChargeConj MyB_s0  Myanti-B_s0
+Alias Bs_SIGNAL       B_s0
+Alias Bsbar_SIGNAL  anti-B_s0
+ChargeConj Bs_SIGNAL  Bsbar_SIGNAL
 Alias MyJ/psi      J/psi
 Alias Myphi        phi
 
@@ -19,11 +19,11 @@ Define pHz 0.0
 Define pHm 2.712
 
 # --- Bs decay
-Decay MyB_s0
+Decay Bs_SIGNAL
     1.000   MyJ/psi   Myphi    SVV_HELAMP Hp pHp Hz pHz Hm pHm;
 Enddecay
 
-Decay Myanti-B_s0
+Decay Bsbar_SIGNAL
     1.000   MyJ/psi   Myphi    SVV_HELAMP Hm pHm Hz pHz Hp pHp;
 Enddecay
 

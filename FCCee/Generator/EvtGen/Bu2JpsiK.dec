@@ -3,15 +3,15 @@
 #       with J/psi -> ee and J/psi -> mumu
 # ==============================================
 
-Alias MyB+       B+
-Alias MyB-       B-
-ChargeConj MyB+  MyB-
+Alias Bu_SIGNAL       B+
+Alias Bubar_SIGNAL       B-
+ChargeConj Bu_SIGNAL  Bubar_SIGNAL
 Alias MyJ/psi    J/psi
 
-Decay MyB+
+Decay Bu_SIGNAL
     1.000     MyJ/psi  K+     SVS;
 Enddecay
-CDecay MyB-
+CDecay Bubar_SIGNAL
 
 # --- J/psi decays (50% to muons, 50% to electrons)
 Decay MyJ/psi
