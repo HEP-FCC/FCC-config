@@ -149,6 +149,22 @@ dNdxFromTracks = TrackdNdxDelphesBased("dNdxFromTracks",
                                   FillFactor=1.0,
                                   OutputLevel=ERROR)
 
+
+# Load the Geometric Graph Track Finder (GGTF), following example from:
+# k4RecTracker/Tracking/test/testTrackFinder/runTestTrackFinder.py
+from Configurables import GGTF_tracking
+
+GGTF = GGTF_tracking(
+    "GGTF_tracking",
+    InputPlanarHitCollections=["VTXBDigis", "VTXDDigis"],  # "SiWrDDigis", "SiWrBDigis" not working yet
+    InputWireHitCollections=["DCH_DigiCollection"],
+    OutputTracksGGTF=["CDCHTracks"],
+    ModelPath="SimpleGatrIDEAv3o1.onnx",
+    Tbeta=0.6,    # default clustering parameters
+    Td=0.3,       # form the example in k4RecTracker
+    OutputLevel=INFO,
+)
+
 ################ Dual-readout calorimeter
 # SiPM emulation
 from Configurables import SimulateSiPMwithEdep
@@ -337,6 +353,7 @@ application_mgr = ApplicationMgr(
         tracksFromGenParticles,
         plotTrackDCHHitDistances,
         dNdxFromTracks,
+        GGTF,
         sipmEdep,
         sipmOptical,
         topoClusterAll,

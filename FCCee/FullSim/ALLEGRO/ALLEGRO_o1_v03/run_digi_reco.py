@@ -51,6 +51,7 @@ parser.add_argument("--reconstructPi0s", type=str2bool, nargs="?", help="Search 
 parser.add_argument("--runPhotonID", type=str2bool, nargs="?", help="Apply photon ID tool to clusters", const=True, default=False)
 parser.add_argument("--runTrkHitDigitization", type=str2bool, nargs="?", help="Digitize tracker hits", const=True, default=False)
 parser.add_argument("--useLegacyVTXDigitizer", type=str2bool, nargs="?", help="Perform VTXdigitizer-based digitisation of tracker hits", const=True, default=False)
+parser.add_argument("--runTrkFinder", type=str2bool, nargs="?", help="Run Geometric Graph Track Finding (GGTF) on digitized tracker hits", const=True, default=False)
 
 opts = parser.parse_known_args()[0]
 dataFolder = opts.dataFolder                        # directory containing the calibration files
@@ -61,6 +62,7 @@ addCrosstalk = opts.addCrosstalk                    # switch on/off the crosstal
 addTracks = opts.addTracks                          # add tracks or not
 digitizeTrackerHits = opts.runTrkHitDigitization    # digitize tracker hits (DDPlanarDigi as default)
 digitizeVTXdigitizer = opts.useLegacyVTXDigitizer   # digitize tracker hits (VTXdigitizer, smear truth)
+runTrkFinder = opts.runTrkFinder                    # run GGTF on digitized tracker hits
 
 # - what to save in output file
 #
@@ -400,6 +402,32 @@ if digitizeTrackerHits:
                                 )
     TopAlg += [dch_digitizer]
 
+if runTrkFinder:
+    # Run consistency checks first
+    if not digitizeTrackerHits:
+        raise RuntimeError("To run the track finder, the tracker hits digitization must be enabled.")
+
+    # Load the GGTF, following example from:
+    # k4RecTracker/Tracking/test/testTrackFinder/runTestTrackFinder.py
+    from Configurables import GGTF_tracking
+
+    modelPath = dataFolder + "SimpleGatrIDEAv3o1.onnx"   #FIXME: update to ALLEGRO-trained model when available
+
+    # using default parameters for now
+    tbeta = 0.6     # tbeta clustering parameter
+    td = 0.3        # td clustering parameter
+
+    GGTF = GGTF_tracking(
+        "GGTF_tracking",
+        InputPlanarHitCollections=["VTXBDigis", "VTXDDigis"],  # "SiWrDDigis", "SiWrBDigis" not working yet
+        InputWireHitCollections=["DCH_DigiCollection"],
+        OutputTracksGGTF=["CDCHTracks"],
+        ModelPath=modelPath,
+        Tbeta=tbeta,
+        Td=td,
+        OutputLevel=INFO,
+    )
+    TopAlg += [GGTF]
 
 # Calorimeter digitisation (merging hits into cells, EM scale calibration via sampling fractions)
 
