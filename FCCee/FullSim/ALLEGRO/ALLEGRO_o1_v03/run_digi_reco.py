@@ -18,11 +18,10 @@ from GaudiKernel.PhysicalConstants import pi
 inputfile = "ALLEGRO_sim.root"             # input file produced with ddsim - can be overridden with IOSvc.Input
 outputfile = "ALLEGRO_sim_digi_reco.root"  # output file produced by this steering file - can be overridden with IOSvc.Output
 Nevts = -1                                 # -1 means all events in input file (can be overridden with -n or --num-events option of k4run
+dataFolderDef = "./"                       # directory containing the calibration files
 
 # - general settings not set via CLI
 filterNoiseThreshold = -1                  # if addNoise is true, and filterNoiseThreshold is >0, will filter away cells with abs(energy) below filterNoiseThreshold * expected sigma(noise)
-# dataFolder = "data/"                     # directory containing the calibration files
-dataFolder = "./"                          # directory containing the calibration files
 
 # - general settings set via CLI
 from k4FWCore.parseArgs import parser
@@ -36,6 +35,7 @@ def str2bool(v):
     else:
         raise argparse.ArgumentTypeError("Boolean value expected.")
 
+parser.add_argument("--dataFolder", type=str, help="Path to calibration data folder", default=dataFolderDef)
 parser.add_argument("--includeHCal", type=str2bool, nargs="?", help="Also digitize HCal hits and create ECAL+HCAL clusters", const=True, default=False)
 parser.add_argument("--includeMuon", type=str2bool, nargs="?", help="Also digitize muon hits", const=True, default=False)
 parser.add_argument("--saveHits", type=str2bool, nargs="?", help="Save G4 hits", const=True, default=False)
@@ -53,6 +53,7 @@ parser.add_argument("--runTrkHitDigitization", type=str2bool, nargs="?", help="D
 parser.add_argument("--useLegacyVTXDigitizer", type=str2bool, nargs="?", help="Perform VTXdigitizer-based digitisation of tracker hits", const=True, default=False)
 
 opts = parser.parse_known_args()[0]
+dataFolder = opts.dataFolder                        # directory containing the calibration files
 runHCal = opts.includeHCal                          # if false, it will produce only ECAL clusters. if true, it will also produce ECAL+HCAL clusters
 runMuon = opts.includeMuon                          # if false, it will not digitize muon hits
 addNoise = opts.addNoise                            # add noise or not to the cell energy
