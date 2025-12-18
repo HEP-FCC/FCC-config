@@ -60,7 +60,7 @@ runMuon = opts.includeMuon                          # if false, it will not digi
 addNoise = opts.addNoise                            # add noise or not to the cell energy
 addCrosstalk = opts.addCrosstalk                    # switch on/off the crosstalk
 addTracks = opts.addTracks                          # add tracks or not
-digitizeTrackerHits = opts.runTrkHitDigitization    # digitize tracker hits (DDPlanarDigi as default)
+runTrkHitDigitization = opts.runTrkHitDigitization    # digitize tracker hits (DDPlanarDigi as default)
 useLegacyVTXDigitizer = opts.useLegacyVTXDigitizer   # digitize tracker hits (VTXdigitizer, smear truth)
 runTrkFinder = opts.runTrkFinder                    # run GGTF on digitized tracker hits
 
@@ -226,7 +226,7 @@ io_svc.Input = inputfile
 io_svc.Output = outputfile
 ExtSvc += [EventDataSvc("EventDataSvc")]
 
-if addTracks or digitizeTrackerHits or addNoise:
+if addTracks or runTrkHitDigitization or addNoise:
     ExtSvc += ["RndmGenSvc"]
 
 
@@ -268,7 +268,7 @@ if addTracks:
 
 
 # Tracker digitisation
-if digitizeTrackerHits:
+if runTrkHitDigitization:
     import math
     # different sensors for inner/outer barrel layers
     # see https://indico.cern.ch/event/1244371/contributions/5350233
@@ -353,8 +353,8 @@ if digitizeTrackerHits:
                                       outputSimDigiAssociation= vxd_endcap_digi_args["SimTrkHitRelCollection"][0],
                                       detectorName=vxd_endcap_digi_args["SubDetectorName"],
                                       readoutName=vxd_endcap_digi_args["SimTrkHitRelCollection"][0],
-                                      xResolution=vxd_endcap_digi_args["ResolutionU"],  # mm, r-phi direction
-                                      yResolution=vxd_endcap_digi_args["ResolutionV"],  # mm, z direction
+                                      xResolution=vxd_endcap_digi_args["ResolutionU"],  # mm, r direction
+                                      yResolution=vxd_endcap_digi_args["ResolutionV"],  # mm, phi direction
                                       tResolution=vxd_endcap_digi_args["ResolutionT"],  # ns
                                       forceHitsOntoSurface=False,
                                       OutputLevel=INFO
@@ -381,8 +381,8 @@ if digitizeTrackerHits:
                                        outputSimDigiAssociation= siWr_endcap_digi_args["SimTrkHitRelCollection"][0],
                                        detectorName=siWr_endcap_digi_args["SubDetectorName"],
                                        readoutName=siWr_endcap_digi_args["SimTrkHitRelCollection"][0],
-                                       xResolution=siWr_endcap_digi_args["ResolutionU"],  # mm, r-phi direction
-                                       yResolution=siWr_endcap_digi_args["ResolutionV"],  # mm, z direction
+                                       xResolution=siWr_endcap_digi_args["ResolutionU"],  # mm, r direction
+                                       yResolution=siWr_endcap_digi_args["ResolutionV"],  # mm, phi direction
                                        tResolution=siWr_endcap_digi_args["ResolutionT"],  # ns
                                        forceHitsOntoSurface=False,
                                        OutputLevel=INFO
@@ -442,7 +442,7 @@ if digitizeTrackerHits:
 
 if runTrkFinder:
     # Run consistency checks first
-    if not digitizeTrackerHits:
+    if not runTrkHitDigitization:
         raise RuntimeError("To run the track finder, the tracker hits digitization must be enabled.")
     if useLegacyVTXDigitizer:
         raise RuntimeError("The track finder requires DDPlanarDigi digitization of silicon detector hits.")
