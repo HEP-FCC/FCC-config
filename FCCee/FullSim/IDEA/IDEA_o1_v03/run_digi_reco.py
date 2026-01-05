@@ -156,7 +156,7 @@ from Configurables import GGTF_tracking
 
 GGTF = GGTF_tracking(
     "GGTF_tracking",
-    InputPlanarHitCollections=["VTXBDigis", "VTXDDigis"],  # "SiWrDDigis", "SiWrBDigis" not working yet
+    InputPlanarHitCollections=["VTXBDigis", "VTXDDigis", "SiWrDDigis", "SiWrBDigis"],
     InputWireHitCollections=["DCH_DigiCollection"],
     OutputTracksGGTF=["CDCHTracks"],
     ModelPath="SimpleGatrIDEAv3o1.onnx",
