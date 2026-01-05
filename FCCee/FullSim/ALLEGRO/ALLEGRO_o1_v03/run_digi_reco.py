@@ -338,7 +338,7 @@ if runTrkHitDigitization:
                                       outputDigiHits=vxd_barrel_digi_args["TrackerHitCollectionName"][0],
                                       outputSimDigiAssociation= vxd_barrel_digi_args["SimTrkHitRelCollection"][0],
                                       detectorName=vxd_barrel_digi_args["SubDetectorName"],
-                                      readoutName=vxd_barrel_digi_args["SimTrkHitRelCollection"][0],
+                                      readoutName=vxd_barrel_digi_args["SimTrackHitCollectionName"][0],
                                       xResolution=vxd_barrel_digi_args["ResolutionU"],  # mm, r-phi direction
                                       yResolution=vxd_barrel_digi_args["ResolutionV"],  # mm, z direction
                                       tResolution=vxd_barrel_digi_args["ResolutionT"],  # ns
@@ -352,7 +352,7 @@ if runTrkHitDigitization:
                                       outputDigiHits=vxd_endcap_digi_args["TrackerHitCollectionName"][0],
                                       outputSimDigiAssociation= vxd_endcap_digi_args["SimTrkHitRelCollection"][0],
                                       detectorName=vxd_endcap_digi_args["SubDetectorName"],
-                                      readoutName=vxd_endcap_digi_args["SimTrkHitRelCollection"][0],
+                                      readoutName=vxd_endcap_digi_args["SimTrackHitCollectionName"][0],
                                       xResolution=vxd_endcap_digi_args["ResolutionU"],  # mm, r direction
                                       yResolution=vxd_endcap_digi_args["ResolutionV"],  # mm, phi direction
                                       tResolution=vxd_endcap_digi_args["ResolutionT"],  # ns
@@ -366,7 +366,7 @@ if runTrkHitDigitization:
                                       outputDigiHits=siWr_barrel_digi_args["TrackerHitCollectionName"][0],
                                       outputSimDigiAssociation= siWr_barrel_digi_args["SimTrkHitRelCollection"][0],
                                       detectorName=siWr_barrel_digi_args["SubDetectorName"],
-                                      readoutName=siWr_barrel_digi_args["SimTrkHitRelCollection"][0],
+                                      readoutName=siWr_barrel_digi_args["SimTrackHitCollectionName"][0],
                                       xResolution=siWr_barrel_digi_args["ResolutionU"],  # mm, r-phi direction
                                       yResolution=siWr_barrel_digi_args["ResolutionV"],  # mm, z direction
                                       tResolution=siWr_barrel_digi_args["ResolutionT"],  # ns
@@ -380,7 +380,7 @@ if runTrkHitDigitization:
                                        outputDigiHits=siWr_endcap_digi_args["TrackerHitCollectionName"][0],
                                        outputSimDigiAssociation= siWr_endcap_digi_args["SimTrkHitRelCollection"][0],
                                        detectorName=siWr_endcap_digi_args["SubDetectorName"],
-                                       readoutName=siWr_endcap_digi_args["SimTrkHitRelCollection"][0],
+                                       readoutName=siWr_endcap_digi_args["SimTrackHitCollectionName"][0],
                                        xResolution=siWr_endcap_digi_args["ResolutionU"],  # mm, r direction
                                        yResolution=siWr_endcap_digi_args["ResolutionV"],  # mm, phi direction
                                        tResolution=siWr_endcap_digi_args["ResolutionT"],  # ns
