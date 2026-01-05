@@ -18,11 +18,10 @@ from GaudiKernel.PhysicalConstants import pi
 inputfile = "ALLEGRO_sim.root"             # input file produced with ddsim - can be overridden with IOSvc.Input
 outputfile = "ALLEGRO_sim_digi_reco.root"  # output file produced by this steering file - can be overridden with IOSvc.Output
 Nevts = -1                                 # -1 means all events in input file (can be overridden with -n or --num-events option of k4run
+dataFolderDef = "./"                       # directory containing the calibration files
 
 # - general settings not set via CLI
 filterNoiseThreshold = -1                  # if addNoise is true, and filterNoiseThreshold is >0, will filter away cells with abs(energy) below filterNoiseThreshold * expected sigma(noise)
-# dataFolder = "data/"                     # directory containing the calibration files
-dataFolder = "./"                          # directory containing the calibration files
 
 # - general settings set via CLI
 from k4FWCore.parseArgs import parser
@@ -36,6 +35,7 @@ def str2bool(v):
     else:
         raise argparse.ArgumentTypeError("Boolean value expected.")
 
+parser.add_argument("--dataFolder", type=str, help="Path to calibration data folder", default=dataFolderDef)
 parser.add_argument("--includeHCal", type=str2bool, nargs="?", help="Also digitize HCal hits and create ECAL+HCAL clusters", const=True, default=False)
 parser.add_argument("--includeMuon", type=str2bool, nargs="?", help="Also digitize muon hits", const=True, default=False)
 parser.add_argument("--saveHits", type=str2bool, nargs="?", help="Save G4 hits", const=True, default=False)
@@ -51,15 +51,18 @@ parser.add_argument("--reconstructPi0s", type=str2bool, nargs="?", help="Search 
 parser.add_argument("--runPhotonID", type=str2bool, nargs="?", help="Apply photon ID tool to clusters", const=True, default=False)
 parser.add_argument("--runTrkHitDigitization", type=str2bool, nargs="?", help="Digitize tracker hits", const=True, default=False)
 parser.add_argument("--useLegacyVTXDigitizer", type=str2bool, nargs="?", help="Perform VTXdigitizer-based digitisation of tracker hits", const=True, default=False)
+parser.add_argument("--runTrkFinder", type=str2bool, nargs="?", help="Run Geometric Graph Track Finding (GGTF) on digitized tracker hits", const=True, default=False)
 
 opts = parser.parse_known_args()[0]
+dataFolder = opts.dataFolder                        # directory containing the calibration files
 runHCal = opts.includeHCal                          # if false, it will produce only ECAL clusters. if true, it will also produce ECAL+HCAL clusters
 runMuon = opts.includeMuon                          # if false, it will not digitize muon hits
 addNoise = opts.addNoise                            # add noise or not to the cell energy
 addCrosstalk = opts.addCrosstalk                    # switch on/off the crosstalk
 addTracks = opts.addTracks                          # add tracks or not
-digitizeTrackerHits = opts.runTrkHitDigitization    # digitize tracker hits (DDPlanarDigi as default)
-digitizeVTXdigitizer = opts.useLegacyVTXDigitizer   # digitize tracker hits (VTXdigitizer, smear truth)
+runTrkHitDigitization = opts.runTrkHitDigitization    # digitize tracker hits (DDPlanarDigi as default)
+useLegacyVTXDigitizer = opts.useLegacyVTXDigitizer   # digitize tracker hits (VTXdigitizer, smear truth)
+runTrkFinder = opts.runTrkFinder                    # run GGTF on digitized tracker hits
 
 # - what to save in output file
 #
@@ -223,7 +226,7 @@ io_svc.Input = inputfile
 io_svc.Output = outputfile
 ExtSvc += [EventDataSvc("EventDataSvc")]
 
-if addTracks or digitizeTrackerHits or addNoise:
+if addTracks or runTrkHitDigitization or addNoise:
     ExtSvc += ["RndmGenSvc"]
 
 
@@ -265,8 +268,7 @@ if addTracks:
 
 
 # Tracker digitisation
-if digitizeTrackerHits:
-    from Configurables import VTXdigitizer
+if runTrkHitDigitization:
     import math
     # different sensors for inner/outer barrel layers
     # see https://indico.cern.ch/event/1244371/contributions/5350233
@@ -277,109 +279,148 @@ if digitizeTrackerHits:
     outerVertexResolution_y = 0.150 / math.sqrt(12)  # [mm], assume ATLASPix3 sensor with 150 µm pitch
     outerVertexResolution_t = 1000  # [ns]
 
-    if digitizeVTXdigitizer:
+    # silicon wrapper hits parameters
+    siWrapperResolution_x = 0.050 / math.sqrt(12)  # [mm]
+    siWrapperResolution_y = 1.0 / math.sqrt(12)  # [mm]
+    siWrapperResolution_t = 0.040  # [ns], assume 40 ps timing resolution for a single layer -> Should lead to <30 ps resolution when >1 hit
+
+    # Define arguments for digitizers
+    vxd_barrel_digi_args = {
+        "IsStrip": False,
+        "ResolutionU": [innerVertexResolution_x]*3 + [outerVertexResolution_x]*2,
+        "ResolutionV": [innerVertexResolution_y]*3 + [outerVertexResolution_y]*2,
+        "ResolutionT": [innerVertexResolution_t]*3 + [outerVertexResolution_t]*2,
+        "SimTrackHitCollectionName": ["VertexBarrelCollection"],
+        "SimTrkHitRelCollection": ["VTXBSimDigiLinks"],
+        "SubDetectorName": "VertexBarrel",
+        "TrackerHitCollectionName": ["VTXBDigis"],
+    }
+
+    vxd_endcap_digi_args = {
+        "IsStrip": False,
+        "ResolutionU": [outerVertexResolution_x]*3,
+        "ResolutionV": [outerVertexResolution_y]*3,
+        "ResolutionT": [outerVertexResolution_t]*3,
+        "SimTrackHitCollectionName": ["VertexEndcapCollection"],
+        "SimTrkHitRelCollection": ["VTXDSimDigiLinks"],
+        "SubDetectorName": "VertexDisks",
+        "TrackerHitCollectionName": ["VTXDDigis"],
+    }
+
+    siWr_barrel_digi_args = {
+        "IsStrip": False,
+        "ResolutionU": [siWrapperResolution_x]*2,
+        "ResolutionV": [siWrapperResolution_y]*2,
+        "ResolutionT": [siWrapperResolution_t]*2,
+        "SimTrackHitCollectionName": ["SiWrBCollection"],
+        "SimTrkHitRelCollection": ["SiWrBSimDigiLinks"],
+        "SubDetectorName": "SiWrB",
+        "TrackerHitCollectionName": ["SiWrBDigis"],
+    }
+
+    siWr_endcap_digi_args = {
+        "IsStrip": False,
+        "ResolutionU": [siWrapperResolution_x]*2,
+        "ResolutionV": [siWrapperResolution_y]*2,
+        "ResolutionT": [siWrapperResolution_t]*2,
+        "SimTrackHitCollectionName": ["SiWrDCollection"],
+        "SimTrkHitRelCollection": ["SiWrDSimDigiLinks"],
+        "SubDetectorName": "SiWrD",
+        "TrackerHitCollectionName": ["SiWrDDigis"],
+    }
+
+
+    if useLegacyVTXDigitizer:
+        # digitize silicon hits through VTXdigitizer (smearing truth hits)
+        from Configurables import VTXdigitizer
         vtxb_digitizer = VTXdigitizer("VTXBdigitizer",
-                                      inputSimHits="VertexBarrelCollection",
-                                      outputDigiHits="VTXBDigis",
-                                      outputSimDigiAssociation="VTXBSimDigiLinks",
-                                      detectorName="Vertex",
-                                      readoutName="VertexBarrelCollection",
-                                      xResolution=[innerVertexResolution_x, innerVertexResolution_x, innerVertexResolution_x,
-                                                   outerVertexResolution_x, outerVertexResolution_x],  # mm, r-phi direction
-                                      yResolution=[innerVertexResolution_y, innerVertexResolution_y, innerVertexResolution_y,
-                                                   outerVertexResolution_y, outerVertexResolution_y],  # mm, z direction
-                                      tResolution=[innerVertexResolution_t, innerVertexResolution_t, innerVertexResolution_t,
-                                                   outerVertexResolution_t, outerVertexResolution_t],  # ns
+                                      inputSimHits=vxd_barrel_digi_args["SimTrackHitCollectionName"][0],
+                                      outputDigiHits=vxd_barrel_digi_args["TrackerHitCollectionName"][0],
+                                      outputSimDigiAssociation= vxd_barrel_digi_args["SimTrkHitRelCollection"][0],
+                                      detectorName=vxd_barrel_digi_args["SubDetectorName"],
+                                      readoutName=vxd_barrel_digi_args["SimTrackHitCollectionName"][0],
+                                      xResolution=vxd_barrel_digi_args["ResolutionU"],  # mm, r-phi direction
+                                      yResolution=vxd_barrel_digi_args["ResolutionV"],  # mm, z direction
+                                      tResolution=vxd_barrel_digi_args["ResolutionT"],  # ns
                                       forceHitsOntoSurface=False,
                                       OutputLevel=INFO
                                       )
         TopAlg += [vtxb_digitizer]
 
         vtxd_digitizer = VTXdigitizer("VTXDdigitizer",
-                                      inputSimHits="VertexEndcapCollection",
-                                      outputDigiHits="VTXDDigis",
-                                      outputSimDigiAssociation="VTXDSimDigiLinks",
-                                      detectorName="Vertex",
-                                      readoutName="VertexEndcapCollection",
-                                      xResolution=[outerVertexResolution_x, outerVertexResolution_x, outerVertexResolution_x],  # mm, r direction
-                                      yResolution=[outerVertexResolution_y, outerVertexResolution_y, outerVertexResolution_y],  # mm, phi direction
-                                      tResolution=[outerVertexResolution_t, outerVertexResolution_t, outerVertexResolution_t],  # ns
+                                      inputSimHits=vxd_endcap_digi_args["SimTrackHitCollectionName"][0],
+                                      outputDigiHits=vxd_endcap_digi_args["TrackerHitCollectionName"][0],
+                                      outputSimDigiAssociation= vxd_endcap_digi_args["SimTrkHitRelCollection"][0],
+                                      detectorName=vxd_endcap_digi_args["SubDetectorName"],
+                                      readoutName=vxd_endcap_digi_args["SimTrackHitCollectionName"][0],
+                                      xResolution=vxd_endcap_digi_args["ResolutionU"],  # mm, r direction
+                                      yResolution=vxd_endcap_digi_args["ResolutionV"],  # mm, phi direction
+                                      tResolution=vxd_endcap_digi_args["ResolutionT"],  # ns
                                       forceHitsOntoSurface=False,
                                       OutputLevel=INFO
                                       )
         TopAlg += [vtxd_digitizer]
 
+        siwrb_digitizer = VTXdigitizer("SiWrBdigitizer",
+                                      inputSimHits=siWr_barrel_digi_args["SimTrackHitCollectionName"][0],
+                                      outputDigiHits=siWr_barrel_digi_args["TrackerHitCollectionName"][0],
+                                      outputSimDigiAssociation= siWr_barrel_digi_args["SimTrkHitRelCollection"][0],
+                                      detectorName=siWr_barrel_digi_args["SubDetectorName"],
+                                      readoutName=siWr_barrel_digi_args["SimTrackHitCollectionName"][0],
+                                      xResolution=siWr_barrel_digi_args["ResolutionU"],  # mm, r-phi direction
+                                      yResolution=siWr_barrel_digi_args["ResolutionV"],  # mm, z direction
+                                      tResolution=siWr_barrel_digi_args["ResolutionT"],  # ns
+                                      forceHitsOntoSurface=False,
+                                      OutputLevel=INFO
+                                      )
+        TopAlg += [siwrb_digitizer]
+
+        siwrd_digitizer = VTXdigitizer("SiWrDdigitizer",
+                                       inputSimHits=siWr_endcap_digi_args["SimTrackHitCollectionName"][0],
+                                       outputDigiHits=siWr_endcap_digi_args["TrackerHitCollectionName"][0],
+                                       outputSimDigiAssociation= siWr_endcap_digi_args["SimTrkHitRelCollection"][0],
+                                       detectorName=siWr_endcap_digi_args["SubDetectorName"],
+                                       readoutName=siWr_endcap_digi_args["SimTrackHitCollectionName"][0],
+                                       xResolution=siWr_endcap_digi_args["ResolutionU"],  # mm, r direction
+                                       yResolution=siWr_endcap_digi_args["ResolutionV"],  # mm, phi direction
+                                       tResolution=siWr_endcap_digi_args["ResolutionT"],  # ns
+                                       forceHitsOntoSurface=False,
+                                       OutputLevel=INFO
+                                       )
+        TopAlg += [siwrd_digitizer]
+
     else:
         # digitize vertex hits through "native" DDPlanarDigi
         from Configurables import DDPlanarDigi
-        vxd_barrel_digitizer_args = {
-            "IsStrip": False,
-            "ResolutionU": [innerVertexResolution_x,innerVertexResolution_x,innerVertexResolution_x, outerVertexResolution_x, outerVertexResolution_x],
-            "ResolutionV": [innerVertexResolution_y,innerVertexResolution_y,innerVertexResolution_y, outerVertexResolution_y, outerVertexResolution_y],
-            "SimTrackHitCollectionName": ["VertexBarrelCollection"],
-            "SimTrkHitRelCollection": ["VTXBSimDigiLinks"],
-            "SubDetectorName": "VertexBarrel",
-            "TrackerHitCollectionName": ["VTXBDigis"],
-        }
-
-        vxd_endcap_digitizer_args = {
-            "IsStrip": False,
-            "ResolutionU": [outerVertexResolution_x, outerVertexResolution_x, outerVertexResolution_x],
-            "ResolutionV": [outerVertexResolution_y, outerVertexResolution_y, outerVertexResolution_y],
-            "SimTrackHitCollectionName": ["VertexEndcapCollection"],
-            "SimTrkHitRelCollection": ["VTXDSimDigiLinks"],
-            "SubDetectorName": "VertexDisks",
-            "TrackerHitCollectionName": ["VTXDDigis"],
-        }
-
 
         VXDBarrelDigitizer = DDPlanarDigi(
             "VXDBarrelDigitizer",
-            **vxd_barrel_digitizer_args,
+            **vxd_barrel_digi_args,
             OutputLevel=INFO
         )
 
         VXDEndcapDigitizer = DDPlanarDigi(
             "VXDEndcapDigitizer",
-            **vxd_endcap_digitizer_args,
+            **vxd_endcap_digi_args,
+            OutputLevel=INFO
+        )
+
+        SiWrBarrelDigitizer = DDPlanarDigi(
+            "SiWrBarrelDigitizer",
+            **siWr_barrel_digi_args,
+            OutputLevel=INFO
+        )
+
+        SiWrEndcapDigitizer = DDPlanarDigi(
+            "SiWrEndcapDigitizer",
+            **siWr_endcap_digi_args,
             OutputLevel=INFO
         )
 
         TopAlg += [ VXDBarrelDigitizer ]
         TopAlg += [ VXDEndcapDigitizer ]
-
-    # digitize silicon wrapper hits
-    siWrapperResolution_x = 0.050 / math.sqrt(12)  # [mm]
-    siWrapperResolution_y = 1.0 / math.sqrt(12)  # [mm]
-    siWrapperResolution_t = 0.040  # [ns], assume 40 ps timing resolution for a single layer -> Should lead to <30 ps resolution when >1 hit
-
-    siwrb_digitizer = VTXdigitizer("SiWrBdigitizer",
-                                   inputSimHits="SiWrBCollection",
-                                   outputDigiHits="SiWrBDigis",
-                                   outputSimDigiAssociation="SiWrBSimDigiLinks",
-                                   detectorName="SiWrB",
-                                   readoutName="SiWrBCollection",
-                                   xResolution=[siWrapperResolution_x, siWrapperResolution_x],  # mm, r-phi direction
-                                   yResolution=[siWrapperResolution_y, siWrapperResolution_y],  # mm, z direction
-                                   tResolution=[siWrapperResolution_t, siWrapperResolution_t],  # ns
-                                   forceHitsOntoSurface=False,
-                                   OutputLevel=INFO
-                                   )
-    TopAlg += [siwrb_digitizer]
-
-    siwrd_digitizer = VTXdigitizer("SiWrDdigitizer",
-                                   inputSimHits="SiWrDCollection",
-                                   outputDigiHits="SiWrDDigis",
-                                   outputSimDigiAssociation="SiWrDSimDigiLinks",
-                                   detectorName="SiWrD",
-                                   readoutName="SiWrDCollection",
-                                   xResolution=[siWrapperResolution_x, siWrapperResolution_x],  # mm, r-phi direction
-                                   yResolution=[siWrapperResolution_y, siWrapperResolution_y],  # mm, z direction
-                                   tResolution=[siWrapperResolution_t, siWrapperResolution_t],  # ns
-                                   forceHitsOntoSurface=False,
-                                   OutputLevel=INFO
-                                   )
-    TopAlg += [siwrd_digitizer]
+        TopAlg += [ SiWrBarrelDigitizer ]
+        TopAlg += [ SiWrEndcapDigitizer ]
 
     from Configurables import UniqueIDGenSvc
     ExtSvc += [UniqueIDGenSvc("uidSvc")]
@@ -399,6 +440,34 @@ if digitizeTrackerHits:
                                 )
     TopAlg += [dch_digitizer]
 
+if runTrkFinder:
+    # Run consistency checks first
+    if not runTrkHitDigitization:
+        raise RuntimeError("To run the track finder, the tracker hits digitization must be enabled.")
+    if useLegacyVTXDigitizer:
+        raise RuntimeError("The track finder requires DDPlanarDigi digitization of silicon detector hits.")
+
+    # Load the GGTF, following example from:
+    # k4RecTracker/Tracking/test/testTrackFinder/runTestTrackFinder.py
+    from Configurables import GGTF_tracking
+
+    modelPath = dataFolder + "SimpleGatrIDEAv3o1.onnx"   #FIXME: update to ALLEGRO-trained model when available
+
+    # using default parameters for now
+    tbeta = 0.6     # tbeta clustering parameter
+    td = 0.3        # td clustering parameter
+
+    GGTF = GGTF_tracking(
+        "GGTF_tracking",
+        InputPlanarHitCollections=["VTXBDigis", "VTXDDigis", "SiWrDDigis", "SiWrBDigis"],
+        InputWireHitCollections=["DCH_DigiCollection"],
+        OutputTracksGGTF=["CDCHTracks"],
+        ModelPath=modelPath,
+        Tbeta=tbeta,
+        Td=td,
+        OutputLevel=INFO,
+    )
+    TopAlg += [GGTF]
 
 # Calorimeter digitisation (merging hits into cells, EM scale calibration via sampling fractions)
 

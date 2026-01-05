@@ -20,6 +20,7 @@ ddsim --enableGun --gun.distribution uniform --gun.energy "10*GeV" --gun.particl
 ```
 # First get the data needed for the DCH cluster counting parametrization (still work in progress)
 wget --no-clobber https://fccsw.web.cern.ch/fccsw/filesForSimDigiReco/IDEA/DataAlgFORGEANT.root
+wget --no-clobber https://fccsw.web.cern.ch/fccsw/filesForSimDigiReco/IDEA/IDEA_o1_v03/SimpleGatrIDEAv3o1.onnx
 k4run run_digi_reco.py
 # you can then print the rootfile content with
 podio-dump IDEA_sim_digi_reco.root  
