@@ -24,11 +24,11 @@ Beams:sigmaVertexZ = 1.33      !  1.33 mm
 Beams:eCM = 365  ! CM energy of collision
 WeakDoubleBoson:ffbar2gmZgmZ = on
 
-! Z(ll)Z(xx)
+! Z(ll)Z(ee/mumu)
 ResonanceDecayFilter:filter = on
 ResonanceDecayFilter:exclusive = off
 ResonanceDecayFilter:mothers = 23
-ResonanceDecayFilter:daughters = 11,-11,13,-13,15,-15
+ResonanceDecayFilter:daughters = 11,-11,13,-13
 
 ! 4) Settings for the event generation process in the Pythia8 library.
 PartonLevel:ISR = on               ! no initial-state radiation
