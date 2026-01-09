@@ -26,7 +26,7 @@
 model = SM
 
 # Center of mass energy
-sqrts = 160 GeV
+sqrts = 163 GeV
 
 # Processes 
 
