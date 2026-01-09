@@ -26,7 +26,7 @@
 model = SM
 
 # Center of mass energy
-sqrts = 160 GeV
+sqrts = 163 GeV
 
 # Processes 
 
@@ -43,12 +43,12 @@ alias qs = s:S
 alias qc = c:C
 alias qb = b:B
 
-process proc = e1, E1 =>   (el, neutrino, qu, qd) + (muons, neutrino, qu, qd)
-	       	      	 + (el, neutrino, qu, qc) + (muons, neutrino, qu, qc)
-	       	      	 + (el, neutrino, qu, qb) + (muons, neutrino, qu, qb)
-	       	      	 + (el, neutrino, qc, qd) + (muons, neutrino, qc, qd)
-	       	      	 + (el, neutrino, qc, qs) + (muons, neutrino, qc, qs)
-	       	      	 + (el, neutrino, qc, qb) + (muons, neutrino, qc, qb)
+process proc = e1, E1 =>   (taus, neutrino, qu, qd)
+	       	      	 + (taus, neutrino, qu, qc)
+	       	      	 + (taus, neutrino, qu, qb)
+	       	      	 + (taus, neutrino, qc, qd)
+	       	      	 + (taus, neutrino, qc, qs)
+	       	      	 + (taus, neutrino, qc, qb)
 
 # those cuts are from the aH cards, to be adapted
 #cuts = let subevt @meA = select if Index > 2 [A] in 
