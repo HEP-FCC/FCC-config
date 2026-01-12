@@ -24,9 +24,10 @@ if ! test -f ./DataAlgForGEANT.root; then  # assumes that if the last file exist
   wget https://fccsw.web.cern.ch/fccsw/filesForSimDigiReco/ALLEGRO/ALLEGRO_o1_v03/neighbours_map_ecalE_turbine.root
   wget https://fccsw.web.cern.ch/fccsw/filesForSimDigiReco/ALLEGRO/ALLEGRO_o1_v03/neighbours_map_ecalB_thetamodulemerged_hcalB_hcalEndcap_phitheta.root
   wget https://fccsw.web.cern.ch/fccsw/filesForSimDigiReco/ALLEGRO/ALLEGRO_o1_v03/neighbours_map_ecalB_thetamodulemerged_ecalE_turbine_hcalB_hcalEndcap_phitheta.root
+  wget https://fccsw.web.cern.ch/fccsw/filesForSimDigiReco/IDEA/IDEA_o1_v03/SimpleGatrIDEAv3o1.onnx
   wget https://fccsw.web.cern.ch/fccsw/filesForSimDigiReco/IDEA/DataAlgFORGEANT.root
 fi
 
 # run the RECO step
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd ) # workaround to have ctests working
-k4run $SCRIPT_DIR/run_digi_reco.py --includeHCal --includeMuon --runTrkHitDigitization --addTracks --calibrateClusters --saveCells
+k4run $SCRIPT_DIR/run_digi_reco.py --includeHCal --includeMuon --runTrkHitDigitization --addTracks --calibrateClusters --saveCells --runTrkFinder
