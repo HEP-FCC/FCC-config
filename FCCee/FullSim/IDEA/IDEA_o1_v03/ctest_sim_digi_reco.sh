@@ -1,11 +1,12 @@
 #!/bin/bash
 
 # set-up the Key4hep environment if not already set
-if [[ -z "${KEY4HEP_STACK}" ]]; then
-  source /cvmfs/sw-nightlies.hsf.org/key4hep/setup.sh
-else
-  echo "The Key4hep stack was already loaded in this environment."
-fi
+# to be re-enabled when the LCG stack setup script will have been fixed
+#if [[ -z "${KEY4HEP_STACK}" ]]; then
+#  source /cvmfs/sw-nightlies.hsf.org/key4hep/setup.sh
+#else
+#  echo "The Key4hep stack was already loaded in this environment."
+#fi
 
 # workaround to have ctests working
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd ) 
