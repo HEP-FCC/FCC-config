@@ -1,5 +1,5 @@
 # run_digi_reco.py
-# steering file for the ALLEGRO digitisation/reconstruction
+# steering file for the ALLEGRO digitization/reconstruction
 
 #
 # COMMON IMPORTS
@@ -50,7 +50,7 @@ parser.add_argument("--calibrateClusters", type=str2bool, nargs="?", help="Apply
 parser.add_argument("--reconstructPi0s", type=str2bool, nargs="?", help="Search for cluster pairs consistent with the pi0 hypothesis", const=True, default=True)
 parser.add_argument("--runPhotonID", type=str2bool, nargs="?", help="Apply photon ID tool to clusters", const=True, default=False)
 parser.add_argument("--runTrkHitDigitization", type=str2bool, nargs="?", help="Digitize tracker hits", const=True, default=False)
-parser.add_argument("--useLegacyVTXDigitizer", type=str2bool, nargs="?", help="Perform VTXdigitizer-based digitisation of tracker hits", const=True, default=False)
+parser.add_argument("--useLegacyVTXDigitizer", type=str2bool, nargs="?", help="Perform VTXdigitizer-based digitization of tracker hits", const=True, default=False)
 parser.add_argument("--runTrkFinder", type=str2bool, nargs="?", help="Run Geometric Graph Track Finding (GGTF) on digitized tracker hits", const=True, default=False)
 
 opts = parser.parse_known_args()[0]
@@ -90,14 +90,14 @@ dropSiWrHits = False
 dropMuonHits = False
 
 
-# ECAL barrel parameters for digitisation
+# ECAL barrel parameters for digitization
 ecalBarrelLayers = 11
 ecalBarrelSamplingFraction = [0.3800493723322256] * 1 + [0.13494147915064658] * 1 + [0.142866851721152] * 1 + [0.14839315921940666] * 1 + [0.15298362570665006] * 1 + [0.15709704561942747] * 1 + [0.16063717490147533] * 1 + [0.1641723795419055] * 1 + [0.16845490287689746] * 1 + [0.17111520115997653] * 1 + [0.1730605163148862] * 1
 ecalBarrelUpstreamParameters = [[0.028158491043365624, -1.564259408365951, -76.52312805346982, 0.7442903558010191, -34.894692961350195, -74.19340877431723]]
 ecalBarrelDownstreamParameters = [[0.00010587711361028165, 0.0052371999097777355, 0.69906696456064, -0.9348243433360095, -0.0364714212117143, 8.360401126995626]]
 if ecalBarrelSamplingFraction and len(ecalBarrelSamplingFraction) > 0:
     assert (ecalBarrelLayers == len(ecalBarrelSamplingFraction))
-# ECAL endcap parameters for digitisation
+# ECAL endcap parameters for digitization
 # the turbine endcap has calibration "layers" in the both the z and radial
 # directions, for each of the three wheels.  So the total number of layers
 # is given by:
@@ -267,7 +267,7 @@ if addTracks:
     TopAlg += [dNdxFromTracks]
 
 
-# Tracker digitisation
+# Tracker digitization
 if runTrkHitDigitization:
     import math
     # different sensors for inner/outer barrel layers
@@ -469,7 +469,7 @@ if runTrkFinder:
     )
     TopAlg += [GGTF]
 
-# Calorimeter digitisation (merging hits into cells, EM scale calibration via sampling fractions)
+# Calorimeter digitization (merging hits into cells, EM scale calibration via sampling fractions)
 
 # - ECAL readouts
 ecalBarrelReadoutName = "ECalBarrelModuleThetaMerged"      # barrel, original segmentation (baseline)
