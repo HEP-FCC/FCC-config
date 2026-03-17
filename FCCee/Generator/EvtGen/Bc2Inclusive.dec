@@ -1,0 +1,107 @@
+Alias   Bc_SIGNAL   B_c+
+Alias   Bcbar_SIGNAL    B_c-
+ChargeConj    Bc_SIGNAL   Bcbar_SIGNAL
+#
+Decay Bc_SIGNAL
+# full list of decays copied from DECAY.DEC
+# Total Br = 0.939865 + .06135 cs
+0.01600    tau+       nu_tau                   SLN;
+#
+#                  SemiLeptonic Decays
+0.01900    J/psi      e+          nu_e         PHOTOS  PHSP;
+0.00094    psi(2S)    e+          nu_e         PHOTOS  PHSP;
+0.00750    eta_c      e+          nu_e         PHOTOS  PHSP;
+0.00020    eta_c(2S)  e+          nu_e         PHOTOS  PHSP;
+0.00004    D0         e+          nu_e         PHOTOS  PHSP;
+0.00018    D*0        e+          nu_e         PHOTOS  PHSP;
+0.04030    B_s0       e+          nu_e         PHOTOS  PHSP;
+0.05060    B_s*0      e+          nu_e         PHOTOS  PHSP;
+0.00340    B0         e+          nu_e         PHOTOS  PHSP;
+0.00580    B*0        e+          nu_e         PHOTOS  PHSP;
+#
+0.01900    J/psi      mu+         nu_mu        PHOTOS  PHSP;
+0.00094    psi(2S)    mu+         nu_mu        PHOTOS  PHSP;
+0.00750    eta_c      mu+         nu_mu        PHOTOS  PHSP;
+0.00020    eta_c(2S)  mu+         nu_mu        PHOTOS  PHSP;
+0.00004    D0         mu+         nu_mu        PHOTOS  PHSP;
+0.00018    D*0        mu+         nu_mu        PHOTOS  PHSP;
+0.04030    B_s0       mu+         nu_mu        PHOTOS  PHSP;
+0.05060    B_s*0      mu+         nu_mu        PHOTOS  PHSP;
+0.00340    B0         mu+         nu_mu        PHOTOS  PHSP;
+0.00580    B*0        mu+         nu_mu        PHOTOS  PHSP;
+#
+0.00480    J/psi      tau+        nu_tau               PHSP;
+0.00008    psi(2S)    tau+        nu_tau               PHSP;
+0.00230    eta_c      tau+        nu_tau               PHSP;
+0.000016   eta_c(2S)  tau+        nu_tau               PHSP;
+0.00002    D0         tau+        nu_tau               PHSP;
+0.00008    D*0        tau+        nu_tau               PHSP;
+#
+#                  Hadronic Decays
+0.00200    eta_c      pi+                   PHSP;
+0.00420    rho+       eta_c                 SVS;
+0.00013    eta_c      K+                    PHSP;
+0.00020    K*+        eta_c                 SVS;
+0.00130    J/psi      pi+                   SVS;
+0.00400    J/psi      rho+                  SVV_HELAMP 1.0 0.0 1.0 0.0 1.0 0.0;
+0.00011    J/psi      K+                    SVS;
+0.00022    J/psi      K*+                   SVV_HELAMP 1.0 0.0 1.0 0.0 1.0 0.0;
+#
+0.000053   D+         anti-D0               PHSP;
+0.000075   anti-D*0   D+                    SVS;
+0.000049   D*+        anti-D0               SVS;
+0.00033    D*+        anti-D*0              SVV_HELAMP 1.0 0.0 1.0 0.0 1.0 0.0;
+0.0000048  D_s+       anti-D0               PHSP;
+0.0000071  anti-D*0   D_s+                  SVS;
+0.0000045  D_s*+      anti-D0               SVS;
+0.000026   D_s*+      anti-D*0              SVV_HELAMP 1.0 0.0 1.0 0.0 1.0 0.0;
+#
+0.0000003  D+         D0                    PHSP;
+0.0000003  D*0        D+                    SVS;
+0.0000004  D*+        D0                    SVS;
+0.0000016  D*0        D*+                   SVV_HELAMP 1.0 0.0 1.0 0.0 1.0 0.0;
+0.0000066  D_s+       D0                    PHSP;
+0.0000063  D*0        D_s+                  SVS;
+0.0000085  D_s*+      D0                    SVS;
+0.0000404  D_s*+      D*0                   SVV_HELAMP 1.0 0.0 1.0 0.0 1.0 0.0;
+#
+0.00280    eta_c      D_s+                  PHSP;
+0.00270    D_s*+      eta_c                 SVS;
+0.00015    eta_c      D+                    PHSP;
+0.00010    D*+        eta_c                 SVS;
+0.00170    J/psi      D_s+                  SVS;
+0.00670    J/psi      D_s*+                 SVV_HELAMP 1.0 0.0 1.0 0.0 1.0 0.0;
+0.00009    J/psi      D+                    SVS;
+0.00028    J/psi      D*+                   SVV_HELAMP 1.0 0.0 1.0 0.0 1.0 0.0;
+#
+0.16400    B_s0       pi+                   PHSP;
+0.07200    rho+       B_s0                  SVS;
+0.01060    B_s0       K+                    PHSP;
+0.00000    K*+        B_s0                  SVS;
+0.06500    B_s*0      pi+                   SVS;
+0.20200    B_s*0      rho+                  SVV_HELAMP 1.0 0.0 1.0 0.0 1.0 0.0;
+0.00370    B_s*0      K+                    SVS;
+0.00000    B_s*0      K*+                   SVV_HELAMP 1.0 0.0 1.0 0.0 1.0 0.0;
+0.01060    B0         pi+                   PHSP;
+0.00960    rho+       B0                    SVS;
+0.00070    B0         K+                    PHSP;
+0.00015    K*+        B0                    SVS;
+0.00950    B*0        pi+                   SVS;
+0.02570    B*0        rho+                  SVV_HELAMP 1.0 0.0 1.0 0.0 1.0 0.0;
+0.00055    B*0        K+                    SVS;
+0.00058    B*0        K*+                   SVV_HELAMP 1.0 0.0 1.0 0.0 1.0 0.0;
+0.00037    B+         pi0                   PHSP;
+0.00034    rho0       B+                    SVS;
+0.01980    B+         anti-K0               PHSP;
+0.00430    K*0        B+                    SVS;
+0.00033    B*+        pi0                   SVS;
+0.00090    B*+        rho0                  SVV_HELAMP 1.0 0.0 1.0 0.0 1.0 0.0;
+0.01600    B*+        anti-K0               SVS;
+0.01670    B*+        K*0                   SVV_HELAMP 1.0 0.0 1.0 0.0 1.0 0.0;
+# PR LHCb 09 Apr 2004 Add B_c+ -> rho0 pi+
+  0.00002    rho0       pi+                   SVS;
+0.06005 c anti-s PYTHIA 42;
+# PR LHCb 27 Apr 2004 Add Pythia Modes
+Enddecay
+CDecay    Bcbar_SIGNAL
+End
