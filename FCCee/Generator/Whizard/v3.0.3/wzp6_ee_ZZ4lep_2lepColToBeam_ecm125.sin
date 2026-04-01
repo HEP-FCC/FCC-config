@@ -1,0 +1,130 @@
+########################################################################
+#
+# Copyright (C) 1999-2019 by 
+#     Wolfgang Kilian <kilian@physik.uni-siegen.de>
+#     Thorsten Ohl <ohl@physik.uni-wuerzburg.de>
+#     Juergen Reuter <juergen.reuter@desy.de>
+#     with contributions from
+#     cf. main AUTHORS file
+#
+# WHIZARD is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by 
+# the Free Software Foundation; either version 2, or (at your option)
+# any later version.
+#
+# WHIZARD is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+#
+########################################################################
+
+model = SM
+
+# Center of mass energy
+sqrts = 125 GeV
+
+# Processes
+
+#?vis_diags = true
+
+# ee -> llnunu
+
+process proc = e1, E1 =>   ( e1, E1, Z)
+                         + ( e2, E2, Z) { $restrictions = "!H" }
+
+# final state leptons outside of acceptance
+cuts =      (no abs( cos( Theta ) ) < 0.998750  [ e1 ])
+        and (no abs( cos( Theta ) ) < 0.998750  [ E1 ])
+        and (no abs( cos( Theta ) ) < 0.998750  [ e2 ])
+        and (no abs( cos( Theta ) ) < 0.998750  [ E2 ])
+
+beams = e1, E1 => gaussian => isr
+?keep_beams  = true    
+?keep_remnants = true
+
+# sqrt(s) spread of 4 MeV => BES = sqrt(2)*(0.004/125) ~ 0.0045%
+gaussian_spread1 = 0.0045%
+gaussian_spread2 = 0.0045%
+
+?isr_handler       = true
+$isr_handler_mode = "recoil"
+isr_alpha          = 0.0072993
+isr_mass           = 0.000511
+
+
+
+! Parton shower and hadronization
+?ps_fsr_active          = true
+?ps_isr_active          = false
+?hadronization_active   = true
+$shower_method          = "PYTHIA6"
+!?ps_PYTHIA_verbose     = true
+
+######################## MDME CHEAT SHEET #########################
+# Z decays:
+# MDME(174,1)=0;             !Z decay into d dbar
+# MDME(175,1)=0;             !Z decay into u ubar
+# MDME(176,1)=0;             !Z decay into s sbar
+# MDME(177,1)=0;             !Z decay into c cbar
+# MDME(178,1)=0;             !Z decay into b bbar
+# MDME(179,1)=0;             !Z decay into t tbar
+# MDME(180,1)=0;             !Z decay into b4 b4bar
+# MDME(181,1)=0;             !Z decay into t4 t4bar
+# MDME(182,1)=1;             !Z decay into e- e+
+# MDME(183,1)=0;             !Z decay into nu_e nu_ebar
+# MDME(184,1)=1;             !Z decay into mu- mu+
+# MDME(185,1)=0;             !Z decay into nu_mu nu_mubar
+# MDME(186,1)=0;             !Z decay into tau- tau+
+# MDME(187,1)=0;             !Z decay into nu_tau nu_taubar
+# MDME(188,1)=0;             !Z decay into tau4 tau4bar
+# MDME(189,1)=0;             !Z decay into nu_tau4 nu_tau4bar
+#
+# W decays:
+# MDME(190,1)=0;             !W decay into dbar u
+# MDME(191,1)=0;             !W decay into dbar c
+# MDME(192,1)=0;             !W decay into dbar t
+# MDME(194,1)=0;             !W decay into sbar u
+# MDME(195,1)=0;             !W decay into sbar c
+# MDME(196,1)=0;             !W decay into sbar t
+# MDME(198,1)=0;             !W decay into bbar u
+# MDME(199,1)=0;             !W decay into bbar c
+# MDME(200,1)=0;             !W decay into bbar t
+# MDME(206,1)=0;             !W decay into e+ nu_e
+# MDME(207,1)=0;             !W decay into mu+ nu_mu
+# MDME(208,1)=0;             !W decay into tau+ nu_tau
+#
+# Higgs decays
+# MDME(210,1)=0;             !H decay into d dbar 
+# MDME(211,1)=0;             !H decay into u ubar 
+# MDME(212,1)=0;             !H decay into s sbar 
+# MDME(213,1)=0;             !H decay into c cbar 
+# MDME(214,1)=0;             !H decay into b bbar 
+# MDME(215,1)=0;             !H decay into t tbar 
+# MDME(218,1)=0;             !H decay into e- e+ 
+# MDME(219,1)=0;             !H decay into mu- mu+ 
+# MDME(220,1)=0;             !H decay into tau- tau+ 
+# MDME(222,1)=0;             !H decay into g g 
+# MDME(223,1)=0;             !H decay into gamma gamma 
+# MDME(224,1)=0;             !H decay into gamma Z0 
+# MDME(225,1)=0;             !H decay into Z0 Z0 
+# MDME(226,1)=0;             !H decay into W+ W- 
+
+
+$ps_PYTHIA_PYGIVE = "MDME(174,1)=0; MDME(175,1)=0; MDME(176,1)=0; MDME(177,1)=0; MDME(178,1)=0; MDME(179,1)=0; MDME(180,1)=0; MDME(181,1)=0; MDME(182,1)=1; MDME(183,1)=0; MDME(184,1)=1; MDME(185,1)=0; MDME(186,1)=0; MDME(187,1)=0; MDME(188,1)=0; MDME(189,1)=0; MSTJ(28)=0; PMAS(25,1)=125.; PMAS(25,2)=0.4143E-02; MSTJ(41)=2; MSTU(22)=2000; PARJ(21)=0.40000; PARJ(41)=0.11000; PARJ(42)=0.52000; PARJ(81)=0.25000; PARJ(82)=1.90000; MSTJ(11)=3; PARJ(54)=-0.03100; PARJ(55)=-0.00200; PARJ(1)=0.08500; PARJ(3)=0.45000; PARJ(4)=0.02500; PARJ(2)=0.31000; PARJ(11)=0.60000; PARJ(12)=0.40000; PARJ(13)=0.72000; PARJ(14)=0.43000; PARJ(15)=0.08000; PARJ(16)=0.08000; PARJ(17)=0.17000; MSTP(3)=1;MSTP(71)=1;  MSTP(151)=1; PARP(151)=0.055; PARP(152)=4.5e-5; PARP(153)=3.3; PARP(154)=1.937; MSTJ(22)=4; PARJ(73)=2250; PARJ(74)=2500"
+
+
+integrate (proc) { iterations = 10:100000:"gw", 5:200000:"" }
+
+# n_events should be passed by the EventProducer
+# n_events = 100000
+
+sample_format =  stdhep
+$extension_stdhep = "stdhep"
+simulate (proc) {checkpoint = 100}
+
+
