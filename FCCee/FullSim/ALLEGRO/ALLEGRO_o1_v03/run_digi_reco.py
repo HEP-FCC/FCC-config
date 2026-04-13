@@ -424,16 +424,16 @@ if runTrkHitDigitization:
 
     from Configurables import UniqueIDGenSvc
     ExtSvc += [UniqueIDGenSvc("uidSvc")]
-    from Configurables import DCHdigi_v02
+    from Configurables import DCHdigi_v01
     # "https://fccsw.web.cern.ch/fccsw/filesForSimDigiReco/IDEA/DataAlgFORGEANT.root"
-    dch_digitizer = DCHdigi_v02("DCHdigi",
+    dch_digitizer = DCHdigi_v01("DCHdigi",
                                 DCH_simhits=["DCHCollection"],
                                 DCH_name="DCH_v2",
                                 fileDataAlg=dataFolder + "DataAlgFORGEANT.root",
                                 calculate_dndx=False,  # cluster counting disabled (to be validated, see FCC-config#239)
-                                create_debug_histograms = Truee,
-                                zResolution_mm = 30.,  # in mm - Note: At this point, the z resolution comes without the stereo measurement
-                                xyResolution_mm = 0.1  # in mm
+                                create_debug_histograms=False,
+                                zResolution_mm=30.,  # in mm - Note: At this point, the z resolution comes without the stereo measurement
+                                xyResolution_mm=0.1  # in mm
                                 )
     TopAlg += [dch_digitizer]
 
