@@ -15,7 +15,7 @@ SIM.crossingAngleBoost = 0.015
 SIM.enableDetailedShowerMode = False
 SIM.enableG4GPS = False
 SIM.enableG4Gun = False
-SIM.enableGun = True
+SIM.enableGun = False
 ## InputFiles for simulation .stdhep, .slcio, .HEPEvt, .hepevt, .pairs, .hepmc, .hepmc.gz, .hepmc.xz, .hepmc.bz2, .hepmc3, .hepmc3.gz, .hepmc3.xz, .hepmc3.bz2, .hepmc3.tree.root files are supported
 SIM.inputFiles = []
 ## Macro file to execute for runType 'run' or 'vis'
