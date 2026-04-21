@@ -17,7 +17,7 @@ cd FCC-config/FCCee/FullSim/IDEA/IDEA_o2_v01/
 It is recommended to run the simulation with the `Steering File` provided here because it associates sensitive actions to calorimeters as intended by the developers.
 
 ```
-ddsim --enableGun --gun.distribution uniform --gun.energy "10*GeV" --gun.particle e- --crossingAngleBoost 0 --numberOfEvents 10 --outputFile IDEA_sim.root --random.enableEventSeed --random.seed 42 --outputFile IDEA_sim.root --compactFile $K4GEO/FCCee/IDEA/compact/IDEA_o2_v01/IDEA_o2_v01.xml --steeringFile SteeringFile_IDEA_o2_v01.py
+ddsim --enableGun --gun.distribution uniform --gun.energy "10*GeV" --gun.particle e- --crossingAngleBoost 0 --numberOfEvents 10 --random.enableEventSeed --random.seed 42 --outputFile IDEA_sim.root --compactFile $K4GEO/FCCee/IDEA/compact/IDEA_o2_v01/IDEA_o2_v01.xml --steeringFile SteeringFile_IDEA_o2_v01.py
 ```
 
 ## Running the digitization and reconstruction
