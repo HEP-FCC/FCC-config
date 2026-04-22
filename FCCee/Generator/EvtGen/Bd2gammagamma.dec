@@ -3,7 +3,7 @@ Alias   Bdbar_SIGNAL    anti-B0
 ChargeConj Bd_SIGNAL  Bdbar_SIGNAL
 
 Decay Bd_SIGNAL
-  1.0    gamma    gamma    PHSP;
+  1.0    gamma    gamma    PHOTOS PHSP;
 Enddecay
 CDecay Bdbar_SIGNAL
 
