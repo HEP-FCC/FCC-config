@@ -432,11 +432,8 @@ if runTrkHitDigitization:
                                 fileDataAlg=dataFolder + "DataAlgFORGEANT.root",
                                 calculate_dndx=False,  # cluster counting disabled (to be validated, see FCC-config#239)
                                 create_debug_histograms=False,
-                                # zResolution_mm=30.,  # in mm - Note: At this point, the z resolution comes without the stereo measurement
-                                # xyResolution_mm=0.1  # in mm
-                                # no smearing
-                                zResolution_mm=0.,  # in mm - Note: At this point, the z resolution comes without the stereo measurement
-                                xyResolution_mm=0.  # in mm
+                                zResolution_mm=30.,  # in mm - Note: At this point, the z resolution comes without the stereo measurement
+                                xyResolution_mm=0.1  # in mm
                                 )
     TopAlg += [dch_digitizer]
 

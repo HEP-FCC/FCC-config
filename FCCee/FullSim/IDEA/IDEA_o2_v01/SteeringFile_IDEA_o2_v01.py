@@ -1,15 +1,10 @@
 from DDSim.DD4hepSimulation import DD4hepSimulation
-from g4units import mm, GeV, MeV
-
-###################################
-# user options
-simulateCalo = True # set to False to skip the calo SD action
-###################################
+from g4units import cm, mm, GeV, MeV
 
 SIM = DD4hepSimulation()
 
 ## The compact XML file, or multiple compact files, if the last one is the closer.
-SIM.compactFile = ["../FCCee/IDEA/compact/IDEA_o1_v03/IDEA_o1_v03.xml"]
+SIM.compactFile = ["../FCCee/IDEA/compact/IDEA_o2_v01/IDEA_o2_v01.xml"]
 ## Lorentz boost for the crossing angle, in radian!
 SIM.crossingAngleBoost = 0.015
 SIM.enableDetailedShowerMode = False
@@ -23,7 +18,7 @@ SIM.macroFile = ""
 ## number of events to simulate, used in batch mode
 SIM.numberOfEvents = 10
 ## Outputfile from the simulation: .slcio, edm4hep.root and .root output files are supported
-SIM.outputFile = "testIDEA_o1_v03.root"
+SIM.outputFile = "IDEA_o2_v01.root"
 ## Physics list to use in simulation
 SIM.physicsList = "FTFP_BERT"
 ## Verbosity use integers from 1(most) to 7(least) verbose
@@ -103,29 +98,36 @@ SIM.vertexSigma = [0.0, 0.0, 0.0, 0.0]
 ################################################################################
 
 ##  set the default calorimeter action
-if simulateCalo:
-    SIM.action.calo = "Geant4ScintillatorCalorimeterAction"
-    ## List of patterns matching sensitive detectors of type Calorimeter.
-    SIM.action.calorimeterSDTypes = ["calorimeter", "DRcaloSiPMSD"]
-    SIM.action.mapActions["DRcalo"] = "DRCaloSDAction"
-    ## configure regex SD
-    SIM.geometry.regexSensitiveDetector["DRcalo"] = {"Match": ["(core|clad)"], "OutputLevel": 3}
-else:
-    SIM.action.calo = "Geant4VoidSensitiveAction"
-    SIM.action.mapActions["DRcalo"] = "Geant4VoidSensitiveAction"
+SIM.action.calo = "Geant4ScintillatorCalorimeterAction"
 
-##  set the default event action
-SIM.action.event = []
+## List of patterns matching sensitive detectors of type Calorimeter.
+SIM.action.calorimeterSDTypes = ["calorimeter"]
 
-## Create a map of patterns and actions to be applied to sensitive detectors.
-##
-##     Example: if the name of the detector matches 'tpc' the TPCSDAction is used.
-##
-##       SIM.action.mapActions['tpc'] = "TPCSDAction"
-##
+## Replace SDAction for SCEPCal subdetector
+SIM.action.mapActions["SCEPCal_MainLayer"] = "SCEPCal_MainSDAction"
+SIM.action.mapActions["SCEPCal_TimingLayer"] = "SCEPCal_TimingSDAction"
 
-## Set the drift chamber action
-SIM.action.mapActions['DCH_v2'] = "Geant4TrackerAction"
+## Do not add filter to crystal calorimeter (e.g. edep1kev)
+## otherwise optical photons will not be processed by its SDAction
+## and corresponding collections are empty
+SIM.filter.mapDetFilter["SCEPCal_MainLayer"] = ""
+SIM.filter.mapDetFilter["SCEPCal_TimingLayer"] = ""
+
+## Replace SDAction for DREndcapTubes subdetector
+SIM.action.mapActions["DREndcapTubes"] = "DRTubesSDAction"
+## Configure the regexSD for DREndcapTubes subdetector
+SIM.geometry.regexSensitiveDetector["DREndcapTubes"] = {
+    "Match": ["DRETS"],
+    "OutputLevel": 4,
+}
+
+## Replace SDAction for DRBarrelTubes subdetector
+SIM.action.mapActions["DRBarrelTubes"] = "DRTubesSDAction"
+## Configure the regexSD for DRBarrelTubes subdetector
+SIM.geometry.regexSensitiveDetector["DRBarrelTubes"] = {
+    "Match": ["DRBT"],
+    "OutputLevel": 4,
+}
 
 ##  set the default run action
 SIM.action.run = []
@@ -190,7 +192,6 @@ SIM.field.stepper = "ClassicalRK4"
 ##     default filter for calorimeter sensitive detectors;
 ##     this is applied if no other filter is used for a calorimeter
 ##
-# note: do not turn on the calo filter, otherwise all optical photons will be killed!
 SIM.filter.calo = ""
 
 ##  list of filter objects: map between name and parameter dictionary
@@ -201,8 +202,7 @@ SIM.filter.filters = {
 }
 
 ##  a map between patterns and filter objects, using patterns to attach filters to sensitive detector
-SIM.filter.mapDetFilter["DCH_v2"] = "edep0"
-SIM.filter.mapDetFilter["Muon-System"] = "edep0"
+SIM.filter.mapDetFilter = {}
 
 ##  default filter for tracking sensitive detectors; this is applied if no other filter is used for a tracker
 SIM.filter.tracker = "edep1kev"
@@ -244,6 +244,7 @@ SIM.geometry.enablePrintPlacements = False
 ## Print information about Sensitives
 SIM.geometry.enablePrintSensitives = False
 
+
 ################################################################################
 ## Configuration for the GuineaPig InputFiles
 ################################################################################
@@ -260,7 +261,7 @@ SIM.guineapig.particlesPerEvent = "-1"
 ################################################################################
 
 ##  direction of the particle gun, 3 vector
-SIM.gun.direction = (1.0, 0.1, 0.1)
+SIM.gun.direction = (0, 1, 0)
 
 ## choose the distribution of the random direction for theta
 ##
@@ -294,10 +295,10 @@ SIM.gun.etaMin = None
 SIM.gun.isotrop = False
 
 ## Maximal momentum when using distribution (default = 0.0)
-# SIM.gun.momentumMax = 10000.0
+SIM.gun.momentumMax = 10000.0
 
 ## Minimal momentum when using distribution (default = 0.0)
-# SIM.gun.momentumMin = 0.0
+SIM.gun.momentumMin = 0.0
 SIM.gun.multiplicity = 1
 SIM.gun.particle = "e-"
 
@@ -459,22 +460,6 @@ SIM.outputConfig.forceLCIO = False
 ##
 
 
-def Geant4Output2EDM4hep_DRC_plugin(dd4hepSimulation):
-    from DDG4 import EventAction, Kernel
-
-    evt_root = EventAction(
-        Kernel(), "Geant4Output2EDM4hep_DRC/" + dd4hepSimulation.outputFile, True
-    )
-    evt_root.Control = True
-    output = dd4hepSimulation.outputFile
-    evt_root.Output = output
-    evt_root.enableUI()
-    Kernel().eventAction().add(evt_root)
-    return None
-
-
-SIM.outputConfig.userOutputPlugin = Geant4Output2EDM4hep_DRC_plugin
-
 ################################################################################
 ## Configuration for the Particle Handler/ MCTruth treatment
 ################################################################################
@@ -566,7 +551,7 @@ SIM.physics.pdgfile = None
 ##     Set printlevel to DEBUG to see a printout of all range cuts,
 ##     but this only works if range cut is not "None"
 ##
-SIM.physics.rangecut = None
+SIM.physics.rangecut = 0.7
 
 ## Set of PDG IDs that will not be passed from the input record to Geant4.
 ##
@@ -617,54 +602,54 @@ SIM.physics.rejectPDGs = {
 SIM.physics.zeroTimePDGs = {17, 11, 13, 15}
 
 
-def setupOpticalPhysics(kernel):
+def setupCerenkov(kernel):
     from DDG4 import PhysicsList
 
     seq = kernel.physicsList()
     cerenkov = PhysicsList(kernel, "Geant4CerenkovPhysics/CerenkovPhys")
+    cerenkov.MaxNumPhotonsPerStep = 1000
+    # cerenkov.MaxBetaChangePerStep = 10.0
+    # cerenkov.TrackSecondariesFirst = True
+    cerenkov.VerboseLevel = 0
+    cerenkov.enableUI()
+    seq.adopt(cerenkov)
+    ph = PhysicsList(kernel, "Geant4OpticalPhotonPhysics/OpticalGammaPhys")
+    ph.addParticleConstructor("G4OpticalPhoton")
+    ph.VerboseLevel = 0
+    ph.enableUI()
+    seq.adopt(ph)
+    return None
+
+
+def setupCerenkovScint(kernel):
+    from DDG4 import PhysicsList
+
+    seq = kernel.physicsList()
+
+    scint = PhysicsList(kernel, "Geant4ScintillationPhysics/ScintillationPhys")
+    scint.VerboseLevel = 0
+    scint.TrackSecondariesFirst = True
+    scint.enableUI()
+    seq.adopt(scint)
+
+    cerenkov = PhysicsList(kernel, "Geant4CerenkovPhysics/CerenkovPhys")
+    cerenkov.VerboseLevel = 0
+    cerenkov.MaxNumPhotonsPerStep = 10
+    cerenkov.MaxBetaChangePerStep = 10.0
     cerenkov.TrackSecondariesFirst = True
-    cerenkov.VerboseLevel = 1
     cerenkov.enableUI()
     seq.adopt(cerenkov)
 
-    opt = PhysicsList(kernel, "Geant4OpticalPhotonPhysics/OpticalGammaPhys")
-    opt.addParticleConstructor("G4OpticalPhoton")
-    opt.VerboseLevel = 1
-    # set BoundaryInvokeSD to true when using DRC wafer as the SD
-    # opt.BoundaryInvokeSD = True
-    opt.enableUI()
-    seq.adopt(opt)
+    ph = PhysicsList(kernel, "Geant4OpticalPhotonPhysics/OpticalGammaPhys")
+    ph.addParticleConstructor("G4OpticalPhoton")
+    ph.VerboseLevel = 0
+    ph.enableUI()
+    seq.adopt(ph)
 
     return None
 
-if simulateCalo:
-    SIM.physics.setupUserPhysics(setupOpticalPhysics)
 
-def setupDRCFastSim(kernel):
-    from DDG4 import DetectorConstruction, Geant4, PhysicsList
-
-    geant4 = Geant4(kernel)
-    seq = geant4.detectorConstruction()
-    # Create a model for fast simulation
-    model = DetectorConstruction(kernel, str("Geant4DRCFiberModel/ShowerModel"))
-    # Mandatory model parameters
-    model.RegionName = "FastSimOpFiberRegion"
-    model.Enable = True
-    model.ApplicableParticles = ["opticalphoton"]
-    model.enableUI()
-    seq.adopt(model)
-    # Now build the physics list:
-    phys = kernel.physicsList()
-    ph = PhysicsList(kernel, str("Geant4FastPhysics/FastPhysicsList"))
-    ph.EnabledParticles = ["opticalphoton"]
-    ph.BeVerbose = True
-    ph.enableUI()
-    phys.adopt(ph)
-    phys.dump()
-
-
-# turn-on fastsim if the skipScint option of the SD is set to false
-# SIM.physics.setupUserPhysics(setupDRCFastSim)
+SIM.physics.setupUserPhysics(setupCerenkov)
 
 ################################################################################
 ## Properties for the random number generator
