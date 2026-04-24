@@ -195,7 +195,6 @@ trackFitter = GenfitTrackFitter(
     Beta_steps = 15,
     InitializationType = 1,
     SkipTrackOrdering = False,
-    SkipUnmatchedTracks = False,
     FilterTrackHits = True,
     OutputLevel=DEBUG,
 )

@@ -457,17 +457,17 @@ if runTrkFinder:
     tbeta = 0.6     # tbeta clustering parameter
     td = 0.3        # td clustering parameter
 
-    GGTF = GGTF_tracking(
-        "GGTF_tracking",
+    trackFinder = GGTFTrackFinder(
+        "GGTFTrackFinder",
         InputPlanarHitCollections=["VTXBDigis", "VTXDDigis", "SiWrDDigis", "SiWrBDigis"],
         InputWireHitCollections=["DCH_DigiCollection"],
         OutputTracksGGTF=["CDCHTracks"],
-        ModelPath=modelPath,
-        Tbeta=tbeta,
-        Td=td,
+        ModelPath=absolute_path,
+        Tbeta=0.6,    # default clustering parameters
+        Td=0.3,       # form the example in k4RecTracker
         OutputLevel=INFO,
     )
-    TopAlg += [GGTF]
+    TopAlg += [trackFinder]
 
 # Calorimeter digitization (merging hits into cells, EM scale calibration via sampling fractions)
 
