@@ -52,6 +52,7 @@ parser.add_argument("--runPhotonID", type=str2bool, nargs="?", help="Apply photo
 parser.add_argument("--runTrkHitDigitization", type=str2bool, nargs="?", help="Digitize tracker hits", const=True, default=False)
 parser.add_argument("--useLegacyVTXDigitizer", type=str2bool, nargs="?", help="Perform VTXdigitizer-based digitization of tracker hits", const=True, default=False)
 parser.add_argument("--runTrkFinder", type=str2bool, nargs="?", help="Run Geometric Graph Track Finding (GGTF) on digitized tracker hits", const=True, default=False)
+parser.add_argument("--runTrkFitter", type=str2bool, nargs="?", help="Run track fitter on tracks", const=True, default=False)
 
 opts = parser.parse_known_args()[0]
 dataFolder = opts.dataFolder                        # directory containing the calibration files
@@ -63,6 +64,7 @@ addTracks = opts.addTracks                          # add tracks or not
 runTrkHitDigitization = opts.runTrkHitDigitization    # digitize tracker hits (DDPlanarDigi as default)
 useLegacyVTXDigitizer = opts.useLegacyVTXDigitizer   # digitize tracker hits (VTXdigitizer, smear truth)
 runTrkFinder = opts.runTrkFinder                    # run GGTF on digitized tracker hits
+runTrkFitter = opts.runTrkFitter                    # run track fitter on tracks
 
 # - what to save in output file
 #
@@ -424,17 +426,23 @@ if runTrkHitDigitization:
 
     from Configurables import UniqueIDGenSvc
     ExtSvc += [UniqueIDGenSvc("uidSvc")]
-    from Configurables import DCHdigi_v01
-    # "https://fccsw.web.cern.ch/fccsw/filesForSimDigiReco/IDEA/DataAlgFORGEANT.root"
-    dch_digitizer = DCHdigi_v01("DCHdigi",
-                                DCH_simhits=["DCHCollection"],
-                                DCH_name="DCH_v2",
-                                fileDataAlg=dataFolder + "DataAlgFORGEANT.root",
-                                calculate_dndx=False,  # cluster counting disabled (to be validated, see FCC-config#239)
-                                create_debug_histograms=False,
-                                zResolution_mm=30.,  # in mm - Note: At this point, the z resolution comes without the stereo measurement
-                                xyResolution_mm=0.1  # in mm
-                                )
+    from Configurables import DCHdigi_v02
+    dch_digitizer = DCHdigi_v02(
+        "DCHdigi2",
+        InputSimHitCollection=["DCHCollection"],
+        OutputDigihitCollection = ["DCH_DigiCollection"],
+        OutputLinkCollection = ["DCH_DigiSimAssociationCollection"],
+        DCH_name="DCH_v2",
+        zResolution_mm = 30.,               # in mm
+        xyResolution_mm = 0.1,              # in mm
+        Deadtime_ns = 400.0,                # in ns
+        GasType=0,                          # 0: He(90%)-Isobutane(10%), 1: pure He, 2: Ar(50%)-Ethane(50%), 3: pure Ar
+        ReadoutWindowStartTime_ns=1.0,      # in ns (taking into account time of flight, drift, and signal travel)
+        ReadoutWindowDuration_ns=450.0,     # in ns
+        DriftVelocity_um_per_ns=-1.0,       # in um/ns, if negative, automatically chosen based on GasType
+        SignalVelocity_mm_per_ns=200.0,     # in mm/ns (Default: 2/3 of the speed of light)
+        OutputLevel=INFO,
+    )
     TopAlg += [dch_digitizer]
 
 if runTrkFinder:
@@ -454,17 +462,40 @@ if runTrkFinder:
     tbeta = 0.6     # tbeta clustering parameter
     td = 0.3        # td clustering parameter
 
-    GGTF = GGTF_tracking(
-        "GGTF_tracking",
+    trackFinder = GGTFTrackFinder(
+        "GGTFTrackFinder",
         InputPlanarHitCollections=["VTXBDigis", "VTXDDigis", "SiWrDDigis", "SiWrBDigis"],
         InputWireHitCollections=["DCH_DigiCollection"],
         OutputTracksGGTF=["CDCHTracks"],
         ModelPath=modelPath,
-        Tbeta=tbeta,
-        Td=td,
+        Tbeta=tbeta,    # default clustering parameters
+        Td=td,       # form the example in k4RecTracker
         OutputLevel=INFO,
     )
-    TopAlg += [GGTF]
+    TopAlg += [trackFinder]
+
+if runTrkFitter:
+
+    # Track fitter using Genfit2, following example from
+    # k4RecTracker/Tracking/test/testTrackFitter/runTestTrackFitter.py
+    from Configurables import GenfitTrackFitter
+
+    trackFitter = GenfitTrackFitter(
+        "GenfitTrackFitter",
+        
+        InputTracks=["CDCHTracks"],
+        OutputFittedTracks=["CDCHFittedTracks"],
+        RunSingleEvaluation = True,
+        UseBrems = True,
+        BetaInit = 100,
+        BetaFinal = 0.1,
+        Beta_steps = 15,
+        InitializationType = 1,
+        SkipTrackOrdering = False,
+        FilterTrackHits = True,
+        OutputLevel=INFO,
+    )
+    TopAlg += [trackFitter]
 
 # Calorimeter digitization (merging hits into cells, EM scale calibration via sampling fractions)
 
