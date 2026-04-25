@@ -196,7 +196,7 @@ trackFitter = GenfitTrackFitter(
     InitializationType = 1,
     SkipTrackOrdering = False,
     FilterTrackHits = True,
-    OutputLevel=DEBUG,
+    OutputLevel=INFO,
 )
 
 ################ Dual-readout calorimeter
