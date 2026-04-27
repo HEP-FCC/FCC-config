@@ -454,7 +454,7 @@ if runTrkFinder:
 
     # Load the GGTF, following example from:
     # k4RecTracker/Tracking/test/testTrackFinder/runTestTrackFinder.py
-    from Configurables import GGTF_tracking
+    from Configurables import GGTFTrackFinder
 
     modelPath = dataFolder + "SimpleGatrIDEAv3o1.onnx"   #FIXME: update to ALLEGRO-trained model when available
 
