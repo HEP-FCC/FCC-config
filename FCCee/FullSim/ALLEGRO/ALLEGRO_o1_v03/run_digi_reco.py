@@ -489,7 +489,7 @@ if runTrkFitter:
         UseBrems = True,
         BetaInit = 100,
         BetaFinal = 0.1,
-        Beta_steps = 15,
+        BetaSteps = 15,
         InitializationType = 1,
         SkipTrackOrdering = False,
         FilterTrackHits = True,
