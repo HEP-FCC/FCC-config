@@ -1,4 +1,5 @@
 import os
+import subprocess
 
 from Gaudi.Configuration import *
 
@@ -83,15 +84,23 @@ siwrd_digitizer.TrackerHitCollectionName = ["SiWrDDigis"]
 siwrd_digitizer.ForceHitsOntoSurface = True
 
 ############### DCH Digitizer
-from Configurables import DCHdigi_v01
-dch_digitizer = DCHdigi_v01("DCHdigi",
-    DCH_simhits = ["DCHCollection"],
-    DCH_name = "DCH_v2",
-    fileDataAlg = "DataAlgFORGEANT.root",
-    calculate_dndx = False, # cluster counting disabled (to be validated, see FCC-config#239)
-    create_debug_histograms = True,
-    zResolution_mm = 30., # in mm - Note: At this point, the z resolution comes without the stereo measurement
-    xyResolution_mm = 0.1 # in mm
+from Configurables import DCHdigi_v02
+
+dch_digitizer = DCHdigi_v02(
+    "DCHdigi2",
+    InputSimHitCollection=["DCHCollection"],
+    OutputDigihitCollection = ["DCH_DigiCollection"],
+    OutputLinkCollection = ["DCH_DigiSimAssociationCollection"],
+    DCH_name="DCH_v2",
+    zResolution_mm = 30.,               # in mm
+    xyResolution_mm = 0.1,              # in mm
+    Deadtime_ns = 400.0,                # in ns
+    GasType=0,                          # 0: He(90%)-Isobutane(10%), 1: pure He, 2: Ar(50%)-Ethane(50%), 3: pure Ar
+    ReadoutWindowStartTime_ns=1.0,      # in ns (taking into account time of flight, drift, and signal travel)
+    ReadoutWindowDuration_ns=450.0,     # in ns
+    DriftVelocity_um_per_ns=-1.0,       # in um/ns, if negative, automatically chosen based on GasType
+    SignalVelocity_mm_per_ns=200.0,     # in mm/ns (Default: 2/3 of the speed of light)
+    OutputLevel=INFO,
 )
 
 from Configurables import DDPlanarDigi
@@ -152,16 +161,41 @@ dNdxFromTracks = TrackdNdxDelphesBased("dNdxFromTracks",
 
 # Load the Geometric Graph Track Finder (GGTF), following example from:
 # k4RecTracker/Tracking/test/testTrackFinder/runTestTrackFinder.py
-from Configurables import GGTF_tracking
+from Configurables import GGTFTrackFinder
 
-GGTF = GGTF_tracking(
-    "GGTF_tracking",
+url = "https://key4hep.web.cern.ch/testFiles/k4RecTracker/SimpleGatrIDEAv3o1.onnx"
+filename = "SimpleGatrIDEAv3o1.onnx"
+subprocess.run(["wget", url, "-O", filename], check=True)
+absolute_path = os.path.abspath(filename)
+
+trackFinder = GGTFTrackFinder(
+    "GGTFTrackFinder",
     InputPlanarHitCollections=["VTXBDigis", "VTXDDigis", "SiWrDDigis", "SiWrBDigis"],
     InputWireHitCollections=["DCH_DigiCollection"],
     OutputTracksGGTF=["CDCHTracks"],
-    ModelPath="SimpleGatrIDEAv3o1.onnx",
+    ModelPath=absolute_path,
     Tbeta=0.6,    # default clustering parameters
     Td=0.3,       # form the example in k4RecTracker
+    OutputLevel=INFO,
+)
+
+# Track fitter using Genfit2, following example from
+# k4RecTracker/Tracking/test/testTrackFitter/runTestTrackFitter.py
+from Configurables import GenfitTrackFitter
+
+trackFitter = GenfitTrackFitter(
+    "GenfitTrackFitter",
+    
+    InputTracks=["CDCHTracks"],
+    OutputFittedTracks=["CDCHFittedTracks"],
+    RunSingleEvaluation = True,
+    UseBrems = True,
+    BetaInit = 100,
+    BetaFinal = 0.1,
+    BetaSteps = 15,
+    InitializationType = 1,
+    SkipTrackOrdering = False,
+    FilterTrackHits = True,
     OutputLevel=INFO,
 )
 
@@ -353,7 +387,8 @@ application_mgr = ApplicationMgr(
         tracksFromGenParticles,
         plotTrackDCHHitDistances,
         dNdxFromTracks,
-        GGTF,
+        trackFinder,
+        trackFitter,
         sipmEdep,
         sipmOptical,
         topoClusterAll,
