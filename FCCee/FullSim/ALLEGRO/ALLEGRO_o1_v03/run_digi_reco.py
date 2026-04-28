@@ -296,6 +296,7 @@ if runTrkHitDigitization:
         "SimTrkHitRelCollection": ["VTXBSimDigiLinks"],
         "SubDetectorName": "VertexBarrel",
         "TrackerHitCollectionName": ["VTXBDigis"],
+        "ForceHitsOntoSurface": True
     }
 
     vxd_endcap_digi_args = {
@@ -307,6 +308,7 @@ if runTrkHitDigitization:
         "SimTrkHitRelCollection": ["VTXDSimDigiLinks"],
         "SubDetectorName": "VertexDisks",
         "TrackerHitCollectionName": ["VTXDDigis"],
+        "ForceHitsOntoSurface": True
     }
 
     siWr_barrel_digi_args = {
@@ -318,6 +320,7 @@ if runTrkHitDigitization:
         "SimTrkHitRelCollection": ["SiWrBSimDigiLinks"],
         "SubDetectorName": "SiWrB",
         "TrackerHitCollectionName": ["SiWrBDigis"],
+        "ForceHitsOntoSurface": True
     }
 
     siWr_endcap_digi_args = {
@@ -329,6 +332,7 @@ if runTrkHitDigitization:
         "SimTrkHitRelCollection": ["SiWrDSimDigiLinks"],
         "SubDetectorName": "SiWrD",
         "TrackerHitCollectionName": ["SiWrDDigis"],
+        "ForceHitsOntoSurface": True
     }
 
 
