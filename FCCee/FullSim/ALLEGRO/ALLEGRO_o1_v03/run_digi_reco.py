@@ -450,7 +450,7 @@ if runTrkFinder:
 
     # Load the GGTF, following example from:
     # k4RecTracker/Tracking/test/testTrackFinder/runTestTrackFinder.py
-    from Configurables import GGTF_tracking
+    from Configurables import GGTFTrackFinder
 
     modelPath = dataFolder + "SimpleGatrIDEAv3o1.onnx"   #FIXME: update to ALLEGRO-trained model when available
 
@@ -458,8 +458,8 @@ if runTrkFinder:
     tbeta = 0.6     # tbeta clustering parameter
     td = 0.3        # td clustering parameter
 
-    GGTF = GGTF_tracking(
-        "GGTF_tracking",
+    GGTF = GGTFTrackFinder(
+        "GGTFTrackFinder",
         InputPlanarHitCollections=["VTXBDigis", "VTXDDigis", "SiWrDDigis", "SiWrBDigis"],
         InputWireHitCollections=["DCH_DigiCollection"],
         OutputTracksGGTF=["CDCHTracks"],
