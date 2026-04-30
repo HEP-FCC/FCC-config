@@ -438,8 +438,8 @@ if runTrkHitDigitization:
     dch_digitizer = DCHdigi_v02(
         "DCHdigi2",
         InputSimHitCollection=["DCHCollection"],
-        OutputDigihitCollection = ["DCH_DigiCollection"],
-        OutputLinkCollection = ["DCH_DigiSimAssociationCollection"],
+        OutputDigihitCollection = ["DCHDigis"],
+        OutputLinkCollection = ["DCHDigisSimAssociationCollection"],
         DCH_name="DCH_v2",
         zResolution_mm = 30.,               # in mm
         xyResolution_mm = 0.1,              # in mm
@@ -473,8 +473,8 @@ if runTrkFinder:
     trackFinder = GGTFTrackFinder(
         "GGTFTrackFinder",
         InputPlanarHitCollections=["VTXBDigis", "VTXDDigis", "SiWrDDigis", "SiWrBDigis"],
-        InputWireHitCollections=["DCH_DigiCollection"],
-        OutputTracksGGTF=["CDCHTracks"],
+        InputWireHitCollections=["DCHDigis"],
+        OutputTracksGGTF=["PrefitTracks"],
         ModelPath=modelPath,
         Tbeta=tbeta,    # default clustering parameters
         Td=td,       # form the example in k4RecTracker
@@ -490,9 +490,9 @@ if runTrkFitter:
 
     trackFitter = GenfitTrackFitter(
         "GenfitTrackFitter",
-        
-        InputTracks=["CDCHTracks"],
-        OutputFittedTracks=["CDCHFittedTracks"],
+        InputTracks=["PrefitTracks"],
+        OutputFittedTracks=["FittedTracks"],
+        OutputFittedTracksWithFilteredHits=["FittedTracksWithFilteredHits"],
         RunSingleEvaluation = True,
         UseBrems = True,
         BetaInit = 100,
