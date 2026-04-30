@@ -52,10 +52,9 @@ process proc = e1, E1 =>   ( q, Q, q, Q )
 			 + ( q, Q, b, B )
 	       	         + ( s, S, b, B )
                          + ( c, C, b, B )
-	                 + ( b, B, b, B ) { $restrictions = "3+4~h1 && 5+6~h1" }
+	                 + ( b, B, b, B )
+ 
 
-			 
-		 
 beams = e1, E1 => gaussian => isr
 ?keep_beams  = true    
 ?keep_remnants = true
