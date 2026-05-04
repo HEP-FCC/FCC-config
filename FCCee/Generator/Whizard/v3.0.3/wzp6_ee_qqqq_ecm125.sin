@@ -39,19 +39,13 @@ process proc = e1, E1 =>   ( q, Q, q, Q )
                          + ( c, C, q, Q )
 	                 + ( b, B, q, Q )
 			 
-			 + ( q, Q, s, S )
 	       	         + ( s, S, s, S )
                          + ( c, C, s, S )
 	                 + ( b, B, s, S )
 			 
-			 + ( q, Q, c, C )
-	       	         + ( s, S, c, C )
                          + ( c, C, c, C )
 	                 + ( b, B, c, C )
 			 
-			 + ( q, Q, b, B )
-	       	         + ( s, S, b, B )
-                         + ( c, C, b, B )
 	                 + ( b, B, b, B )
  
 
