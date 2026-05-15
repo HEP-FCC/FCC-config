@@ -1,8 +1,7 @@
-from Configurables import ApplicationMgr
 from Configurables import AuditorSvc, ChronoAuditor
-from Configurables import k4DataSvc, PodioInput
-from Configurables import PodioOutput
+from Configurables import EventDataSvc
 from Configurables import GeoSvc
+from k4FWCore import ApplicationMgr, IOSvc
 from Configurables import CorrectCaloClusters
 from Configurables import CreateCaloClustersSlidingWindowFCCee
 from Configurables import CaloTowerToolFCCee
@@ -29,13 +28,11 @@ dumpGDML = False
 runHCal = False
 
 # Loading the output of the SIM step
-evtsvc = k4DataSvc('EventDataSvc')
-evtsvc.input = "./ALLEGRO_sim.root"
+iosvc = IOSvc()
+iosvc.Input = "./ALLEGRO_sim.root"
+iosvc.Output = "ALLEGRO_sim_digi_reco.root"
+iosvc.outputCommands = ["keep *", "drop emptyCaloCells", "drop ECalBarrelCells", "drop ECalBarrelCells2", "drop ECalBarrelCellsMerged", "drop CaloTopoClusterCells"]
 Nevts = 100
-
-input_reader = PodioInput('InputReader')
-
-podioevent = k4DataSvc("EventDataSvc")
 
 # Detector geometry
 geoservice = GeoSvc("GeoSvc")
@@ -378,13 +375,6 @@ correctCaloTopoClusters = CorrectCaloClusters(
 )
 
 # Output
-out = PodioOutput("out",
-                  OutputLevel=INFO)
-
-out.outputCommands = ["keep *", "drop emptyCaloCells", "drop ECalBarrelCells", "drop ECalBarrelCells2", "drop ECalBarrelCellsMerged", "drop CaloTopoClusterCells"]
-
-out.filename = "ALLEGRO_sim_digi_reco.root"
-
 # CPU information
 chra = ChronoAuditor()
 audsvc = AuditorSvc()
@@ -394,14 +384,12 @@ createEcalBarrelPositionedCells.AuditExecute = True
 if runHCal:
     createHcalBarrelCells.AuditExecute = True
 createTopoClusters.AuditExecute = True
-out.AuditExecute = True
 
-ExtSvc = [evtsvc, geoservice, podioevent, audsvc]
+ExtSvc = [EventDataSvc("EventDataSvc"), geoservice, audsvc]
 if dumpGDML:
     ExtSvc += [gdmldumpservice]
 
 TopAlg = [
-    input_reader,
     createEcalBarrelCells,
     createEcalBarrelPositionedCells,
     resegmentEcalBarrel,
@@ -423,7 +411,6 @@ TopAlg += [
     createTopoClusters,
     createEcalBarrelPositionedCaloTopoClusterCells,
     correctCaloTopoClusters,
-    out
 ]
 
 ApplicationMgr(
