@@ -315,9 +315,9 @@ if runTrkHitDigitization:
 
     siWr_barrel_digi_args = {
         "IsStrip": False,
-        "ResolutionU": [siWrapperResolution_x]*2,
-        "ResolutionV": [siWrapperResolution_y]*2,
-        "ResolutionT": [siWrapperResolution_t]*2,
+        "ResolutionU": [siWrapperResolution_x]*4,
+        "ResolutionV": [siWrapperResolution_y]*4,
+        "ResolutionT": [siWrapperResolution_t]*4,
         "SimTrackHitCollectionName": ["SiWrBCollection"],
         "SimTrkHitRelCollection": ["SiWrBSimDigiLinks"],
         "SubDetectorName": "SiWrB",
@@ -328,9 +328,9 @@ if runTrkHitDigitization:
 
     siWr_endcap_digi_args = {
         "IsStrip": False,
-        "ResolutionU": [siWrapperResolution_x]*2,
-        "ResolutionV": [siWrapperResolution_y]*2,
-        "ResolutionT": [siWrapperResolution_t]*2,
+        "ResolutionU": [siWrapperResolution_x]*4,
+        "ResolutionV": [siWrapperResolution_y]*4,
+        "ResolutionT": [siWrapperResolution_t]*4,
         "SimTrackHitCollectionName": ["SiWrDCollection"],
         "SimTrkHitRelCollection": ["SiWrDSimDigiLinks"],
         "SubDetectorName": "SiWrD",
