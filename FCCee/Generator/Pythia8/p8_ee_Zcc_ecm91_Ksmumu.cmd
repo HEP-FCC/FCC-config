@@ -23,7 +23,7 @@ Beams:sigmaTime = 10.89
 Beams:eCM = 91.188
 WeakSingleBoson:ffbar2gmZ = on
 23:onMode = off
-23:onIfAny = 3
+23:onIfAny = 4
 
 ! 5) Radiation
 PartonLevel:ISR = on
@@ -34,18 +34,8 @@ ParticleDecays:limitCylinder = on
 ParticleDecays:xyMax = 2250.
 ParticleDecays:zMax = 2500.
 
-! 7) Force the KS to decay to two pions
-310:onMode = off
-310:oneChannel = 1 1.0 0 211 -211
+! 7) Force the KS to decay to two muons 
+310:oneChannel = 1 1.0 0 13 -13
 
-! 8) Force pions to decay to muons
-211:onMode = off
-211:addChannel = 1 1 0 -13 14
+! Main:numberOfEvents = 1000000
 
--211:onMode = off
--211:addChannel = 1 1 0 13 -14
-
-! Ask Pythia to allow "stable" decays
-211:mayDecay = on
--211:mayDecay = on
-310:mayDecay = on
