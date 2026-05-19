@@ -23,7 +23,7 @@ Beams:sigmaTime = 10.89
 Beams:eCM = 91.188
 WeakSingleBoson:ffbar2gmZ = on
 23:onMode = off
-23:onIfAny = 3
+23:onIfAny = 4
 
 ! 5) Radiation
 PartonLevel:ISR = on
