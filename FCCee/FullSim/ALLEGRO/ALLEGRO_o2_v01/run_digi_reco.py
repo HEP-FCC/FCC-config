@@ -83,11 +83,11 @@ dropLumiCalHits = True
 
 # for tracker hits there is a single hit/readout cell so not much gain by dropping them, especially if the corresponding digitized cells (smeared hits) have not been added to output
 # dropVertexHits = True
-# dropDCHHits = True
+# dropSTTHits = True
 # dropSiWrHits = True
 # dropMuonHits = True
 dropVertexHits = False
-dropDCHHits = False
+dropSTTHits = False
 dropSiWrHits = False
 dropMuonHits = False
 
@@ -240,7 +240,7 @@ if addTracks:
                                                     InputGenParticles=["MCParticles"],
                                                     InputSimTrackerHits=["VertexBarrelCollection",
                                                                          "VertexEndcapCollection",
-                                                                         "DCHCollection",
+                                                                         "STTCollection",
                                                                          "SiWrBCollection",
                                                                          "SiWrDCollection"],
                                                     OutputTracks=["TracksFromGenParticles"],
@@ -1385,8 +1385,8 @@ if dropLumiCalHits:
 if dropVertexHits:
     io_svc.outputCommands.append("drop VertexBarrelCollection*")
     io_svc.outputCommands.append("drop VertexEndcapCollection*")
-if dropDCHHits:
-    io_svc.outputCommands.append("drop DCHCollection*")
+if dropSTTHits:
+    io_svc.outputCommands.append("drop STTCollection*")
 if dropSiWrHits:
     io_svc.outputCommands.append("drop SiWrBCollection*")
     io_svc.outputCommands.append("drop SiWrDCollection*")
