@@ -1,0 +1,447 @@
+Alias   Bs_SIGNAL   B_s0
+Alias   Bsbar_SIGNAL    anti-B_s0
+ChargeConj    Bs_SIGNAL   Bsbar_SIGNAL
+#
+Decay Bs_SIGNAL
+# full list of decays copied from DECAY.DEC
+0.0210   D_s-     e+     nu_e         PHOTOS  HQET2 1.185 1.081;
+0.0490   D_s*-    e+     nu_e         PHOTOS  HQET2 1.207 0.920 1.406 0.853;
+0.0040   D_s1-    e+     nu_e         PHOTOS  ISGW2;
+0.0040   D_s0*-   e+     nu_e         PHOTOS  ISGW2;
+0.0070   D'_s1-   e+     nu_e         PHOTOS  ISGW2;
+0.0070   D_s2*-   e+     nu_e         PHOTOS  ISGW2;
+0.0210   D_s-     mu+    nu_mu        PHOTOS  HQET2 1.185 1.081;
+0.0490   D_s*-    mu+    nu_mu        PHOTOS  HQET2 1.207 0.920 1.406 0.853;
+0.0040   D_s1-    mu+    nu_mu        PHOTOS  ISGW2;
+0.0040   D_s0*-   mu+    nu_mu        PHOTOS  ISGW2;
+0.0070   D'_s1-   mu+    nu_mu        PHOTOS  ISGW2;
+0.0070   D_s2*-   mu+    nu_mu        PHOTOS  ISGW2;
+#fkw 5/04/01 changed these to account for taking out non-res
+#0.0070   D_s-     tau+   nu_tau                 ISGW2;
+#0.0150   D_s*-    tau+   nu_tau                 ISGW2;
+#0.0013   D_s1-    tau+   nu_tau                 ISGW2;
+#0.0013   D_s0*-   tau+   nu_tau                 ISGW2;
+#0.0023   D'_s1-   tau+   nu_tau                 ISGW2;
+#0.0023   D_s2*-   tau+   nu_tau                 ISGW2;
+0.0080   D_s-     tau+   nu_tau                 ISGW2;
+0.0160   D_s*-    tau+   nu_tau                 ISGW2;
+0.0018   D_s1-    tau+   nu_tau                 ISGW2;
+0.0018   D_s0*-   tau+   nu_tau                 ISGW2;
+0.0028   D'_s1-   tau+   nu_tau                 ISGW2;
+0.0028   D_s2*-   tau+   nu_tau                 ISGW2;
+#
+# fkw 4/28/00 the next few are decays where a u\bar u or d\bar d is popped
+#             between the charm quark and the spectator. I can thus not
+#             just replace a D by a Ds as above when going from Bd to Bs.
+#
+# fkw 5/04/01 Had to take non-res out because it crashed EvtGen.
+#0.0010      anti-D*0      K-         tau+    nu_tau           GOITY_ROBERTS;
+#0.0010      D*-           anti-K0    tau+    nu_tau           GOITY_ROBERTS;
+#0.0010      anti-D0       K-         tau+    nu_tau           GOITY_ROBERTS;
+#0.0010      D-            anti-K0    tau+    nu_tau           GOITY_ROBERTS;
+# fkw 4/28/00 B0 -> TAU D PI0 = 1/2 of TAU D PI- because of pi0 wave function
+#             However, the same factor of 1/2 doesn't apply to BS0 !!!
+# fkw 3/28/01 There seem to be no semi-leptonic B to baryon decays in nature.
+#             I don't pretend to understand why. PDG 2000 has a limit of
+#             < 3.2e-3 where one might naively expect
+#             10% * BR(B->/\c) = 0.1 * (6.4+-1.1)%
+#0.0050      nu_e        e+          B-Baryon
+#0.0050      nu_mu       mu+         B-Baryon
+#
+#                                         b --> c  (s c=)
+#                                         Sum = 11.44%
+#                                           2-body = 4.72%
+#                                        more-body = 6.72%
+0.010400000 D_s-    D_s+                                    PHSP; #[Reconstructed PDG2011]
+0.0099      D_s*+       D_s-          SVS;
+0.0099      D_s*-       D_s+          SVS;
+0.0197      D_s*-       D_s*+         SVV_HELAMP  1.0 0.0 1.0 0.0 1.0 0.0;
+#
+# fkw 4/28/00 more states with popped q\bar q.
+#             The one's here involve only popped and spectator.
+#             Popping stuff in the cs from the W comes further below.
+#             The same isospin comment applies here as above in the
+#             semi-leptonic decays with tau and popped q\bar q.
+0.0096      D_s+        D-          anti-K0                PHSP;
+0.0096      D_s+        D0          K-                     PHSP;
+0.0096      D_s*+       D-          anti-K0                PHSP;
+0.0096      D_s*+       anti-D0     K-                     PHSP;
+#
+0.0024      D_s+        D-          pi0        anti-K0     PHSP;
+0.0048      D_s+        anti-D0     pi-        anti-K0     PHSP;
+0.0048      D_s+        D-          pi+        K-          PHSP;
+0.0024      D_s+        anti-D0     pi0        K-          PHSP;
+#
+0.0024      D_s*+       D-          pi0        anti-K0     PHSP;
+0.0048      D_s*+       anti-D0     pi-        anti-K0     PHSP;
+0.0048      D_s*+       D-          pi+        K-          PHSP;
+0.0024      D_s*+       anti-D0     pi0        K-          PHSP;
+#
+#
+#                                         b --> (c ) (c ) (s )
+#                                         Sum = 8.0%
+# DDK amplitudes  R.A.Briere 10/97
+# fkw 4/28/00 these are q\bar q popping that don't involve the spectator
+#             Bd->Bs just involves switching the c\bar d to c\bar s.
+#
+0.0150      D_s*-       D*0         K+                     PHSP;
+0.0150      D_s*-       D*+         K0                     PHSP;
+0.0050      D_s*-       D0          K+                     PHSP;
+0.0050      D_s*-       D+          K0                     PHSP;
+0.0050      D_s-        D*0         K+                     PHSP;
+0.0050      D_s-        D*+         K0                     PHSP;
+0.0020      D_s-        D0          K+                     PHSP;
+0.0020      D_s-        D+          K0                     PHSP;
+0.0030      D_s*-       D*0         K*+                    PHSP;
+0.0030      D_s*-       D*+         K*0                    PHSP;
+0.0050      D_s*-       D0          K*+                    PHSP;
+0.0050      D_s*-       D+          K*0                    PHSP;
+0.0025      D_s-        D*0         K*+                    PHSP;
+0.0025      D_s-        D*+         K*0                    PHSP;
+0.0025      D_s-        D0          K*+                    PHSP;
+0.0025      D_s-        D+          K*0                    PHSP;
+#
+#
+#                                        b --> c  (d c=)
+#                                        Sum = 1.36%
+0.0017      D_s+        D-                                 PHSP;
+0.0017      D*-         D_s+                               SVS;
+0.0017      D_s*+       D-                                 SVS;
+0.0017      D_s*+       D*-    SVV_HELAMP  1.0 0.0 1.0 0.0 1.0 0.0;
+#
+# fkw 4/38/00 more popping at the lower vertex
+#             but with upper vertex cabbibo suppressed.
+0.0007      D+          D-          anti-K0                PHSP;
+0.0007      D+          D0          K-                     PHSP;
+0.0007      D*+         D-          anti-K0                PHSP;
+0.0007      D*+         anti-D0     K-                     PHSP;
+#
+0.0003      D+          D-          pi0        anti-K0     PHSP;
+0.0007      D+          anti-D0     pi-        anti-K0     PHSP;
+0.0003      D+          D-          pi+        K-          PHSP;
+0.0007      D+          anti-D0     pi0        K-          PHSP;
+#
+0.0003      D*+         D-          pi0        anti-K0     PHSP;
+0.0007      D*+         anti-D0     pi-        anti-K0     PHSP;
+0.0003      D*+         D-          pi+        K-          PHSP;
+0.0007      D*+         anti-D0     pi0        K-          PHSP;
+#
+#                                        b --> c  (u s=)
+#                                        exclusive
+#                                        Sum = 0.9%
+0.00015     D_s*-       K+                                 SVS;
+0.000150000 D_s-    K+                                      PHSP; #[Reconstructed PDG2011]
+0.00030     D_s*-   K*+                SVV_HELAMP 0.0283 0.0 0.932 0.0 0.228 0.0;
+0.00030     K*+     D_s-               SVS;
+#
+# fkw 4/28/00 Strategy for charmonium modes:
+# Take Bd BR's, replace spectator,
+# assume etaprime = 2/3 ss
+# and eta = 1/3 ss
+#
+# Note: Just for kicks I gave the c\bar c decays a small piece that is
+#       self tagging. See if you can find it. This is already in
+#       the B0 decays in cleo's version of decay.dec .
+#
+#                                        B --> (c c=)  (s s=)
+#					2.65%
+#					should be: psi = 0.80%  CLNS 94/1315 but isn't quite right.
+0.00064     J/psi       eta'		                   SVS;
+0.00032     J/psi       eta	                           SVS;
+0.001300000 J/psi   phi                                     SVV_HELAMP  1.0 0.0 1.0 0.0 1.0 0.0; #[Reconstructed PDG2011]
+0.00008     J/psi       K0		                   SVS;
+0.00070     J/psi       K-          K+                     PHSP;
+0.00070     J/psi       anti-K0     K0                     PHSP;
+0.00070     J/psi       K0          K-         pi+         PHSP;
+0.00070     J/psi       anti-K0     K0         pi0         PHSP;
+0.00070     J/psi       K-          K+         pi0         PHSP;
+# LHCb PR 04/02/04 Add (cc) phi n pi(+/0)
+0.00039   J/psi   phi      pi+  pi-  PHSP;
+0.00039   J/psi   phi      pi0  pi0  PHSP;
+# LHCb PR Add (cc) phi eta(') + npi like in CDF QQ
+0.0002    J/psi   eta      pi+  pi-  PHSP;
+0.0002    J/psi   eta      pi0  pi0  PHSP;
+0.0004    J/psi   eta'     pi+  pi-  PHSP;
+0.0004    J/psi   eta'     pi0  pi0  PHSP;
+0.0002    J/psi   pi+      pi-       PHSP;
+0.0002    J/psi   pi0      pi0       PHSP;
+#					psi' = 0.34%  CLNS 94/1315
+0.000465    psi(2S)     eta'	                           SVS;
+0.000235    psi(2S)     eta                                SVS;
+0.000680000 psi(2S) phi                                     SVV_HELAMP  1.0 0.0 1.0 0.0 1.0 0.0; #[Reconstructed PDG2011]
+0.0003      psi(2S)     K-          K+                     PHSP;
+0.0003      psi(2S)     anti-K0     K0                     PHSP;
+0.0003      psi(2S)     K0          K-         pi+         PHSP;
+0.0003      psi(2S)     anti-K0     K0         pi0         PHSP;
+0.0003      psi(2S)     K-          K+         pi0         PHSP;
+0.00034   psi(2S) phi      pi+  pi-  PHSP;
+0.00034   psi(2S) phi      pi0  pi0  PHSP;
+0.0002    psi(2S) eta      pi+  pi-  PHSP;
+0.0002    psi(2S) eta      pi0  pi0  PHSP;
+0.0004    psi(2S) eta'     pi+  pi-  PHSP;
+0.0004    psi(2S) eta'     pi0  pi0  PHSP;
+0.0002    psi(2S) pi+      pi-       PHSP;
+0.0002    psi(2S) pi0      pi0       PHSP;
+#
+#					chic0 = 0.05% (20% of chic2)
+#					Bodwin et.al. Phys Rev D46 1992
+0.00010     chi_c0      eta'                               PHSP;
+0.00005     chi_c0      eta                                PHSP;
+0.00020     phi         chi_c0                             SVS;
+0.00003     chi_c0      K-          K+                     PHSP;
+0.00003     chi_c0      anti-K0     K0                     PHSP;
+0.00003     chi_c0      K0          K-         pi+         PHSP;
+0.00003     chi_c0      anti-K0     K0         pi0         PHSP;
+0.00003     chi_c0      K-          K+         pi0         PHSP;
+#
+#
+#					chic1 = 0.37%  CLNS 94/1315
+0.0007       chi_c1      eta'	                           SVS;
+0.0003      chi_c1      eta                                SVS;
+0.0014      chi_c1      phi                SVV_HELAMP  1.0 0.0 1.0 0.0 1.0 0.0;
+0.00026     chi_c1      K-          K+	                   PHSP;
+0.00026     chi_c1      anti-K0     K0	                   PHSP;
+0.00026     chi_c1      K0          K-         pi+         PHSP;
+0.00026     chi_c1      anti-K0     K0         pi0         PHSP;
+0.00026     chi_c1      K-          K+         pi0         PHSP;
+0.00040   chi_c1  phi      pi+  pi-  PHSP;
+0.00040   chi_c1  phi      pi0  pi0  PHSP;
+0.0001    chi_c1  eta      pi+  pi-  PHSP;
+0.0001    chi_c1  eta      pi0  pi0  PHSP;
+0.0002    chi_c1  eta'     pi+  pi-  PHSP;
+0.0002    chi_c1  eta'     pi0  pi0  PHSP;
+#
+#
+#					chic2 = 0.25%  CLNS 94/1315
+0.000465    chi_c2      eta'                               STS;
+0.000235    chi_c2      eta                                STS;
+#0.0010      chi_c2      phi                                STV; whb: doesn't exist
+0.00016     chi_c2      K-          K+	                   PHSP;
+0.00016     chi_c2      anti-K0     K0	                   PHSP;
+0.00016     chi_c2      K0          K-         pi+         PHSP;
+0.00016     chi_c2      anti-K0     K0         pi0         PHSP;
+0.00016     chi_c2      K-          K+         pi0         PHSP;
+#
+#
+#                                       etac(1s) = 0.41%  Guess: CBX 97-65
+0.0008      eta_c       eta'                               PHSP;
+0.0004      eta_c       eta                                PHSP;
+0.0015      phi         eta_c                              SVS;
+0.00028     eta_c       K-          K+                     PHSP;
+0.00028     eta_c       K0          anti-K0                PHSP;
+0.00028     eta_c       K0          K-         pi+         PHSP;
+0.00028     eta_c       K0          anti-K0    pi0         PHSP;
+0.00028     eta_c       K-          K+         pi0         PHSP;
+0.00040   eta_c   phi      pi+  pi-  PHSP;
+0.00040   eta_c   phi      pi0  pi0  PHSP;
+0.0001    eta_c   eta      pi+  pi-  PHSP;
+0.0001    eta_c   eta      pi0  pi0  PHSP;
+0.0002    eta_c   eta'     pi+  pi-  PHSP;
+0.0002    eta_c   eta'     pi0  pi0  PHSP;
+#
+#
+#                                        etac(2s) = 0.18%  Guess: CBX 97-65
+0.0004      eta_c(2S)   eta'                               PHSP;
+0.0002      eta_c(2S)   eta                                PHSP;
+0.0006      phi         eta_c(2S)                          SVS;
+0.00012     eta_c(2S)   K-          K+                     PHSP;
+0.00012     eta_c(2S)   anti-K0     K0                     PHSP;
+0.00012     eta_c(2S)   K0          K-         pi+         PHSP;
+0.00012     eta_c(2S)   anti-K0     K0         pi0         PHSP;
+0.00012     eta_c(2S)   K-          K+         pi0         PHSP;
+#
+#
+#                                       hc = 0.25%  (100% of chic2)
+#					 Bodwin et.al. Phys Rev D46 1992
+0.000465    h_c         eta'	                           SVS;
+0.000235    h_c         eta                                SVS;
+0.0010      h_c         phi                 SVV_HELAMP  1.0 0.0 1.0 0.0 1.0 0.0;
+0.00016     h_c         K-          K+	                   PHSP;
+0.00016     h_c         anti-K0     K0                     PHSP;
+0.00016     h_c         K0          K-         pi+         PHSP;
+0.00016     h_c         anti-K0     K0         pi0         PHSP;
+0.00016     h_c         K-          K+         pi0         PHSP;
+#
+#
+#                                        b --> c  (d u=)
+#                                        Exclusive Channels = 6.33%
+# fkw 4/28/00 I rearanged this a bit after copying it from
+#             B0B decay list.
+#
+# first come the external W-emission decays:
+#
+0.0008      D_s1-       pi+                                SVS;
+0.0021      D_s1-       rho+               SVV_HELAMP  1.0 0.0 1.0 0.0 1.0 0.0;
+0.0013      D_s2*-      pi+                                STS;
+#0.0037      D_s2*-      rho+                               STV; #whb: STV does not exist yet
+#
+0.0027      D_s*-       pi+                                SVS;
+0.003200000 D_s-    pi+                                     PHSP; #[Reconstructed PDG2011]
+0.0073      rho+        D_s-                               SVS;
+0.0070      D_s*-       rho+              SVV_HELAMP  1.0 0.0 1.0 0.0 1.0 0.0;
+#
+0.0085      a_1+        D_s-                               SVS;
+0.0009      D_s-        rho0        pi+                    PHSP;
+0.0009      D_s-        rho+        pi0                    PHSP;
+0.008400000 D_s-    pi-     pi+     pi+                     PHSP; #[Reconstructed PDG2011]
+0.0009      D_s-        pi0         pi+        pi0         PHSP;
+#
+0.0122      D_s*-       a_1+               SVV_HELAMP  1.0 0.0 1.0 0.0 1.0 0.0;
+0.0010      D_s*-       rho0        pi+                    PHSP;
+0.0010      D_s*-       rho+        pi0                    PHSP;
+0.0077      D_s*-       pi-         pi+        pi+         PHSP;
+0.0010      D_s*-       pi0         pi+        pi0         PHSP;
+#
+# then the color suppressed decays:
+#
+# fkw 4/28/00 color suppressed modes bumped up by factor 2 from isospin
+#             i.e. Bs doesn't have the factor 2 suppression Bd has.
+0.0002      anti-D*0    anti-K0                            SVS;
+0.0002      anti-D0     anti-K0                            PHSP;
+0.0002      anti-K*0    anti-D0                            SVS;
+0.0002      anti-D*0    anti-K*0            SVV_HELAMP  1.0 0.0 1.0 0.0 1.0 0.0;
+#
+# PR LHCb : add p ppbar mode
+0.000000001   p+    anti-p-          PHSP;
+# fkw 4/28/00 ignore the internal W emission decays with additional
+#             q\bar q popping.
+#
+# Here come the various types of "inclusive unknown" decays:
+#
+#  Start with B to baryons:
+#  fkw 3/28/01 I don't know what I'm doing here!!! This needs to be checked!!!
+# Mark Whitehead 30/4/2010 Weight PYTHIA to get Total BF=100%
+0.019574780 anti-cs_0 ud_0 PYTHIA 63;
+0.039129957 anti-cs_1 ud_1 PYTHIA 63;
+#
+#  Next come external W-emission:
+0.301256716 u anti-d anti-c s PYTHIA 23;
+0.048443906 u anti-d anti-c s PYTHIA 65;
+#  Now the internal W-emission:
+0.019086636 u anti-c anti-d s PYTHIA 23;
+#  Then some b->u external W-emission with upper vertex charm
+0.003912996 c anti-s anti-u s PYTHIA 23;
+# and finally some cabibbo suppressed external and internal W-emission
+0.014683536 u anti-s anti-c s PYTHIA 23;
+0.002152148 u anti-s anti-c s PYTHIA 65;
+0.000880424 u anti-c anti-s s PYTHIA 23;
+# and some c cbar d stuff as well as c cbar s
+0.005391151 c anti-d anti-c s PYTHIA 43;
+0.001468354 c anti-d anti-c s PYTHIA 43;
+# and some miscellaneous charmless stuff
+0.003521696 u anti-u anti-d s PYTHIA 23;
+0.000684774 d anti-d anti-d s PYTHIA 23;
+0.000880424 s anti-s anti-d s PYTHIA 23;
+0.001956498 u anti-u anti-s s PYTHIA 23;
+0.001565198 d anti-d anti-s s PYTHIA 23;
+0.001271724 s anti-s anti-s s PYTHIA 23;
+0.004891245 anti-s s PYTHIA 91;
+
+# fkw 5/10/00 the b->ulnu decays are loosely modelled according to B0 in EvtGen
+0.000200    K-          e+         nu_e         PHOTOS   ISGW2;
+0.000300    K*-         e+         nu_e         PHOTOS   ISGW2;
+0.000300    K_1-        e+         nu_e         PHOTOS   ISGW2;
+0.000200    K'_1-       e+         nu_e         PHOTOS   ISGW2;
+#
+#
+0.000200    K-          mu+        nu_mu        PHOTOS  ISGW2;
+0.000300    K*-         mu+        nu_mu        PHOTOS  ISGW2;
+0.000300    K_1-        mu+        nu_mu        PHOTOS  ISGW2;
+0.000200    K'_1-       mu+        nu_mu        PHOTOS  ISGW2;
+# -------------
+# 2e-3 for charmless semi-leptonic
+
+#***********************************************************
+#
+# fkw 5/10/00
+#
+# ideas behind these (largely) made up Br's for charmless
+# hadronic B decays:
+# (1) any PP and PV modes that are used or calculated
+#     in globfit code by Hou,Smith,Wuerthwein are taken from
+#     the latest fit i.e. May2000
+# (2) anything else is from Ali,Kramer,Lue
+#
+# None of this should be taken too serious!
+#
+#***********************************************************
+# Mark Whitehead 30/4/2010 Update K+K-
+# PR LHCb update Br Bs -> K- K+
+0.000033000 K-      K+                                      PHSP; #[Reconstructed PDG2011]
+# PR LHCb 4/07/04 Split in KS/KL
+0.0000000   anti-K0     K0                                 PHSP;
+0.0000100   K_S0        K_S0                               PHSP;
+0.0000100   K_L0        K_L0                               PHSP;
+#
+0.000004900 pi+     K-                                      PHSP; #[Reconstructed PDG2011]
+0.0000002   pi0         anti-K0                            PHSP;
+# PR LHCb 4/07/04 add Bs -> pi+ pi-
+0.00000001  pi+         pi-                                PHSP;
+#
+0.0000012   omega       eta                                SVS;
+0.0000025   omega       eta'                               SVS;
+0.0000013   phi         eta                                SVS;
+0.0000025   phi         eta'                               SVS;
+0.00000008  omega       K0                                 SVS;
+0.000000002 phi         K0                                 SVS;
+#
+0.0000250   K*-         pi+                                SVS;
+0.0000120   rho+        K-                                 SVS;
+0.00000002  rho0        K0                                 SVS;
+0.00000002  anti-K*0    pi0                                SVS;
+#
+0.0000046   K*+         K-                                 SVS;
+# PR LHCb 4/07/04 split in KS/KL
+0.0000000   K*0         anti-K0                            SVS;
+0.0000020   K*0         K_S0                               SVS;
+0.0000020   K*0         K_L0                               SVS;
+0.0000082   K*-         K+                                 SVS;
+# PR LHCb 4/07/04 split in KS/KL
+0.0000000   anti-K*0    K0                                 SVS;
+0.0000020   anti-K*0    K_S0                               SVS;
+0.0000020   anti-K*0    K_L0                               SVS;
+#
+0.0000580   eta'        eta'                               PHSP;
+0.0000250   eta'        eta                                PHSP;
+0.0000040   eta         eta                                PHSP;
+### Already included above   0.0000200   phi         eta                                SVS;
+### Already included above   0.0000100   phi         eta'                               SVS;
+#
+#next comes stuff from Ali,Kramer,Lue PRD58, 094009 FOR NC=3
+0.00000007  anti-K0     eta'                               PHSP;
+0.00000023  anti-K0     eta                                PHSP;
+0.000000021 anti-K*0    eta'                               SVS;
+0.00000007  anti-K*0    eta                                SVS;
+#
+#next comes stuff from Ali,Kramer,Lue PRD58, 094009 FOR NC=3
+# for vector-vector final states
+0.000020    rho+        K*-                 SVV_HELAMP  1.0 0.0 1.0 0.0 1.0 0.0;
+0.0000008   rho0        anti-K*0            SVV_HELAMP  1.0 0.0 1.0 0.0 1.0 0.0;
+0.000000005 omega       anti-K*0            SVV_HELAMP  1.0 0.0 1.0 0.0 1.0 0.0;
+#
+0.000006    K*-         K*+                    SVV_HELAMP  1.0 0.0 1.0 0.0 1.0 0.0;
+# PR LHCb Update BR
+0.000004    anti-K*0    K*0                    SVV_HELAMP  1.0 0.0 1.0 0.0 1.0 0.0;
+0.000014000 phi     phi                                     SVV_HELAMP  1.0 0.0 1.0 0.0 1.0 0.0; #[Reconstructed PDG2011]
+0.000000004 phi         anti-K*0               SVV_HELAMP  1.0 0.0 1.0 0.0 1.0 0.0;
+#
+# decays that go via b->d penguins
+#### Already included above   0.0000004   phi         anti-K*0               SVV_HELAMP  1.0 0.0 1.0 0.0 1.0 0.0;
+#PR LHCb add Bs -> mu+ mu-
+0.0000000035 mu+        mu-                                PHSP;
+#PR LHCb 04/08/2004 add Bs -> tau+ tau- (BR not to take too seriously)
+0.0000000020 tau+       tau-                               PHSP;
+# PR LHCb 04/05/2004 : add Bs -> phi gamma
+0.000057000 phi     gamma                                   SVP_HELAMP 1.0 0.0 1.0 0.0; #[Reconstructed PDG2011]
+# PR LHCb 04/08/2004 : add Bs -> phi mu mu, phi e e
+0.0000023   phi    e+     e-                   BTOSLLALI;
+0.0000023   phi    mu+    mu-                  BTOSLLALI;
+# PR LHCb 16 Apr 2004 : add Bs -> gamma gamma
+0.0000005   gamma  gamma                      PHSP;
+#--------------
+# 257.122e-6 for all the charmless hadronic
+#
+0.000150000 D_s+    K-                                      PHSP;  #[New mode added] #[Reconstructed PDG2011]
+Enddecay
+CDecay    Bsbar_SIGNAL
+End

@@ -1,0 +1,82 @@
+Alias   Lb_SIGNAL   Lambda_b0
+Alias   Lbbar_SIGNAL    anti-Lambda_b0
+ChargeConj    Lb_SIGNAL   Lbbar_SIGNAL
+#
+Decay Lb_SIGNAL
+# full list of decays copied from DECAY.DEC
+#                  SemiLeptonic Decays (inclusive BR = 7.7 +/- 1.8%)
+0.050000000 Lambda_c+ e-      anti-nu_e                     PHSP; #[Reconstructed PDG2011]
+0.006300000 Lambda_c(2593)+ e-      anti-nu_e               PHSP; #[Reconstructed PDG2011]
+0.011000000 Lambda_c(2625)+ e-      anti-nu_e               PHSP; #[Reconstructed PDG2011]
+  0.00000    Sigma_c0    pi+  e-  anti-nu_e               PHSP;
+  0.00000    Sigma_c+    pi0  e-  anti-nu_e               PHSP;
+  0.00000    Sigma_c++   pi-  e-  anti-nu_e               PHSP;
+  0.00000    Sigma_c*0   pi+  e-  anti-nu_e               PHSP;
+  0.00000    Sigma_c*+   pi0  e-  anti-nu_e               PHSP;
+  0.00000    Sigma_c*++  pi-  e-  anti-nu_e               PHSP;
+#
+0.050000000 Lambda_c+ mu-     anti-nu_mu                    PHSP; #[Reconstructed PDG2011]
+0.006300000 Lambda_c(2593)+ mu-     anti-nu_mu              PHSP; #[Reconstructed PDG2011]
+0.011000000 Lambda_c(2625)+ mu-     anti-nu_mu              PHSP; #[Reconstructed PDG2011]
+  0.00000    Sigma_c0    pi+  mu-  anti-nu_mu             PHSP;
+  0.00000    Sigma_c+    pi0  mu-  anti-nu_mu             PHSP;
+  0.00000    Sigma_c++   pi-  mu-  anti-nu_mu             PHSP;
+  0.00000    Sigma_c*0   pi+  mu-  anti-nu_mu             PHSP;
+  0.00000    Sigma_c*+   pi0  mu-  anti-nu_mu             PHSP;
+  0.00000    Sigma_c*++  pi-  mu-  anti-nu_mu             PHSP;
+#
+  0.01720    Lambda_c+        tau- anti-nu_tau            PHSP;
+  0.00430    Lambda_c(2593)+  tau- anti-nu_tau            PHSP;
+  0.00320    Lambda_c(2625)+  tau- anti-nu_tau            PHSP;
+  0.00000    Sigma_c0    pi+  tau- anti-nu_tau            PHSP;
+  0.00000    Sigma_c+    pi0  tau- anti-nu_tau            PHSP;
+  0.00000    Sigma_c++   pi-  tau- anti-nu_tau            PHSP;
+  0.00000    Sigma_c*0   pi+  tau- anti-nu_tau            PHSP;
+  0.00000    Sigma_c*+   pi0  tau- anti-nu_tau            PHSP;
+  0.00000    Sigma_c*++  pi-  tau- anti-nu_tau            PHSP;
+#                  Hadronic Decays with Lambda_c+
+0.008800000 Lambda_c+ pi-                                   PHSP; #[Reconstructed PDG2011]
+  0.02200    Lambda_c+       pi-     pi+       pi-        PHSP;
+  0.00055    Lambda_c+       K-                           PHSP;
+  0.02200    Lambda_c+       D_s-                         PHSP;
+  0.04400    Lambda_c+       D_s*-                        PHSP;
+  0.01000    Lambda_c+       rho-                     PHSP;
+  0.02000    Lambda_c+       a_1-                     PHSP;
+  0.02000    Lambda0       K0  pi+ pi+ pi- pi-          PHSP;
+# Addition PR LHCb 09 Apr 2004, Lambda_b -> Lambda D0b
+  0.00080    Lambda0         anti-D0                      PHSP;
+# Addition PR LHCb 04/07/04
+0.000006000 p+      K-                                      PHSP; #[Reconstructed PDG2011]
+0.000003800 p+      pi-                                     PHSP; #[Reconstructed PDG2011]
+# Addition PR LHCb 09 Apr 2004, Lambda_b -> Lambda rho0 and -> Lambda phi
+  0.0000050  Lambda0    rho0                         PHSP;
+  0.0000200  Lambda0    phi                          PHSP;
+#
+  0.00047    Lambda0         J/psi                        PHSP;
+  0.00038    Lambda0         psi(2S)                      PHSP;
+  0.00100    Lambda0         eta_c                        PHSP;
+  0.00080    n0              D0                           PHSP;
+#
+#  Additional decays from hep-ph/9709372 scaled to the Lambda_c0 pi rate
+  0.00060    Sigma_c+       pi-                           PHSP;
+  0.00060    Sigma_c0       pi0                           PHSP;
+  0.00040    Sigma_c0       eta                           PHSP;
+  0.00050    Sigma_c0       eta'                          PHSP;
+  0.00030    Xi_c0          K0                            PHSP;
+  0.00050    Xi'_c0         K0                            PHSP;
+# PR LHCb 27 Apr 2004, addition of Pythia decays
+0.398544837 anti-u d c ud_0 PYTHIA 23;
+0.082218903 anti-u c d ud_0 PYTHIA 43;
+0.072280354 anti-c s c ud_0 PYTHIA 43;
+0.010842053 anti-u d u ud_0 PYTHIA 22;
+0.010842053 anti-c s u ud_0 PYTHIA 22;
+# PR LHCb 2 Dec 2004, add Lambda gamma decay mode
+  0.000065   Lambda0   gamma  HELAMP 1. 0. 0. 0. ;
+  0.000059   Lambda(1520)0 gamma   PHSP ;
+  0.000056   Lambda(1670)0 gamma   HELAMP 1. 0. 0. 0. ;
+  0.000057   Lambda(1600)0 gamma   HELAMP 1. 0. 0. 0. ;
+0.056000000 Lambda_c+ pi+     pi-     mu-     anti-nu_mu    PHSP;  #[New mode added] #[Reconstructed PDG2011]
+0.056000000 Lambda_c+ pi+     pi-     e-      anti-nu_e     PHSP;  #[New mode added] #[Reconstructed PDG2011]
+Enddecay
+CDecay    Lbbar_SIGNAL
+End
