@@ -1,0 +1,10 @@
+Alias   Dz_SIGNAL   D0
+Alias   Dzbar_SIGNAL    anti-D0
+ChargeConj Dz_SIGNAL  Dzbar_SIGNAL
+
+Decay Dz_SIGNAL
+  1.0    gamma    gamma    PHOTOS PHSP;
+Enddecay
+CDecay Dzbar_SIGNAL
+
+End
