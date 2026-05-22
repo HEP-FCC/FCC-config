@@ -32,10 +32,10 @@ or
 scp <user>@lxplus.cern.ch:/eos/project/f/fccsw-web/www/filesForSimDigiReco/ALLEGRO/ALLEGRO_o1_v03/* .
 ```
 
-For running tracking also these two files from IDEA are currently needed:
+For running tracking also this onnx model file from IDEA is currently needed,
+but will be updated to an ALLEGRO tracking version is available:
 ```
 wget https://fccsw.web.cern.ch/fccsw/filesForSimDigiReco/IDEA/IDEA_o1_v03/SimpleGatrIDEAv3o1.onnx
-wget https://fccsw.web.cern.ch/fccsw/filesForSimDigiReco/IDEA/DataAlgFORGEANT.root
 ```
 
 Run the reconstruction with:
