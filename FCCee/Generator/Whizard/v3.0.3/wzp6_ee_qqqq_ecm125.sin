@@ -47,7 +47,58 @@ process proc = e1, E1 =>   ( q, Q, q, Q )
 	                 + ( b, B, c, C )
 			 
 	                 + ( b, B, b, B )
- 
+
+# additional WW-only:
+			 + ( q, S, Q, q )
+			 + ( q, B, Q, q )
+			 + ( q, B, Q, s )
+
+			 + ( c, S, C, q )
+			 + ( c, B, C, q )
+			 + ( c, B, C, s )
+
+			 + ( q, Q, C, q )
+			 + ( q, S, C, q )
+			 + ( q, B, C, q )
+			 + ( q, S, C, s )
+			 + ( q, B, C, s )
+			 + ( q, B, C, b )
+
+			 + ( c, Q, Q, q )
+			 + ( c, S, Q, q )
+			 + ( c, B, Q, q )
+			 + ( c, S, Q, s )
+			 + ( c, B, Q, s )
+			 + ( c, B, Q, b ) 
+
+cuts =      (no abs( cos( Theta ) ) > 0.998750  [ u ])
+        and (no abs( cos( Theta ) ) > 0.998750  [ U ])
+        and (no abs( cos( Theta ) ) > 0.998750  [ d ])
+        and (no abs( cos( Theta ) ) > 0.998750  [ D ])
+        and (no abs( cos( Theta ) ) > 0.998750  [ s ])
+        and (no abs( cos( Theta ) ) > 0.998750  [ S ])
+        and (no abs( cos( Theta ) ) > 0.998750  [ c ])
+        and (no abs( cos( Theta ) ) > 0.998750  [ C ])
+        and (no abs( cos( Theta ) ) > 0.998750  [ b ])
+        and (no abs( cos( Theta ) ) > 0.998750  [ B ])
+        and (all M > 5 GeV [u, U])
+        and (all M > 5 GeV [d, D])
+        and (all M > 5 GeV [c, C])
+        and (all M > 5 GeV [s, S])
+        and (all M > 5 GeV [b, B])
+        and (all M > 5 GeV [u, D])
+        and (all M > 5 GeV [u, S])
+        and (all M > 5 GeV [u, B])
+        and (all M > 5 GeV [c, D])
+        and (all M > 5 GeV [c, S])
+        and (all M > 5 GeV [c, B])
+        and (all M > 5 GeV [U, d])
+        and (all M > 5 GeV [U, s])
+        and (all M > 5 GeV [U, b])
+        and (all M > 5 GeV [C, d])
+        and (all M > 5 GeV [C, s])
+        and (all M > 5 GeV [C, b])	
+
 
 beams = e1, E1 => gaussian => isr
 ?keep_beams  = true    
