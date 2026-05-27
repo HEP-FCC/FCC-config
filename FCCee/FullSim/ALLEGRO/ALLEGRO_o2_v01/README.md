@@ -17,7 +17,9 @@ You can produce a file containing the Geant4 simulated hits in the detector with
 ddsim --enableGun --gun.distribution uniform --gun.energy "10*GeV" --gun.particle e- --numberOfEvents 100 --outputFile ALLEGRO_sim.root --random.enableEventSeed --random.seed 42 --compactFile $K4GEO/FCCee/ALLEGRO/compact/ALLEGRO_o2_v01/ALLEGRO_o2_v01.xml 
 ```
 
-You can also retrieve a simulation file already produced from here: `https://fccsw.web.cern.ch/fccsw/filesForSimDigiReco/ALLEGRO/ALLEGRO_o1_v03/forTests/pythia_ee_z_qq_10evt_ALLEGRO_sim.root`
+<!-- FIXME: update the sim file and the link -->
+<!-- You can also retrieve a simulation file already produced from here: `https://fccsw.web.cern.ch/fccsw/filesForSimDigiReco/ALLEGRO/ALLEGRO_o1_v03/forTests/pythia_ee_z_qq_10evt_ALLEGRO_sim.root` -->
+
 
 
 ## Running the digitization and reconstruction
@@ -33,7 +35,7 @@ scp <user>@lxplus.cern.ch:/eos/project/f/fccsw-web/www/filesForSimDigiReco/ALLEG
 ```
 
 For running tracking also this onnx model file from IDEA is currently needed,
-but will be updated to an ALLEGRO tracking version is available:
+but will be updated to an ALLEGRO tracking version when available:
 ```
 wget https://fccsw.web.cern.ch/fccsw/filesForSimDigiReco/IDEA/IDEA_o1_v03/SimpleGatrIDEAv3o1.onnx
 ```
