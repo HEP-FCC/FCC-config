@@ -8,8 +8,7 @@ else
 fi
 
 # run the SIM step
-ddsim --enableGun --gun.distribution uniform --gun.energy "10*GeV" --gun.particle e- --numberOfEvents 10 --outputFile ALLEGRO_sim.root --random.enableEventSeed --random.seed 42 --compactFile $K4GEO/FCCee/ALLEGRO/compact/ALLEGRO_o2_v01/ALLEGRO_o2_v01.xml
-
+ddsim --enableGun --gun.distribution uniform --gun.energy "10*GeV" --gun.particle e- --numberOfEvents 10 --outputFile ALLEGRO_o2_v01_sim.root --random.enableEventSeed --random.seed 42 --compactFile $K4GEO/FCCee/ALLEGRO/compact/ALLEGRO_o2_v01/ALLEGRO_o2_v01.xml
 # get the files needed for calibration, noise, neighbor finding, etc
 if ! test -f ./capacitances_ecalBarrelFCCee_theta.root; then  # assumes that if the last file exists, all the other as well
   wget https://fccsw.web.cern.ch/fccsw/filesForSimDigiReco/ALLEGRO/ALLEGRO_o1_v03/capacitances_ecalBarrelFCCee_theta.root
@@ -29,4 +28,4 @@ fi
 
 # run the RECO step
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd ) # workaround to have ctests working
-k4run $SCRIPT_DIR/run_digi_reco.py --includeHCal --includeMuon --runTrkHitDigitization --addTracks --calibrateClusters --saveCells --runTrkFinder --runTrkFitter
+k4run $SCRIPT_DIR/run_digi_reco.py --IOSvc.Input ALLEGRO_o2_v01_sim.root --includeHCal --includeMuon --runTrkHitDigitization --addTracks --calibrateClusters --saveCells --runTrkFinder --runTrkFitter
