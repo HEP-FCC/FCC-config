@@ -46,7 +46,7 @@ k4run run_digi_reco.py
 podio-dump ALLEGRO_sim_digi_reco.root  
 ```
 
-This will run by default on the `ALLEGRO_sim.root` file. To run on a different file (e.g. `pythia_ee_z_qq_10evt_ALLEGRO_sim.root`) use:
+This will run by default on the `ALLEGRO_sim.root` file. To run on a different file (e.g. `allegro_o2_v01_evts_10_p8_ee_Zqq_ecm91_sim.root`) use:
 ```
 k4run run_digi_reco.py --IOSvc.Input <inputfile>
 ```
