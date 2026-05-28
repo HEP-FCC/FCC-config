@@ -17,8 +17,7 @@ You can produce a file containing the Geant4 simulated hits in the detector with
 ddsim --enableGun --gun.distribution uniform --gun.energy "10*GeV" --gun.particle e- --numberOfEvents 100 --outputFile ALLEGRO_sim.root --random.enableEventSeed --random.seed 42 --compactFile $K4GEO/FCCee/ALLEGRO/compact/ALLEGRO_o2_v01/ALLEGRO_o2_v01.xml 
 ```
 
-<!-- FIXME: update the sim file and the link -->
-<!-- You can also retrieve a simulation file already produced from here: `https://fccsw.web.cern.ch/fccsw/filesForSimDigiReco/ALLEGRO/ALLEGRO_o1_v03/forTests/pythia_ee_z_qq_10evt_ALLEGRO_sim.root` -->
+You can also retrieve a simulation file already produced from here: `https://fccsw.web.cern.ch/fccsw/filesForSimDigiReco/ALLEGRO/ALLEGRO_o2_v01/forTests/allegro_o2_v01_evts_10_p8_ee_Zqq_ecm91_sim.root`
 
 
 
