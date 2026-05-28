@@ -55,8 +55,6 @@ k4run run_digi_reco.py --IOSvc.Input <inputfile>
 ## Dirac submission
 
 > [!WARNING]
-This
-
 The following is not yet ready, we have to implement ddsim as a generator in dirac to do particle gun transformation
 You need to create a tarball containing the files needed for reconstruction and upload it at the right place with dirac commands
 ```
