@@ -10,6 +10,7 @@ fi
 # run the SIM step
 ddsim --enableGun --gun.distribution uniform --gun.energy "10*GeV" --gun.particle e- --numberOfEvents 10 --outputFile ALLEGRO_o2_v01_sim.root --random.enableEventSeed --random.seed 42 --compactFile $K4GEO/FCCee/ALLEGRO/compact/ALLEGRO_o2_v01/ALLEGRO_o2_v01.xml
 # get the files needed for calibration, noise, neighbor finding, etc
+# NOTE: since the calorimeters are identical for o1_v03 and o2_v01, we download the files from o1_v03
 if ! test -f ./capacitances_ecalBarrelFCCee_theta.root; then  # assumes that if the last file exists, all the other as well
   wget https://fccsw.web.cern.ch/fccsw/filesForSimDigiReco/ALLEGRO/ALLEGRO_o1_v03/capacitances_ecalBarrelFCCee_theta.root
   wget https://fccsw.web.cern.ch/fccsw/filesForSimDigiReco/ALLEGRO/ALLEGRO_o1_v03/cellNoise_map_electronicsNoiseLevel_ecalB_thetamodulemerged.root
