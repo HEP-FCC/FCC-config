@@ -1,0 +1,17 @@
+# e+e- -> Z/gamma* -> uu at sqrt(s) = 91.188 GeV (FCC-ee)
+read snippets/EECollider.in
+
+cd /Herwig/MatrixElements
+insert SubProcess:MatrixElements 0 MEee2gZ2qq
+set MEee2gZ2qq:MinimumFlavour 2
+set MEee2gZ2qq:MaximumFlavour 2
+
+# keep particles with c*tau > 100 mm stable (K_L0 added to the default stable set)
+set /Herwig/Particles/K_L0:Stable Stable
+
+cd /Herwig/Generators
+set EventGenerator:EventHandler:LuminosityFunction:Energy 91.188
+read snippets/HepMC.in
+set /Herwig/Analysis/HepMC:Filename events.hepmc
+
+saverun hw_ee_uu_ecm91p2 EventGenerator

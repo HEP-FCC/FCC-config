@@ -1,0 +1,16 @@
+# e+e- -> Z/gamma* -> uu at sqrt(s) = 91.188 GeV (FCC-ee)
+BEAMS: [11, -11]
+BEAM_ENERGIES: 45.594
+EVENT_GENERATION_MODE: Unweighted
+
+ME_GENERATORS: [Comix]
+
+PROCESSES:
+  - 11 -11 -> 2 -2:
+      Order: {QCD: 0, EW: 2}
+
+# keep particles with c*tau > 100 mm stable
+HADRON_DECAYS:
+  Max_Proper_Lifetime: 100
+
+EVENT_OUTPUT: HepMC3_GenEvent[events.hepmc]
