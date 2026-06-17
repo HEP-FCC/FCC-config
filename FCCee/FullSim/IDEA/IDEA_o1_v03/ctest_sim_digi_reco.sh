@@ -17,8 +17,8 @@ ddsim --enableGun --gun.distribution uniform --gun.energy "10*GeV" --gun.particl
 DCHfilename="https://fccsw.web.cern.ch/fccsw/filesForSimDigiReco/IDEA/DataAlgFORGEANT.root"
 GGTFmodel="https://fccsw.web.cern.ch/fccsw/filesForSimDigiReco/IDEA/IDEA_o1_v03/SimpleGatrIDEAv3o1.onnx"
 
-wget --no-clobber $DCHfilename
-wget --no-clobber $GGTFmodel
+wget -nv --no-clobber $DCHfilename
+wget -nv --no-clobber $GGTFmodel
 
 # run the DIGI/RECO step
 k4run $SCRIPT_DIR/run_digi_reco.py
