@@ -653,6 +653,7 @@ if addNoise:
                                                                   numHistograms=ecalEndcapWheels,  # 3 wheels
                                                                   scaleFactor=1 / 1000.,  # MeV to GeV
                                                                   OutputLevel=INFO)
+
     # need to implement geometry tool for ecal endcap
     ecalEndcapGeometryTool = None
 else:
