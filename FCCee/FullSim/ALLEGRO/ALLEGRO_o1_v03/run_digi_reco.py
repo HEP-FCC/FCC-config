@@ -611,20 +611,21 @@ else:
 if addNoise:
     ecalBarrelNoisePath = dataFolder + "elecNoise_ecalBarrelFCCee_theta.root"
     ecalBarrelNoiseRMSHistName = "h_elecNoise_fcc_"
-    from Configurables import NoiseCaloCellsVsThetaFromFileTool
-    ecalBarrelNoiseTool = NoiseCaloCellsVsThetaFromFileTool("ecalBarrelNoiseTool",
-                                                            cellPositionsTool=cellPositionEcalBarrelToolForNoise,
-                                                            readoutName=ecalBarrelReadoutName,
-                                                            noiseFileName=ecalBarrelNoisePath,
-                                                            elecNoiseRMSHistoName=ecalBarrelNoiseRMSHistName,
-                                                            setNoiseOffset=False,
-                                                            activeFieldName="layer",
-                                                            addPileup=False,
-                                                            filterNoiseThreshold=filterNoiseThreshold,
-                                                            useAbsInFilter=True,
-                                                            numRadialLayers=ecalBarrelLayers,
-                                                            scaleFactor=1 / 1000.,  # MeV to GeV
-                                                            OutputLevel=INFO)
+    from Configurables import NoiseCaloCellsFromFileBarrelTool
+    ecalBarrelNoiseTool = NoiseCaloCellsFromFileBarrelTool(
+        cellPositionsTool=cellPositionEcalBarrelToolForNoise,
+        readoutName=ecalBarrelReadoutName,
+        noiseFileName=ecalBarrelNoisePath,
+        elecNoiseRMSHistoName=ecalBarrelNoiseRMSHistName,
+        setNoiseOffset=False,
+        activeFieldName="layer",
+        addPileup=False,
+        filterNoiseThreshold=filterNoiseThreshold,
+        useAbsInFilter=True,
+        numHistograms=ecalBarrelLayers,
+        scaleFactor=1 / 1000.,  # MeV to GeV
+        OutputLevel=INFO
+    )
 
     from Configurables import TubeLayerModuleThetaCaloTool
     ecalBarrelGeometryTool = TubeLayerModuleThetaCaloTool("ecalBarrelGeometryTool",
