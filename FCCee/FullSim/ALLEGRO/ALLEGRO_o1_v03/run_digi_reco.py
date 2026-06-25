@@ -1036,6 +1036,8 @@ def setupSWClusters(inputCells,
             # since the non-decorated version of the clusters will be dropped, we update the list of clusters for which we store the truth links
             outputSaveClusters.append("Augmented" + clusterAlg.clusters.Path)
             outputSaveClusters.remove(clusterAlg.clusters.Path)
+        else:
+            addShapeParameters = False
 
     if applyMVAClusterEnergyCalibration:
         # note that this only works for ecal barrel given various hardcoded quantities
