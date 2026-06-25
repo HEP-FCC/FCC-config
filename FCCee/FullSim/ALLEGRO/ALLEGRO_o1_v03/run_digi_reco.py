@@ -128,6 +128,7 @@ if ecalEndcapSamplingFraction and len(ecalEndcapSamplingFraction) > 0:
 
 resegmentECalBarrel = False
 
+ecalEndcapWheels = 3
 hcalBarrelLayers = 13
 hcalEndcapLayers = 22
 
@@ -613,6 +614,7 @@ if addNoise:
     ecalBarrelNoiseRMSHistName = "h_elecNoise_fcc_"
     from Configurables import NoiseCaloCellsFromFileBarrelTool
     ecalBarrelNoiseTool = NoiseCaloCellsFromFileBarrelTool(
+        "ecalBarrelNoiseTool",
         cellPositionsTool=cellPositionEcalBarrelToolForNoise,
         readoutName=ecalBarrelReadoutName,
         noiseFileName=ecalBarrelNoisePath,
@@ -636,9 +638,28 @@ if addNoise:
                                                           fieldNames=["system"],
                                                           fieldValues=[IDs["ECAL_Barrel"]],
                                                           OutputLevel=INFO)
+
+    from Configurables import NoiseCaloCellsFromFileTurbineEndcapTool
+    ecalEndcapNoiseTool = NoiseCaloCellsFromFileTurbineEndcapTool("ecalEndcapNoiseTool",
+                                                                  cellPositionsTool=cellPositionEcalEndcapToolForNoise,
+                                                                  readoutName=ecalEndcapReadoutName,
+                                                                  noiseFileName=ecalEndcapNoisePath,
+                                                                  elecNoiseRMSHistoName=ecalEndcapNoiseRMSHistName,
+                                                                  setNoiseOffset=False,
+                                                                  activeFieldName="wheel",
+                                                                  addPileup=False,
+                                                                  filterNoiseThreshold=1,
+                                                                  useAbsInFilter=True,
+                                                                  numHistograms=ecalEndcapWheels,  # 3 wheels
+                                                                  scaleFactor=1 / 1000.,  # MeV to GeV
+                                                                  OutputLevel=INFO)
+    # need to implement geometry tool for ecal endcap
+    ecalEndcapGeometryTool = None
 else:
     ecalBarrelNoiseTool = None
     ecalBarrelGeometryTool = None
+    ecalEndcapNoiseTool = None
+    ecalEndcapGeometryTool = None
 
 # Create cells in ECal barrel (calibrated and positioned - optionally with xtalk and noise added)
 # from uncalibrated cells (+cellID info) from ddsim
