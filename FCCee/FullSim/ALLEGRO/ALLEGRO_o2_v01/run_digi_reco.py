@@ -39,7 +39,8 @@ parser.add_argument("--dataFolder", type=str, help="Path to calibration data fol
 parser.add_argument("--includeHCal", type=str2bool, nargs="?", help="Also digitize HCal hits and create ECAL+HCAL clusters", const=True, default=False)
 parser.add_argument("--includeMuon", type=str2bool, nargs="?", help="Also digitize muon hits", const=True, default=False)
 parser.add_argument("--saveHits", type=str2bool, nargs="?", help="Save G4 hits", const=True, default=False)
-parser.add_argument("--saveCells", type=str2bool, nargs="?", help="Save cell collection", const=True, default=False)
+parser.add_argument("--saveCells", type=str2bool, nargs="?", help="Save cell collections", const=True, default=False)
+parser.add_argument("--keepUncalibratedCells", type=str2bool, nargs="?", help="Save uncalibrated cell collections", const=True, default=False)
 parser.add_argument("--addNoise", type=str2bool, nargs="?", help="Add noise to cells (ECAL barrel only)", const=True, default=False)
 parser.add_argument("--addCrosstalk", type=str2bool, nargs="?", help="Add cross-talk to cells (ECAL barrel only)", const=True, default=False)
 parser.add_argument("--addTracks", type=str2bool, nargs="?", help="Add reco-level tracks (smeared truth tracks)", const=True, default=False)
@@ -61,23 +62,23 @@ runMuon = opts.includeMuon                          # if false, it will not digi
 addNoise = opts.addNoise                            # add noise or not to the cell energy
 addCrosstalk = opts.addCrosstalk                    # switch on/off the crosstalk
 addTracks = opts.addTracks                          # add tracks or not
-runTrkHitDigitization = opts.runTrkHitDigitization    # digitize tracker hits (DDPlanarDigi as default)
-useLegacyVTXDigitizer = opts.useLegacyVTXDigitizer   # digitize tracker hits (VTXdigitizer, smear truth)
+runTrkHitDigitization = opts.runTrkHitDigitization  # digitize tracker hits (DDPlanarDigi as default)
+useLegacyVTXDigitizer = opts.useLegacyVTXDigitizer  # digitize tracker hits (VTXdigitizer, smear truth)
 runTrkFinder = opts.runTrkFinder                    # run GGTF on digitized tracker hits
 runTrkFitter = opts.runTrkFitter                    # run track fitter on tracks
 
 # - what to save in output file
 #
-# always drop uncalibrated cells, except for tests and debugging
-dropUncalibratedCells = True
-# dropUncalibratedCells = False
+# by default drop uncalibrated cells, but can keep for tests and debugging
+dropUncalibratedCells = not opts.keepUncalibratedCells
 
 # for big productions, save significant space removing hits and cells
 # however, hits and cluster cells might be wanted for small productions for detailed event displays
 # cluster cells are not needed for the training of the MVA energy regression nor the photon ID since needed quantities are stored in cluster shapeParameters
 saveHits = opts.saveHits
 saveCells = opts.saveCells
-saveClusterCells = True
+# only save cluster cells if the user creates these collections
+saveClusterCells = opts.createClusterCellCollections
 
 dropLumiCalHits = True
 
@@ -94,7 +95,14 @@ dropMuonHits = False
 
 # ECAL barrel parameters for digitization
 ecalBarrelLayers = 11
-ecalBarrelSamplingFraction = [0.3800493723322256] * 1 + [0.13494147915064658] * 1 + [0.142866851721152] * 1 + [0.14839315921940666] * 1 + [0.15298362570665006] * 1 + [0.15709704561942747] * 1 + [0.16063717490147533] * 1 + [0.1641723795419055] * 1 + [0.16845490287689746] * 1 + [0.17111520115997653] * 1 + [0.1730605163148862] * 1
+# e-, 10 GeV, flat theta, B field off
+# ecalBarrelSamplingFraction = [0.3800493723322256] * 1 + [0.13494147915064658] * 1 + [0.142866851721152] * 1 + [0.14839315921940666] * 1 + [0.15298362570665006] * 1 + [0.15709704561942747] * 1 + [0.16063717490147533] * 1 + [0.1641723795419055] * 1 + [0.16845490287689746] * 1 + [0.17111520115997653] * 1 + [0.1730605163148862] * 1
+# e-, 20 GeV, flat theta, B field on
+# LAr+Pb
+ecalBarrelSamplingFraction = [0.3790943904011486] * 1 + [0.1355600584387894] * 1 + [0.14628210607758893] * 1 + [0.15274136994224854] * 1 + [0.15817255837886351] * 1 + [0.16290355087527258] * 1 + [0.1674201708055751] * 1 + [0.1715846423182708] * 1 + [0.17558662106635545] * 1 + [0.18002243792463576] * 1 + [0.18288329976007917] * 1
+# LKr+W
+# ecalBarrelSamplingFraction = [0.4806159038189229, 0.2822724529941907, 0.29324811578621524, 0.2996356722403102, 0.3047116566166906, 0.3090324459212472, 0.3133282052725273, 0.3173868504112048, 0.3215311396527887, 0.32516920330802673, 0.3318488881234955]
+
 ecalBarrelUpstreamParameters = [[0.028158491043365624, -1.564259408365951, -76.52312805346982, 0.7442903558010191, -34.894692961350195, -74.19340877431723]]
 ecalBarrelDownstreamParameters = [[0.00010587711361028165, 0.0052371999097777355, 0.69906696456064, -0.9348243433360095, -0.0364714212117143, 8.360401126995626]]
 if ecalBarrelSamplingFraction and len(ecalBarrelSamplingFraction) > 0:
@@ -120,6 +128,10 @@ if ecalEndcapSamplingFraction and len(ecalEndcapSamplingFraction) > 0:
 
 resegmentECalBarrel = False
 
+ecalEndcapWheels = 3
+hcalBarrelLayers = 13
+hcalEndcapLayers = 22
+
 # - parameters for clustering (could also be made configurable via CLI)
 doSWClustering = opts.doSWClustering
 doTopoClustering = opts.doTopoClustering
@@ -141,6 +153,7 @@ applyMVAClusterEnergyCalibration = opts.calibrateClusters
 # calculate cluster energy and barycenter per layer and save it as extra parameters
 addShapeParameters = True
 ecalBarrelThetaWeights = [-1, 3.0, 3.0, 3.0, 4.25, 4.0, 4.0, 4.0, 4.0, 4.0, 4.0]  # to be recalculated for V03, separately for topo and calo clusters...
+# ecalBarrelThetaWeights = [-1]*11
 
 # run photon ID algorithm
 # not run by default in production, but to be turned on here for the purpose of testing that the code is not broken
@@ -601,20 +614,22 @@ else:
 if addNoise:
     ecalBarrelNoisePath = dataFolder + "elecNoise_ecalBarrelFCCee_theta.root"
     ecalBarrelNoiseRMSHistName = "h_elecNoise_fcc_"
-    from Configurables import NoiseCaloCellsVsThetaFromFileTool
-    ecalBarrelNoiseTool = NoiseCaloCellsVsThetaFromFileTool("ecalBarrelNoiseTool",
-                                                            cellPositionsTool=cellPositionEcalBarrelToolForNoise,
-                                                            readoutName=ecalBarrelReadoutName,
-                                                            noiseFileName=ecalBarrelNoisePath,
-                                                            elecNoiseRMSHistoName=ecalBarrelNoiseRMSHistName,
-                                                            setNoiseOffset=False,
-                                                            activeFieldName="layer",
-                                                            addPileup=False,
-                                                            filterNoiseThreshold=filterNoiseThreshold,
-                                                            useAbsInFilter=True,
-                                                            numRadialLayers=ecalBarrelLayers,
-                                                            scaleFactor=1 / 1000.,  # MeV to GeV
-                                                            OutputLevel=INFO)
+    from Configurables import NoiseCaloCellsFromFileBarrelTool
+    ecalBarrelNoiseTool = NoiseCaloCellsFromFileBarrelTool(
+        "ecalBarrelNoiseTool",
+        cellPositionsTool=cellPositionEcalBarrelToolForNoise,
+        readoutName=ecalBarrelReadoutName,
+        noiseFileName=ecalBarrelNoisePath,
+        elecNoiseRMSHistoName=ecalBarrelNoiseRMSHistName,
+        setNoiseOffset=False,
+        activeFieldName="layer",
+        addPileup=False,
+        filterNoiseThreshold=filterNoiseThreshold,
+        useAbsInFilter=True,
+        numHistograms=ecalBarrelLayers,
+        scaleFactor=1 / 1000.,  # MeV to GeV
+        OutputLevel=INFO
+    )
 
     from Configurables import TubeLayerModuleThetaCaloTool
     ecalBarrelGeometryTool = TubeLayerModuleThetaCaloTool("ecalBarrelGeometryTool",
@@ -625,9 +640,29 @@ if addNoise:
                                                           fieldNames=["system"],
                                                           fieldValues=[IDs["ECAL_Barrel"]],
                                                           OutputLevel=INFO)
+
+    from Configurables import NoiseCaloCellsFromFileTurbineEndcapTool
+    ecalEndcapNoiseTool = NoiseCaloCellsFromFileTurbineEndcapTool("ecalEndcapNoiseTool",
+                                                                  cellPositionsTool=cellPositionEcalEndcapToolForNoise,
+                                                                  readoutName=ecalEndcapReadoutName,
+                                                                  noiseFileName=ecalEndcapNoisePath,
+                                                                  elecNoiseRMSHistoName=ecalEndcapNoiseRMSHistName,
+                                                                  setNoiseOffset=False,
+                                                                  activeFieldName="wheel",
+                                                                  addPileup=False,
+                                                                  filterNoiseThreshold=1,
+                                                                  useAbsInFilter=True,
+                                                                  numHistograms=ecalEndcapWheels,  # 3 wheels
+                                                                  scaleFactor=1 / 1000.,  # MeV to GeV
+                                                                  OutputLevel=INFO)
+
+    # need to implement geometry tool for ecal endcap
+    ecalEndcapGeometryTool = None
 else:
     ecalBarrelNoiseTool = None
     ecalBarrelGeometryTool = None
+    ecalEndcapNoiseTool = None
+    ecalEndcapGeometryTool = None
 
 # Create cells in ECal barrel (calibrated and positioned - optionally with xtalk and noise added)
 # from uncalibrated cells (+cellID info) from ddsim
@@ -965,26 +1000,68 @@ def setupSWClusters(inputCells,
         TopAlg += [correctClusterAlg]
 
     if addShapeParameters:
-        # note that this only works for ecal barrel given various hardcoded quantities
-        from Configurables import AugmentClustersFCCee
-        augmentClusterAlg = AugmentClustersFCCee("Augment" + outputClusters,
-                                                 inClusters=clusterAlg.clusters.Path,
-                                                 outClusters="Augmented" + clusterAlg.clusters.Path,
-                                                 systemIDs=[IDs["ECAL_Barrel"]],
-                                                 systemNames=["EMB"],
-                                                 numLayers=[ecalBarrelLayers],
-                                                 readoutNames=[inputReadouts["ECAL_Barrel"]],
-                                                 layerFieldNames=["layer"],
-                                                 thetaRecalcWeights=[ecalBarrelThetaWeights],
-                                                 # do_photon_shapeVar=runPhotonIDTool,
-                                                 do_photon_shapeVar=True,  # we want these variables to train the photon ID BDT
-                                                 do_widthTheta_logE_weights=logEWeightInPhotonID,
-                                                 OutputLevel=INFO
-                                                 )
-        TopAlg += [augmentClusterAlg]
-        # since the non-decorated version of the clusters will be dropped, we update the list of clusters for which we store the truth links
-        outputSaveClusters.append("Augmented" + clusterAlg.clusters.Path)
-        outputSaveClusters.remove(clusterAlg.clusters.Path)
+        if outputClusters in ["EMBCaloClusters", "EMECCaloClusters", "CaloClusters"]:
+            from Configurables import AugmentClustersFCCee
+            if outputClusters == "EMBCaloClusters":
+                augmentClusterAlg = AugmentClustersFCCee("Augment" + outputClusters,
+                                                         inClusters=clusterAlg.clusters.Path,
+                                                         outClusters="Augmented" + clusterAlg.clusters.Path,
+                                                         systemIDs=[IDs["ECAL_Barrel"]],
+                                                         systemNames=["EMB"],
+                                                         numLayers=[ecalBarrelLayers],
+                                                         readoutNames=[inputReadouts["ECAL_Barrel"]],
+                                                         layerFieldNames=["layer"],
+                                                         thetaRecalcWeights=[ecalBarrelThetaWeights],
+                                                         # do_photon_shapeVar=runPhotonIDTool,
+                                                         do_photon_shapeVar=True,  # we want these variables to train the photon ID BDT (but only for ECAL-only clusters!)
+                                                         do_widthTheta_logE_weights=logEWeightInPhotonID,
+                                                         OutputLevel=INFO
+                                                         )
+            elif outputClusters == "EMECCaloClusters":
+                augmentClusterAlg = AugmentClustersFCCee("Augment" + outputClusters,
+                                                         inClusters=clusterAlg.clusters.Path,
+                                                         outClusters="Augmented" + clusterAlg.clusters.Path,
+                                                         systemIDs=[IDs["ECAL_Endcap"]],
+                                                         systemNames=["EMEC"],
+                                                         numLayers=[ecalEndcapLayers],
+                                                         readoutNames=[inputReadouts["ECAL_Endcap"]],
+                                                         layerFieldNames=["layer"],
+                                                         thetaRecalcWeights=[[-1]*ecalEndcapLayers],
+                                                         do_photon_shapeVar=False,
+                                                         do_widthTheta_logE_weights=logEWeightInPhotonID,
+                                                         OutputLevel=INFO
+                                                         )
+            elif outputClusters == "CaloClusters":
+                # temporary to demonstrate possibility of doing an MVA calibration of pions reconstructed by ECAL+HCAL
+                augmentClusterAlg = AugmentClustersFCCee("Augment" + outputClusters,
+                                                         inClusters=clusterAlg.clusters.Path,
+                                                         outClusters="Augmented" + clusterAlg.clusters.Path,
+                                                         #systemIDs=caloIDs,
+                                                         #systemNames=["EMB", "EMEC", "HCALB", "HCALEC"],
+                                                         #numLayers=[ecalBarrelLayers, ecalEndcapLayers, hcalBarrelLayers, hcalEndcapLayers],
+                                                         #readoutNames=[inputReadouts["ECAL_Barrel"], inputReadouts["ECAL_Endcap"], inputReadouts["HCAL_Barrel"], inputReadouts["HCAL_Endcap"]],
+                                                         #layerFieldNames=["layer"]*4,  # would make more sense to use pseudolayers for endcaps
+                                                         #thetaFieldNames=["theta"]*4,  # will be ignored for systems!=EMB
+                                                         #moduleFieldNames=["module"]*4,  # will be ignored for systems!=EMB
+                                                         #thetaRecalcWeights=[ecalBarrelThetaWeights, [-1]*ecalEndcapLayers, [-1]*hcalBarrelLayers, [-1]*hcalEndcapLayers],
+                                                         systemIDs=[IDs["ECAL_Barrel"],IDs["HCAL_Barrel"]],
+                                                         systemNames=["EMB", "HCALB"],
+                                                         numLayers=[ecalBarrelLayers, hcalBarrelLayers],
+                                                         readoutNames=[inputReadouts["ECAL_Barrel"], inputReadouts["HCAL_Barrel"]],
+                                                         layerFieldNames=["layer"]*2,
+                                                         thetaFieldNames=["theta"]*2,  # will be ignored for systems!=EMB
+                                                         moduleFieldNames=["module"]*2,  # will be ignored for systems!=EMB
+                                                         thetaRecalcWeights=[ecalBarrelThetaWeights, [-1]*hcalBarrelLayers],
+                                                         do_photon_shapeVar=False,
+                                                         do_widthTheta_logE_weights=logEWeightInPhotonID,
+                                                         OutputLevel=INFO
+                                                         )
+            TopAlg += [augmentClusterAlg]
+            # since the non-decorated version of the clusters will be dropped, we update the list of clusters for which we store the truth links
+            outputSaveClusters.append("Augmented" + clusterAlg.clusters.Path)
+            outputSaveClusters.remove(clusterAlg.clusters.Path)
+        else:
+            addShapeParameters = False
 
     if applyMVAClusterEnergyCalibration:
         # note that this only works for ecal barrel given various hardcoded quantities
@@ -1109,25 +1186,66 @@ def setupTopoClusters(inputCells,
         TopAlg += [correctClusterAlg]
 
     if addShapeParameters:
-        # note that this only works for ecal barrel given various hardcoded quantities
-        from Configurables import AugmentClustersFCCee
-        augmentClusterAlg = AugmentClustersFCCee("Augment" + outputClusters,
-                                                 inClusters=clusterAlg.clusters.Path,
-                                                 outClusters="Augmented" + clusterAlg.clusters.Path,
-                                                 systemIDs=[IDs["ECAL_Barrel"]],
-                                                 systemNames=["EMB"],
-                                                 numLayers=[ecalBarrelLayers],
-                                                 readoutNames=[inputReadouts["ECAL_Barrel"]],
-                                                 layerFieldNames=["layer"],
-                                                 thetaRecalcWeights=[ecalBarrelThetaWeights],
-                                                 # do_photon_shapeVar=runPhotonIDTool,
-                                                 do_photon_shapeVar=True,  # we want these variables to train the photon ID BDT
-                                                 do_widthTheta_logE_weights=logEWeightInPhotonID,
-                                                 OutputLevel=INFO)
-        TopAlg += [augmentClusterAlg]
-        # since the non-decorated version of the clusters will be dropped, we update the list of clusters for which we store the truth links
-        outputSaveClusters.append("Augmented" + clusterAlg.clusters.Path)
-        outputSaveClusters.remove(clusterAlg.clusters.Path)
+        if outputClusters in ["EMBCaloTopoClusters", "EMECCaloTopoClusters", "CaloTopoClusters"]:
+            from Configurables import AugmentClustersFCCee
+            if outputClusters == "EMBCaloTopoClusters":
+                augmentClusterAlg = AugmentClustersFCCee("Augment" + outputClusters,
+                                                         inClusters=clusterAlg.clusters.Path,
+                                                         outClusters="Augmented" + clusterAlg.clusters.Path,
+                                                         systemIDs=[IDs["ECAL_Barrel"]],
+                                                         systemNames=["EMB"],
+                                                         numLayers=[ecalBarrelLayers],
+                                                         readoutNames=[inputReadouts["ECAL_Barrel"]],
+                                                         layerFieldNames=["layer"],
+                                                         thetaRecalcWeights=[ecalBarrelThetaWeights],
+                                                         # do_photon_shapeVar=runPhotonIDTool,
+                                                         do_photon_shapeVar=True,  # we want these variables to train the photon ID BDT
+                                                         do_widthTheta_logE_weights=logEWeightInPhotonID,
+                                                         OutputLevel=INFO
+                                                         )
+            elif outputClusters == "EMECCaloTopoClusters":
+                augmentClusterAlg = AugmentClustersFCCee("Augment" + outputClusters,
+                                                         inClusters=clusterAlg.clusters.Path,
+                                                         outClusters="Augmented" + clusterAlg.clusters.Path,
+                                                         systemIDs=[IDs["ECAL_Endcap"]],
+                                                         systemNames=["EMEC"],
+                                                         numLayers=[ecalEndcapLayers],
+                                                         readoutNames=[inputReadouts["ECAL_Endcap"]],
+                                                         layerFieldNames=["layer"],
+                                                         thetaRecalcWeights=[[-1]*ecalEndcapLayers],
+                                                         do_photon_shapeVar=False,
+                                                         do_widthTheta_logE_weights=logEWeightInPhotonID,
+                                                         OutputLevel=INFO
+                                                         )
+            elif outputClusters == "CaloTopoClusters":
+                # temporary to demonstrate possibility of doing an MVA calibration of pions reconstructed by ECAL+HCAL
+                augmentClusterAlg = AugmentClustersFCCee("Augment" + outputClusters,
+                                                         inClusters=clusterAlg.clusters.Path,
+                                                         outClusters="Augmented" + clusterAlg.clusters.Path,
+                                                         #systemIDs=caloIDs,
+                                                         #systemNames=["EMB", "EMEC", "HCALB", "HCALEC"],
+                                                         #numLayers=[ecalBarrelLayers, ecalEndcapLayers, hcalBarrelLayers, hcalEndcapLayers],
+                                                         #readoutNames=[inputReadouts["ECAL_Barrel"], inputReadouts["ECAL_Endcap"], inputReadouts["HCAL_Barrel"], inputReadouts["HCAL_Endcap"]],
+                                                         #layerFieldNames=["layer"]*4,  # would make more sense to use pseudolayers for endcaps
+                                                         #thetaFieldNames=["theta"]*4,  # will be ignored for systems!=EMB
+                                                         #moduleFieldNames=["module"]*4,  # will be ignored for systems!=EMB
+                                                         #thetaRecalcWeights=[ecalBarrelThetaWeights, [-1]*ecalEndcapLayers, [-1]*hcalBarrelLayers, [-1]*hcalEndcapLayers],
+                                                         systemIDs=[IDs["ECAL_Barrel"],IDs["HCAL_Barrel"]],
+                                                         systemNames=["EMB", "HCALB"],
+                                                         numLayers=[ecalBarrelLayers, hcalBarrelLayers],
+                                                         readoutNames=[inputReadouts["ECAL_Barrel"], inputReadouts["HCAL_Barrel"]],
+                                                         layerFieldNames=["layer"]*2,
+                                                         thetaFieldNames=["theta"]*2,  # will be ignored for systems!=EMB
+                                                         moduleFieldNames=["module"]*2,  # will be ignored for systems!=EMB
+                                                         thetaRecalcWeights=[ecalBarrelThetaWeights, [-1]*hcalBarrelLayers],
+                                                         do_photon_shapeVar=False,
+                                                         do_widthTheta_logE_weights=logEWeightInPhotonID,
+                                                         OutputLevel=INFO
+                                                         )
+            TopAlg += [augmentClusterAlg]
+            # since the non-decorated version of the clusters will be dropped, we update the list of clusters for which we store the truth links
+            outputSaveClusters.append("Augmented" + clusterAlg.clusters.Path)
+            outputSaveClusters.remove(clusterAlg.clusters.Path)
 
         # tool to identify resolved pi0->two photon cluster candidates
         # see: https://indico.cern.ch/event/1483299/contributions/6488594/attachments/3056315/5403634/ALLEGRO_photon_pi0_20250424.pdf
@@ -1212,7 +1330,7 @@ if doSWClustering:
                     0.04,
                     False,
                     False,
-                    False,
+                    addShapeParameters,
                     False)
 
     # SW ECAL barrel clusters with noise
@@ -1247,7 +1365,7 @@ if doSWClustering:
                         0.04,
                         False,
                         False,
-                        False,
+                        addShapeParameters,
                         False)
 
     # experimental: MUON clusters
@@ -1296,7 +1414,7 @@ if doTopoClustering:
                       dataFolder + "cellNoise_map_endcapTurbine_electronicsNoiseLevel.root",
                       False,
                       False,
-                      False,
+                      addShapeParameters,
                       False)
 
     # ECAL topoclusters with noise
@@ -1336,7 +1454,7 @@ if doTopoClustering:
                           dataFolder + "cellNoise_map_electronicsNoiseLevel_ecalB_ECalBarrelModuleThetaMerged_ecalE_ECalEndcapTurbine_hcalB_HCalBarrelReadout_hcalE_HCalEndcapReadout.root",
                           False,
                           False,
-                          False,
+                          addShapeParameters,
                           False)
 
 
@@ -1391,8 +1509,9 @@ if dropSiWrHits:
     io_svc.outputCommands.append("drop SiWrBCollection*")
     io_svc.outputCommands.append("drop SiWrDCollection*")
 if dropMuonHits:
-    io_svc.outputCommands.append("drop MuonTagger*PhiTheta")   # hits
-    io_svc.outputCommands.append("drop MuonTagger*PhiThetaPositioned")   # cells
+    io_svc.outputCommands.append("drop MuonTagger*PhiThetaContributions")   # hits
+    io_svc.outputCommands.append("drop MuonTagger*PhiTheta")                # uncalibrated cells
+    io_svc.outputCommands.append("drop MuonTagger*PhiThetaPositioned")      # calibrated cells
 
 # drop hits/positioned cells/cluster cells if desired
 if not saveHits:
