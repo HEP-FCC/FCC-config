@@ -1,0 +1,20 @@
+# e+e- -> Z/gamma* -> qq (inclusive, all quark flavours d,u,s,c,b) at sqrt(s) = 91.188 GeV (FCC-ee)
+BEAMS: [11, -11]
+BEAM_ENERGIES: 45.594
+EVENT_GENERATION_MODE: Unweighted
+
+ME_GENERATORS: [Comix]
+
+# explicit all-quark container (d,u,s,c,b + antiquarks; no gluon -> pure Z/gamma* -> qqbar)
+PARTICLE_CONTAINERS:
+  901: {Name: qq, Flavours: [1, -1, 2, -2, 3, -3, 4, -4, 5, -5]}
+
+PROCESSES:
+  - 11 -11 -> 901 901:
+      Order: {QCD: 0, EW: 2}
+
+# keep particles with c*tau > 100 mm stable
+HADRON_DECAYS:
+  Max_Proper_Lifetime: 100
+
+EVENT_OUTPUT: HepMC3_GenEvent[events.hepmc]
