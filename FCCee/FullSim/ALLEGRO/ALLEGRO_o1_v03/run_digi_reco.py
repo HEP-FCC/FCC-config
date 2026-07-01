@@ -22,6 +22,7 @@ dataFolderDef = "./"                       # directory containing the calibratio
 
 # - general settings not set via CLI
 filterNoiseThreshold = -1                  # if addNoise is true, and filterNoiseThreshold is >0, will filter away cells with abs(energy) below filterNoiseThreshold * expected sigma(noise)
+# filterNoiseThreshold = 2                 # if addNoise is true, and filterNoiseThreshold is >0, will filter away cells with abs(energy) below filterNoiseThreshold * expected sigma(noise)
 
 # - general settings set via CLI
 from k4FWCore.parseArgs import parser
@@ -94,6 +95,7 @@ dropMuonHits = False
 
 
 # ECAL barrel parameters for digitization
+# TODO: extract number of layers (for ECAL and HCAL) directly from the detector segmentations
 ecalBarrelLayers = 11
 # e-, 10 GeV, flat theta, B field off
 # ecalBarrelSamplingFraction = [0.3800493723322256] * 1 + [0.13494147915064658] * 1 + [0.142866851721152] * 1 + [0.14839315921940666] * 1 + [0.15298362570665006] * 1 + [0.15709704561942747] * 1 + [0.16063717490147533] * 1 + [0.1641723795419055] * 1 + [0.16845490287689746] * 1 + [0.17111520115997653] * 1 + [0.1730605163148862] * 1
@@ -581,6 +583,11 @@ cellPositionEcalEndcapTool = CellPositionsECalEndcapTurbineSegTool(
     readoutName=ecalEndcapReadoutName,
     OutputLevel=INFO
 )
+cellPositionEcalEndcapToolForNoise = CellPositionsECalEndcapTurbineSegTool(
+    "CellPositionsECalEndcapForNoise",
+    readoutName=ecalEndcapReadoutName,
+    OutputLevel=INFO
+)
 
 if runHCal:
     from Configurables import CellPositionsHCalPhiThetaSegTool
@@ -639,6 +646,8 @@ if addNoise:
                                                           fieldValues=[IDs["ECAL_Barrel"]],
                                                           OutputLevel=INFO)
 
+    ecalEndcapNoisePath = dataFolder + "elecNoise_ecalendcap.root"
+    ecalEndcapNoiseRMSHistName = "noise_endcap_wheel"
     from Configurables import NoiseCaloCellsFromFileTurbineEndcapTool
     ecalEndcapNoiseTool = NoiseCaloCellsFromFileTurbineEndcapTool("ecalEndcapNoiseTool",
                                                                   cellPositionsTool=cellPositionEcalEndcapToolForNoise,
@@ -648,14 +657,16 @@ if addNoise:
                                                                   setNoiseOffset=False,
                                                                   activeFieldName="wheel",
                                                                   addPileup=False,
-                                                                  filterNoiseThreshold=1,
+                                                                  filterNoiseThreshold=filterNoiseThreshold,
                                                                   useAbsInFilter=True,
                                                                   numHistograms=ecalEndcapWheels,  # 3 wheels
                                                                   scaleFactor=1 / 1000.,  # MeV to GeV
                                                                   OutputLevel=INFO)
 
-    # need to implement geometry tool for ecal endcap
-    ecalEndcapGeometryTool = None
+    from Configurables import TurbineEndcapCaloTool
+    ecalEndcapGeometryTool = TurbineEndcapCaloTool("ecalEndcapGeometryTool",
+                                                   readoutName=ecalEndcapReadoutName,
+                                                   OutputLevel=INFO)
 else:
     ecalBarrelNoiseTool = None
     ecalBarrelGeometryTool = None
@@ -746,7 +757,7 @@ createEcalEndcapCells = CreatePositionedCaloCells("CreatePositionedECalEndcapCel
 TopAlg += [createEcalEndcapCells]
 
 if addNoise:
-    # cells with noise not filtered
+    # ecal barrel cells with noise not filtered
     ecalBarrelCellsNoiseLinks = ecalBarrelPositionedCellsName + "WithNoise" + "SimCaloHitLinks"
     createEcalBarrelCellsNoise = CreatePositionedCaloCells("CreatePositionedECalBarrelCellsWithNoise",
                                                            doCellCalibration=True,
@@ -764,7 +775,7 @@ if addNoise:
                                                            links=ecalBarrelCellsNoiseLinks)
     TopAlg += [createEcalBarrelCellsNoise]
 
-    # cells with noise filtered
+    # ecal barrel cells with noise filtered
     ecalBarrelCellsNoiseFilteredLinks = ecalBarrelPositionedCellsName + "WithNoiseFiltered" + "SimCaloHitLinks"
     createEcalBarrelCellsNoiseFiltered = CreatePositionedCaloCells("CreatePositionedECalBarrelCellsWithNoiseFiltered",
                                                                    doCellCalibration=True,
@@ -782,6 +793,43 @@ if addNoise:
                                                                    links=ecalBarrelCellsNoiseFilteredLinks
                                                                    )
     TopAlg += [createEcalBarrelCellsNoiseFiltered]
+
+    # ecal endcap cells with noise not filtered
+    ecalEndcapCellsNoiseLinks = ecalEndcapPositionedCellsName + "WithNoise" + "SimCaloHitLinks"
+    createEcalEndcapCellsNoise = CreatePositionedCaloCells("CreatePositionedECalEndcapCellsWithNoise",
+                                                           doCellCalibration=True,
+                                                           calibTool=calibEcalEndcap,
+                                                           positionsTool=cellPositionEcalEndcapTool,
+                                                           addCrosstalk=addCrosstalk,
+                                                           crosstalkTool=readCrosstalkMap,
+                                                           addCellNoise=True,
+                                                           filterCellNoise=False,
+                                                           noiseTool=ecalEndcapNoiseTool,
+                                                           geometryTool=ecalEndcapGeometryTool,
+                                                           OutputLevel=INFO,
+                                                           hits=ecalEndcapReadoutName,
+                                                           cells=ecalEndcapPositionedCellsName + "WithNoise",
+                                                           links=ecalEndcapCellsNoiseLinks)
+    TopAlg += [createEcalEndcapCellsNoise]
+
+    # cells with noise filtered
+    ecalEndcapCellsNoiseFilteredLinks = ecalEndcapPositionedCellsName + "WithNoiseFiltered" + "SimCaloHitLinks"
+    createEcalEndcapCellsNoiseFiltered = CreatePositionedCaloCells("CreatePositionedECalEndcapCellsWithNoiseFiltered",
+                                                                   doCellCalibration=True,
+                                                                   calibTool=calibEcalEndcap,
+                                                                   positionsTool=cellPositionEcalEndcapTool,
+                                                                   addCrosstalk=addCrosstalk,
+                                                                   crosstalkTool=readCrosstalkMap,
+                                                                   addCellNoise=True,
+                                                                   filterCellNoise=True,
+                                                                   noiseTool=ecalEndcapNoiseTool,
+                                                                   geometryTool=ecalEndcapGeometryTool,
+                                                                   OutputLevel=INFO,
+                                                                   hits=ecalEndcapReadoutName,  # uncalibrated & unpositioned cells without noise
+                                                                   cells=ecalEndcapPositionedCellsName + "WithNoiseFiltered",
+                                                                   links=ecalEndcapCellsNoiseFilteredLinks
+                                                                   )
+    TopAlg += [createEcalEndcapCellsNoiseFiltered]
 
 if runHCal:
     # Apply calibration and positioning to cells in HCal barrel
@@ -998,9 +1046,9 @@ def setupSWClusters(inputCells,
         TopAlg += [correctClusterAlg]
 
     if addShapeParameters:
-        if outputClusters in ["EMBCaloClusters", "EMECCaloClusters", "CaloClusters"]:
+        if outputClusters.startswith(("EMBCaloClusters", "EMECCaloClusters", "CaloClusters")):
             from Configurables import AugmentClustersFCCee
-            if outputClusters == "EMBCaloClusters":
+            if outputClusters.startswith("EMBCaloClusters"):
                 augmentClusterAlg = AugmentClustersFCCee("Augment" + outputClusters,
                                                          inClusters=clusterAlg.clusters.Path,
                                                          outClusters="Augmented" + clusterAlg.clusters.Path,
@@ -1015,7 +1063,7 @@ def setupSWClusters(inputCells,
                                                          do_widthTheta_logE_weights=logEWeightInPhotonID,
                                                          OutputLevel=INFO
                                                          )
-            elif outputClusters == "EMECCaloClusters":
+            elif outputClusters.startswith("EMECCaloClusters"):
                 augmentClusterAlg = AugmentClustersFCCee("Augment" + outputClusters,
                                                          inClusters=clusterAlg.clusters.Path,
                                                          outClusters="Augmented" + clusterAlg.clusters.Path,
@@ -1029,7 +1077,7 @@ def setupSWClusters(inputCells,
                                                          do_widthTheta_logE_weights=logEWeightInPhotonID,
                                                          OutputLevel=INFO
                                                          )
-            elif outputClusters == "CaloClusters":
+            elif outputClusters.startswith("CaloClusters"):
                 # temporary to demonstrate possibility of doing an MVA calibration of pions reconstructed by ECAL+HCAL
                 augmentClusterAlg = AugmentClustersFCCee("Augment" + outputClusters,
                                                          inClusters=clusterAlg.clusters.Path,
@@ -1184,9 +1232,9 @@ def setupTopoClusters(inputCells,
         TopAlg += [correctClusterAlg]
 
     if addShapeParameters:
-        if outputClusters in ["EMBCaloTopoClusters", "EMECCaloTopoClusters", "CaloTopoClusters"]:
+        if outputClusters.startswith(("EMBCaloTopoClusters", "EMECCaloTopoClusters", "CaloTopoClusters")):
             from Configurables import AugmentClustersFCCee
-            if outputClusters == "EMBCaloTopoClusters":
+            if outputClusters.startswith("EMBCaloTopoClusters"):
                 augmentClusterAlg = AugmentClustersFCCee("Augment" + outputClusters,
                                                          inClusters=clusterAlg.clusters.Path,
                                                          outClusters="Augmented" + clusterAlg.clusters.Path,
@@ -1201,7 +1249,7 @@ def setupTopoClusters(inputCells,
                                                          do_widthTheta_logE_weights=logEWeightInPhotonID,
                                                          OutputLevel=INFO
                                                          )
-            elif outputClusters == "EMECCaloTopoClusters":
+            elif outputClusters.startswith("EMECCaloTopoClusters"):
                 augmentClusterAlg = AugmentClustersFCCee("Augment" + outputClusters,
                                                          inClusters=clusterAlg.clusters.Path,
                                                          outClusters="Augmented" + clusterAlg.clusters.Path,
@@ -1215,7 +1263,7 @@ def setupTopoClusters(inputCells,
                                                          do_widthTheta_logE_weights=logEWeightInPhotonID,
                                                          OutputLevel=INFO
                                                          )
-            elif outputClusters == "CaloTopoClusters":
+            elif outputClusters.startswith("CaloTopoClusters"):
                 # temporary to demonstrate possibility of doing an MVA calibration of pions reconstructed by ECAL+HCAL
                 augmentClusterAlg = AugmentClustersFCCee("Augment" + outputClusters,
                                                          inClusters=clusterAlg.clusters.Path,
@@ -1331,7 +1379,7 @@ if doSWClustering:
                     addShapeParameters,
                     False)
 
-    # SW ECAL barrel clusters with noise
+    # SW ECAL barrel and endcap clusters with noise
     if addNoise:
         EMBCaloClusterInputsWithNoise = {"ECAL_Barrel": ecalBarrelPositionedCellsName + "WithNoise" if filterNoiseThreshold < 0 else ecalBarrelPositionedCellsName + "WithNoiseFiltered"}
         setupSWClusters(EMBCaloClusterInputsWithNoise,
@@ -1342,6 +1390,16 @@ if doSWClustering:
                         applyMVAClusterEnergyCalibration,
                         addShapeParameters,
                         runPhotonIDTool)
+
+        EMECCaloClusterInputsWithNoise = {"ECAL_Endcap": ecalEndcapPositionedCellsName + "WithNoise" if filterNoiseThreshold < 0 else ecalEndcapPositionedCellsName + "WithNoiseFiltered"}
+        setupSWClusters(EMECCaloClusterInputsWithNoise,
+                        EMECCaloClusterReadouts,
+                        "EMECCaloClustersWithNoise" if filterNoiseThreshold < 0 else "EMECCaloClustersWithNoiseFiltered",
+                        0.1,  # large number of clusters with noise, consider raising to 0.3 if not looking at low-energy cluster reconstruction, or use filtered cells
+                        False,
+                        False,
+                        addShapeParameters,
+                        False)
 
     # ECAL + HCAL clusters
     if runHCal:
@@ -1428,6 +1486,18 @@ if doTopoClustering:
                           applyMVAClusterEnergyCalibration,
                           addShapeParameters,
                           runPhotonIDTool)
+
+        EMECCaloTopoClusterInputsWithNoise = {"ECAL_Endcap": ecalEndcapPositionedCellsName + "WithNoise" if filterNoiseThreshold < 0 else ecalEndcapPositionedCellsName + "WithNoiseFiltered"}
+        setupTopoClusters(EMECCaloTopoClusterInputsWithNoise,
+                          EMECCaloTopoClusterReadouts,
+                          "EMECCaloTopoClustersWithNoise" if filterNoiseThreshold < 0 else "EMECCaloTopoClustersWithNoiseFiltered",
+                          0.1,
+                          dataFolder + "neighbours_map_ecalE_turbine.root",
+                          dataFolder + "cellNoise_map_endcapTurbine_electronicsNoiseLevel.root",
+                          False,
+                          False,
+                          addShapeParameters,
+                          False)
 
     # ECAL + HCAL
     if runHCal:
