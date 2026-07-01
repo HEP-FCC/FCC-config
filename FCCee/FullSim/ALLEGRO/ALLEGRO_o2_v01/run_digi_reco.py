@@ -814,7 +814,7 @@ if addNoise:
                                                            links=ecalEndcapCellsNoiseLinks)
     TopAlg += [createEcalEndcapCellsNoise]
 
-    # cells with noise filtered
+    # ecal endcap cells with noise filtered
     ecalEndcapCellsNoiseFilteredLinks = ecalEndcapPositionedCellsName + "WithNoiseFiltered" + "SimCaloHitLinks"
     createEcalEndcapCellsNoiseFiltered = CreatePositionedCaloCells("CreatePositionedECalEndcapCellsWithNoiseFiltered",
                                                                    doCellCalibration=True,
@@ -1294,6 +1294,8 @@ def setupTopoClusters(inputCells,
             # since the non-decorated version of the clusters will be dropped, we update the list of clusters for which we store the truth links
             outputSaveClusters.append("Augmented" + clusterAlg.clusters.Path)
             outputSaveClusters.remove(clusterAlg.clusters.Path)
+        else:
+            addShapeParameters = False
 
         # tool to identify resolved pi0->two photon cluster candidates
         # see: https://indico.cern.ch/event/1483299/contributions/6488594/attachments/3056315/5403634/ALLEGRO_photon_pi0_20250424.pdf
