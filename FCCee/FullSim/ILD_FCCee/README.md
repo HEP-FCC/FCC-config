@@ -22,6 +22,8 @@ The geometry descriptions for ILD@FCC-ee are hosted within the **k4geo** reposit
 Configurations are maintained in the ILDConfig repository:
 
 - [ILD Configurations](https://github.com/iLCSoft/ILDConfig/tree/master/StandardConfig/production)
+  - [Simulation steering file (`ddsim_steer.py`)](https://github.com/iLCSoft/ILDConfig/blob/master/StandardConfig/production/ddsim_steer.py)
+  - [Reconstruction steering file (`ILDReconstruction.py`)](https://github.com/iLCSoft/ILDConfig/blob/master/StandardConfig/production/ILDReconstruction.py)
 
 > **Important:** The previous reconstruction framework based on `Marlin` does not support the ILD@FCC-ee models.
 
