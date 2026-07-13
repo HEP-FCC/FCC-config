@@ -7,6 +7,7 @@ ENERGY="10*GeV"
 INPUT_FILE=""
 OUTPUT_FILE="output"
 N_EVENTS=10
+RANDOM_SEED=""
 
 # --- Help Function ---
 print_usage() {
@@ -16,6 +17,7 @@ print_usage() {
     echo "  --inputFile   Path to an input file (disables particle gun)"
     echo "  --outputFile  Base name for output files (default: output)"
     echo "  --nEvents     Number of events to simulate (default: 10)"
+    echo "  --seed        Random seed for ddsim (optional)"
     exit 1
 }
 
@@ -32,6 +34,8 @@ while [[ $# -gt 0 ]]; do
             OUTPUT_FILE="$2"; shift 2 ;;
         --nEvents)
             N_EVENTS="$2"; shift 2 ;;
+        --seed)
+            RANDOM_SEED="$2"; shift 2 ;;
         -h|--help)
             print_usage ;;
         *)
@@ -51,7 +55,7 @@ fi
 # Workaround to have ctests working (get the directory of this script)
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 
-# --- Build ddsim Command Dynamically using Arrays ---
+# --- Build ddsim command ---
 DDSIM_CMD=(
 ddsim
 --outputFile "IDEA_${OUTPUT_FILE}_sim.root"
@@ -59,6 +63,14 @@ ddsim
 --steeringFile "${SCRIPT_DIR}/SteeringFile_IDEA_o1_v03.py"
 --numberOfEvents "${N_EVENTS}"
 )
+
+# Append seed flags if a seed is specified
+if [[ -n "${RANDOM_SEED}" ]]; then
+    DDSIM_CMD+=(
+    --random.enableEventSeed
+    --random.seed "${RANDOM_SEED}"
+    )
+fi
 
 if [[ -n "${INPUT_FILE}" ]]; then
     echo "Using input file: ${INPUT_FILE} (Particle gun disabled)"
