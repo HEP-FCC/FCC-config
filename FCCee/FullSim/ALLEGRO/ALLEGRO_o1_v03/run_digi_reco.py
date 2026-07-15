@@ -44,7 +44,7 @@ parser.add_argument("--saveCells", type=str2bool, nargs="?", help="Save cell col
 parser.add_argument("--keepUncalibratedCells", type=str2bool, nargs="?", help="Save uncalibrated cell collections", const=True, default=False)
 parser.add_argument("--addNoise", type=str2bool, nargs="?", help="Add noise to cells (ECAL barrel only)", const=True, default=False)
 parser.add_argument("--addCrosstalk", type=str2bool, nargs="?", help="Add cross-talk to cells (ECAL barrel only)", const=True, default=False)
-parser.add_argument("--addTracks", type=str2bool, nargs="?", help="Add reco-level tracks (smeared truth tracks)", const=True, default=False)
+parser.add_argument("--addTruthTracks", type=str2bool, nargs="?", help="Add reco-level tracks (smeared truth tracks)", const=True, default=False)
 parser.add_argument("--doSWClustering", type=str2bool, nargs="?", help="Enable or disable sliding window clustering", const=True, default=True)
 parser.add_argument("--createClusterCellCollections", type=str2bool, nargs="?", help="Create new cluster cell collections or just link clusters to cells in standard cell collections", const=True, default=True)
 parser.add_argument("--doTopoClustering", type=str2bool, nargs="?", help="Enable or disable topo clustering", const=True, default=True)
@@ -55,6 +55,7 @@ parser.add_argument("--runTrkHitDigitization", type=str2bool, nargs="?", help="D
 parser.add_argument("--useLegacyVTXDigitizer", type=str2bool, nargs="?", help="Perform VTXdigitizer-based digitization of tracker hits", const=True, default=False)
 parser.add_argument("--runTrkFinder", type=str2bool, nargs="?", help="Run Geometric Graph Track Finding (GGTF) on digitized tracker hits", const=True, default=False)
 parser.add_argument("--runTrkFitter", type=str2bool, nargs="?", help="Run track fitter on tracks", const=True, default=False)
+parser.add_argument("--runTrkValidation", type=str2bool, nargs="?", help="Run tracking validation", const=True, default=False)
 
 opts = parser.parse_known_args()[0]
 dataFolder = opts.dataFolder                        # directory containing the calibration files
@@ -62,11 +63,12 @@ runHCal = opts.includeHCal                          # if false, it will produce 
 runMuon = opts.includeMuon                          # if false, it will not digitize muon hits
 addNoise = opts.addNoise                            # add noise or not to the cell energy
 addCrosstalk = opts.addCrosstalk                    # switch on/off the crosstalk
-addTracks = opts.addTracks                          # add tracks or not
+addTruthTracks = opts.addTruthTracks                # add truth tracks or not
 runTrkHitDigitization = opts.runTrkHitDigitization  # digitize tracker hits (DDPlanarDigi as default)
 useLegacyVTXDigitizer = opts.useLegacyVTXDigitizer  # digitize tracker hits (VTXdigitizer, smear truth)
 runTrkFinder = opts.runTrkFinder                    # run GGTF on digitized tracker hits
 runTrkFitter = opts.runTrkFitter                    # run track fitter on tracks
+runTrkValidation = opts.runTrkValidation            # run tracking validation
 
 # - what to save in output file
 #
@@ -243,13 +245,13 @@ io_svc.Input = inputfile
 io_svc.Output = outputfile
 ExtSvc += [EventDataSvc("EventDataSvc")]
 
-if addTracks or runTrkHitDigitization or addNoise:
+if addTruthTracks or runTrkHitDigitization or addNoise:
     ExtSvc += ["RndmGenSvc"]
 
 
 # Tracking
 # Create tracks from gen particles
-if addTracks:
+if addTruthTracks:
     from Configurables import TracksFromGenParticles
     tracksFromGenParticles = TracksFromGenParticles("CreateTracksFromGenParticles",
                                                     InputGenParticles=["MCParticles"],
@@ -519,6 +521,58 @@ if runTrkFitter:
         OutputLevel=INFO,
     )
     TopAlg += [trackFitter]
+
+if runTrkValidation:
+    # perfect track fitting
+    from Configurables import PerfectTrackFinder, GenfitTrackFitter
+    perfect_finder = PerfectTrackFinder(
+        "PerfectTrackFinder",
+        InputMCParticles=["MCParticles"],
+        InputPlanarHitCollections=["VTXBSimDigiLinks","VTXDSimDigiLinks","SiWrBSimDigiLinks","SiWrDSimDigiLinks"],
+        InputWireHitCollections=["DCHDigisSimAssociationCollection"],
+        OutputPerfectTracks=["PerfectPrefitTracks"],
+        OutputLevel=INFO
+    )
+    perfect_fitter = GenfitTrackFitter(
+        "PerfectTrackFitter",
+        InputTracks=["PerfectPrefitTracks"],
+        OutputFittedTracks=["PerfectFittedTracks"],
+        OutputFittedTracksWithFilteredHits=["PerfectFittedTracksWithFilteredHits"],
+        OutputFittedHits=["PerfectFittedHits"],
+        RunSingleEvaluation=True,
+        UseBrems=True,
+        BetaInit=100.0,
+        BetaFinal=0.1,
+        BetaSteps=15,
+        InitializationType=1,
+        SkipTrackOrdering=False,
+        FilterTrackHits=True,
+        OutputLevel=INFO
+    )
+
+    TopAlg += [perfect_finder, perfect_fitter]
+
+    from Configurables import TrackingValidation
+    outputFileValid = io_svc.Output.replace(".root", "_trkval.root")
+    trackValidation = TrackingValidation(
+        "TrackingValidation",
+        OutputFile=outputFileValid,
+        Mode=0,
+        Bz=2.0,
+        RefPointX=0.0,
+        RefPointY=0.0,
+        RefPointZ=0.0,
+        DoPerfectFit=1,
+        FinderEfficiencyDefinition=1,
+        FinderPurityThreshold=0.75,
+        MCParticles=["MCParticles"],
+        HitSimLinks=["VTXBSimDigiLinks","VTXDSimDigiLinks","SiWrBSimDigiLinks","SiWrDSimDigiLinks","DCHDigisSimAssociationCollection"],
+        FinderTracks=["PrefitTracks"],
+        FittedTracks=["FittedTracks"],
+        PerfectFittedTracks=["PerfectFittedTracks"],
+        OutputLevel=INFO)
+    TopAlg += [trackValidation]
+
 
 # Calorimeter digitization (merging hits into cells, EM scale calibration via sampling fractions)
 
