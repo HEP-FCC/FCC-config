@@ -7,8 +7,11 @@ else
   echo "The Key4hep stack was already loaded in this environment."
 fi
 
+# workaround to have ctests working
+SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+
 # run the SIM step
-ddsim --enableGun --gun.distribution uniform --gun.energy "10*GeV" --gun.particle e- --numberOfEvents 10 --outputFile ALLEGRO_sim.root --random.enableEventSeed --random.seed 42 --compactFile $K4GEO/FCCee/ALLEGRO/compact/ALLEGRO_o1_v03/ALLEGRO_o1_v03.xml
+ddsim --enableGun --gun.distribution uniform --gun.energy "10*GeV" --gun.particle e- --crossingAngleBoost 0.0 --numberOfEvents 10 --outputFile ALLEGRO_o1_v03_sim.root --random.enableEventSeed --random.seed 42 --compactFile $K4GEO/FCCee/ALLEGRO/compact/ALLEGRO_o1_v03/ALLEGRO_o1_v03.xml --steeringFile $SCRIPT_DIR/SteeringFile_ALLEGRO_o1_v03.py
 
 # get the files needed for calibration, noise, neighbor finding, etc
 if ! test -f ./DataAlgFORGEANT.root; then  # assumes that if the last file exists, all the other as well
@@ -30,5 +33,4 @@ if ! test -f ./DataAlgFORGEANT.root; then  # assumes that if the last file exist
 fi
 
 # run the RECO step
-SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd ) # workaround to have ctests working
-k4run $SCRIPT_DIR/run_digi_reco.py --includeHCal --includeMuon --runTrkHitDigitization --addTracks --calibrateClusters --saveCells --runTrkFinder --runTrkFitter
+k4run $SCRIPT_DIR/run_digi_reco.py --IOSvc.Input ALLEGRO_o1_v03_sim.root --includeHCal --includeMuon --runTrkHitDigitization --addTracks --calibrateClusters --saveCells --runTrkFinder --runTrkFitter
