@@ -11,7 +11,7 @@ fi
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd ) 
 
 # run the SIM step
-ddsim --enableGun --gun.distribution uniform --gun.energy "10*GeV" --gun.particle e- --numberOfEvents 10 --outputFile ALLEGRO_o2_v01_sim.root --random.enableEventSeed --random.seed 42 --compactFile $K4GEO/FCCee/ALLEGRO/compact/ALLEGRO_o2_v01/ALLEGRO_o2_v01.xml --steeringFile $SCRIPT_DIR/SteeringFile_ALLEGRO_o2_v01.py
+ddsim --enableGun --crossingAngleBoost 0.0 --gun.distribution uniform --gun.energy "10*GeV" --gun.particle e- --numberOfEvents 10 --outputFile ALLEGRO_o2_v01_sim.root --random.enableEventSeed --random.seed 42 --compactFile $K4GEO/FCCee/ALLEGRO/compact/ALLEGRO_o2_v01/ALLEGRO_o2_v01.xml --steeringFile $SCRIPT_DIR/SteeringFile_ALLEGRO_o2_v01.py
 
 # get the files needed for calibration, noise, neighbor finding, etc
 # NOTE: since the calorimeters are identical for o1_v03 and o2_v01, we download the files from o1_v03
