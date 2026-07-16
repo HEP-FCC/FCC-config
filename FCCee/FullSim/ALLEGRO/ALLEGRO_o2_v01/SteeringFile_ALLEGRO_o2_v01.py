@@ -4,7 +4,7 @@ SIM = DD4hepSimulation()
 ## The compact XML file, or multiple compact files, if the last one is the closer.
 import os
 k4geo = os.getenv("K4GEO")
-SIM.compactFile = [k4geo + "FCCee/ALLEGRO/compact/ALLEGRO_o2_v01/ALLEGRO_o2_v01.xml"]
+SIM.compactFile = os.path.join(k4geo, "FCCee/ALLEGRO/compact/ALLEGRO_o2_v01/ALLEGRO_o2_v01.xml")
 ## Lorentz boost for the crossing angle, in radian!
 SIM.crossingAngleBoost = 0.015
 SIM.enableDetailedShowerMode = True
