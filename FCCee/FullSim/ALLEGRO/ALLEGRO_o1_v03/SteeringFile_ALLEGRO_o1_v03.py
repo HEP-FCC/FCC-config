@@ -3,7 +3,9 @@ from g4units import mm, GeV, MeV
 SIM = DD4hepSimulation()
 
 ## The compact XML file, or multiple compact files, if the last one is the closer.
-SIM.compactFile = ['/home/gmarchio/work/fcc/allegro/nightly/k4geo/FCCee/ALLEGRO/compact/ALLEGRO_o1_v03/ALLEGRO_o1_v03.xml']
+import os
+k4geo = os.getenv("K4GEO")
+SIM.compactFile = [k4geo + "/FCCee/ALLEGRO/compact/ALLEGRO_o1_v03/ALLEGRO_o1_v03.xml"]
 ## Lorentz boost for the crossing angle, in radian!
 SIM.crossingAngleBoost = 0.015
 SIM.disableSignalHandler = False
@@ -17,9 +19,9 @@ SIM.inputFiles = []
 ## Macro file to execute for runType 'run' or 'vis'
 SIM.macroFile = ""
 ## number of events to simulate, used in batch mode
-SIM.numberOfEvents = 10
+SIM.numberOfEvents = 0
 ## Outputfile from the simulation: .slcio, edm4hep.root and .root output files are supported
-SIM.outputFile = "ALLEGRO_o3_v01_sim.root"
+SIM.outputFile = "ALLEGRO_o1_v03_sim.root"
 ## Physics list to use in simulation. Deprecated, use physics.list
 SIM.physicsList = None
 ## Verbosity use integers from 1(most) to 7(least) verbose
@@ -271,7 +273,7 @@ SIM.gun.direction = (0, 0, 1)
 ## 'ffbar' is distributed according to 1+cos^2(theta)
 ## 
 ## Setting a distribution will set isotrop = True
-SIM.gun.distribution = "uniform"
+SIM.gun.distribution = None
 
 ## Total energy (including mass) for the particle gun.
 ## 
@@ -308,30 +310,30 @@ SIM.gun.haltonOffset = 0
 ## 
 ## use the options phiMin, phiMax, thetaMin, and thetaMax to limit the range of randomly distributed directions
 ## if one of these options is not None the random distribution will be set to True and cannot be turned off!
-SIM.gun.isotrop = True
+SIM.gun.isotrop = False
 
 ## Maximal momentum when using distribution (default = 0.0)
-SIM.gun.momentumMax = "10.000000*GeV"
+SIM.gun.momentumMax = 10000.0
 
 ## Minimal momentum when using distribution (default = 0.0)
-SIM.gun.momentumMin = "10.000000*GeV"
+SIM.gun.momentumMin = 0.0
 SIM.gun.multiplicity = 1
-SIM.gun.particle = "e-"
+SIM.gun.particle = "mu-"
 
 ## Maximal azimuthal angle for random distribution
-SIM.gun.phiMax = "6.283185"
+SIM.gun.phiMax = None
 
 ## Minimal azimuthal angle for random distribution
-SIM.gun.phiMin = "0.000000"
+SIM.gun.phiMin = None
 
 ## position of the particle gun, 3 vector 
-SIM.gun.position = ('0.000000*mm', '0.000000*mm', '0.000000*mm')
+SIM.gun.position = (0.0, 0.0, 0.0)
 
 ## Maximal polar angle for random distribution
-SIM.gun.thetaMax = "1.570796"
+SIM.gun.thetaMax = None
 
 ## Minimal polar angle for random distribution
-SIM.gun.thetaMin = "1.570796"
+SIM.gun.thetaMin = None
 
 
 ################################################################################
@@ -609,11 +611,11 @@ SIM.physics.zeroTimePDGs = {17, 11, 13, 15}
 
 ## If True, calculate random seed for each event basedon eventID and runID
 ## Allows reproducibility even whenSkippingEvents
-SIM.random.enableEventSeed = True
+SIM.random.enableEventSeed = False
 SIM.random.file = None
 SIM.random.luxury = 1
 SIM.random.replace_gRandom = True
-SIM.random.seed = "4242"
+SIM.random.seed = None
 SIM.random.type = None
 
 
