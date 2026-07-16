@@ -11,7 +11,7 @@ fi
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 
 # run the SIM step
-ddsim --enableGun --crossingAngleBoost 0.0 --gun.distribution uniform --gun.energy "10*GeV" --gun.particle e- --crossingAngleBoost 0.0 --numberOfEvents 10 --outputFile ALLEGRO_o1_v03_sim.root --random.enableEventSeed --random.seed 42 --compactFile $K4GEO/FCCee/ALLEGRO/compact/ALLEGRO_o1_v03/ALLEGRO_o1_v03.xml --steeringFile $SCRIPT_DIR/SteeringFile_ALLEGRO_o1_v03.py
+ddsim --enableGun --crossingAngleBoost 0.0 --gun.distribution uniform --gun.energy "10*GeV" --gun.particle e- --numberOfEvents 10 --outputFile ALLEGRO_o1_v03_sim.root --random.enableEventSeed --random.seed 42 --compactFile $K4GEO/FCCee/ALLEGRO/compact/ALLEGRO_o1_v03/ALLEGRO_o1_v03.xml --steeringFile $SCRIPT_DIR/SteeringFile_ALLEGRO_o1_v03.py
 
 # get the files needed for calibration, noise, neighbor finding, etc
 if ! test -f ./DataAlgFORGEANT.root; then  # assumes that if the last file exists, all the other as well
