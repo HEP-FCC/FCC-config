@@ -1,0 +1,65 @@
+model = SM_CKM
+alias quark = u:d:s:c:b
+alias antiq = U:D:S:C:B
+
+sqrts = 163 GeV
+
+! resonance histories must be enabled BEFORE the process is compiled so the
+! resonant subprocess libraries get generated; this inserts the intermediate
+! W bosons (PDG +-24) into the event record (probabilistically, weights unchanged)
+?resonance_history       = true
+resonance_on_shell_limit = 16.0
+
+! Vij = Vcs  (W+ vertex: c -> c, sbar)  -- legs 3+4
+! Vkl = Vus  (W- vertex: s -> s, ubar)  -- legs 5+6
+! restriction forces only the doubly-resonant WW diagram to contribute,
+! which matters for combos where the fixed flavor content also admits
+! Z/gamma-mediated diagrams (i.e. where i=l or j=k, giving a q/qbar pair
+! of the same flavor in the final state)
+process wzp6_ee_ww_4q_Vcs_Vus_ecm163 = e1, E1 => (c, S, s, U) {
+    $restrictions = "3+4~W+ && 5+6~W-"
+}
+
+! set quarks to 0 for stability if needed
+ms = 0
+mc = 0
+! mb = 0
+! mu = 0
+mb = 0
+
+beams = e1, E1 => gaussian => isr
+?keep_beams  = true
+?keep_remnants = true
+
+gaussian_spread1 = 0.105%
+gaussian_spread2 = 0.105%
+
+?isr_handler       = true
+$isr_handler_mode = "recoil"
+isr_alpha          = 0.0072993
+isr_mass           = 0.000511
+
+! Parton shower and hadronization
+?ps_fsr_active          = true
+?ps_isr_active          = false
+?hadronization_active   = true
+$shower_method          = "PYTHIA6"
+!?ps_PYTHIA_verbose     = true
+
+$ps_PYTHIA_PYGIVE = "MSTJ(28)=0; MSTJ(41)=2; MSTU(22)=2000; PARJ(21)=0.40000; PARJ(41)=0.11000; PARJ(42)=0.52000; PARJ(81)=0.25000; PARJ(82)=1.90000; MSTJ(11)=3; PARJ(54)=-0.03100; PARJ(55)=-0.00200; PARJ(1)=0.08500; PARJ(3)=0.45000; PARJ(4)=0.02500; PARJ(2)=0.31000; PARJ(11)=0.60000; PARJ(12)=0.40000; PARJ(13)=0.72000; PARJ(14)=0.43000; PARJ(15)=0.08000; PARJ(16)=0.08000; PARJ(17)=0.17000; MSTP(3)=1;MSTP(71)=1;  MSTP(151)=1; PARP(151)=0.01469; PARP(152)=4.65e-5; PARP(153)=0.966; PARP(154)=1.337; MSTJ(22)=4; PARJ(73)=2250; PARJ(74)=2500"
+
+! same fiducial dijet-mass cut as BG_Boson_Radiation_4q.sin / inclusive_WW_mcut.sin,
+! so the WW-signal cross section can be directly compared against those on
+! equal footing. Real on-shell W+/W- decays should barely be affected by a
+! 5 GeV floor -- this is added for a rigorous apples-to-apples comparison,
+! not because the signal itself needs regulating.
+cuts = all M > 5 GeV [quark, antiq]
+
+integrate (wzp6_ee_ww_4q_Vcs_Vus_ecm163) { iterations = 10:100000:"gw", 5:200000:"" }
+
+! n_events should be passed by the EventProducer
+n_events = 100000
+
+sample_format =  stdhep
+$extension_stdhep = "stdhep"
+simulate (wzp6_ee_ww_4q_Vcs_Vus_ecm163) {checkpoint = 1}
