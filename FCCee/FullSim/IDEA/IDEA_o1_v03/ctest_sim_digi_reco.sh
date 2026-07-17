@@ -107,10 +107,4 @@ k4run "${SCRIPT_DIR}/run_digi_reco.py"
 echo "Running: ${DIGI_CMD[*]}"
 "${DIGI_CMD[@]}"
 
-# --- Cleanup ---
-echo "Cleaning up prerequisite files..."
-rm -f DataAlgFORGEANT.root
-rm -f SimpleGatrIDEAv3o1.onnx
-rm -f TrackHitDistances.root
-
 echo "Completed successfully"
