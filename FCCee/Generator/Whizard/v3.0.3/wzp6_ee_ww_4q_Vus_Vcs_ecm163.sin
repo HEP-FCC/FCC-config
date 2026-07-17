@@ -16,7 +16,7 @@ resonance_on_shell_limit = 16.0
 ! which matters for combos where the fixed flavor content also admits
 ! Z/gamma-mediated diagrams (i.e. where i=l or j=k, giving a q/qbar pair
 ! of the same flavor in the final state)
-process wzp6_ee_ww_4q_Vus_Vcs_ecm163 = e1, E1 => (u, S, s, C) {
+process proc = e1, E1 => (u, S, s, C) {
     $restrictions = "3+4~W+ && 5+6~W-"
 }
 
@@ -55,11 +55,11 @@ $ps_PYTHIA_PYGIVE = "MSTJ(28)=0; MSTJ(41)=2; MSTU(22)=2000; PARJ(21)=0.40000; PA
 ! not because the signal itself needs regulating.
 cuts = all M > 5 GeV [quark, antiq]
 
-integrate (wzp6_ee_ww_4q_Vus_Vcs_ecm163) { iterations = 10:100000:"gw", 5:200000:"" }
+integrate (proc) { iterations = 10:100000:"gw", 5:200000:"" }
 
 ! n_events should be passed by the EventProducer
 n_events = 100000
 
 sample_format =  stdhep
 $extension_stdhep = "stdhep"
-simulate (wzp6_ee_ww_4q_Vus_Vcs_ecm163) {checkpoint = 1}
+simulate (proc) {checkpoint = 1}

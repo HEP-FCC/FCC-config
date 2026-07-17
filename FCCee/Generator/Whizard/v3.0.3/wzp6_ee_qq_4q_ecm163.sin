@@ -38,7 +38,7 @@ resonance_on_shell_limit = 16.0
 ! only the "5+6~gl" restriction -- "3+4~gl" (qcd_B) was found to be redundant
 ! with this one (same diagrams via the quark=u:d:s:c:b alias expansion;
 ! sigma_both/sigma_a ~ 0.94, not ~2.0), so running both double-counts.
-process wzp6_ee_qq_4q_ecm163 = e1, E1 => (quark, antiq, quark, antiq) {
+process proc = e1, E1 => (quark, antiq, quark, antiq) {
     $restrictions = "5+6~gl"
 }
 
@@ -72,11 +72,11 @@ $ps_PYTHIA_PYGIVE = "MSTJ(28)=0; MSTJ(41)=2; MSTU(22)=2000; PARJ(21)=0.40000; PA
 
 cuts = all M > 5 GeV [quark, antiq]
 
-integrate (wzp6_ee_qq_4q_ecm163) { iterations = 10:100000:"gw", 5:200000:"" }
+integrate (proc) { iterations = 10:100000:"gw", 5:200000:"" }
 
 ! n_events should be passed by the EventProducer
 n_events = 100000
 
 sample_format =  stdhep
 $extension_stdhep = "stdhep"
-simulate (wzp6_ee_qq_4q_ecm163) {checkpoint = 1}
+simulate (proc) {checkpoint = 1}
