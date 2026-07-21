@@ -1,9 +1,21 @@
+import argparse
+import sys
+
 from DDSim.DD4hepSimulation import DD4hepSimulation
 from g4units import mm, GeV, MeV
 
 ###################################
 # user options
-simulateCalo = True # set to False to skip the calo SD action
+#
+# Also settable on the ddsim command line as --simulateDRCalo / --no-simulateDRCalo.
+# The option is stripped from sys.argv again because ddsim's own parser rejects
+# arguments it does not know.
+_parser = argparse.ArgumentParser(add_help=False, allow_abbrev=False)
+_parser.add_argument("--simulateDRCalo", action=argparse.BooleanOptionalAction, default=True)
+_opts, _rest = _parser.parse_known_args()
+sys.argv = [sys.argv[0]] + _rest
+
+simulateDRCalo = _opts.simulateDRCalo # set to False to skip the calo SD action
 ###################################
 
 SIM = DD4hepSimulation()
@@ -103,7 +115,7 @@ SIM.vertexSigma = [0.0, 0.0, 0.0, 0.0]
 ################################################################################
 
 ##  set the default calorimeter action
-if simulateCalo:
+if simulateDRCalo:
     SIM.action.calo = "Geant4ScintillatorCalorimeterAction"
     ## List of patterns matching sensitive detectors of type Calorimeter.
     SIM.action.calorimeterSDTypes = ["calorimeter", "DRcaloSiPMSD"]
@@ -637,7 +649,7 @@ def setupOpticalPhysics(kernel):
 
     return None
 
-if simulateCalo:
+if simulateDRCalo:
     SIM.physics.setupUserPhysics(setupOpticalPhysics)
 
 def setupDRCFastSim(kernel):

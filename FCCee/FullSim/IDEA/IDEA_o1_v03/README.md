@@ -14,7 +14,9 @@ cd FCC-config/FCCee/FullSim/IDEA/IDEA_o1_v03/
 ```
 ddsim --enableGun --gun.distribution uniform --gun.energy "10*GeV" --gun.particle e- --crossingAngleBoost 0 --numberOfEvents 10 --outputFile IDEA_sim.root --random.enableEventSeed --random.seed 42 --compactFile $K4GEO/FCCee/IDEA/compact/IDEA_o1_v03/IDEA_o1_v03.xml --steeringFile SteeringFile_IDEA_o1_v03.py
 ```
-(if you're not interested in calorimeter hits but only the material, you can set `simulateCalo = False` to speed up)
+(if you're not interested in calorimeter hits but only the material, you can set `simulateDRCalo = False` to speed up, or pass `--no-simulateDRCalo` on the command line — the option is defined by the steering file itself, so it does not appear in `ddsim --help`)
+
+`--no-simulateDRCalo` is also required whenever `DRcalo` is missing from the compact file: its `regexSensitiveDetector` configuration resolves the subdetector by name and ddsim aborts if it is absent.
 
 ## Running the digitization and reconstruction
 ```

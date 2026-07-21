@@ -20,5 +20,12 @@ It is recommended to run the simulation with the `Steering File` provided here b
 ddsim --enableGun --gun.distribution uniform --gun.energy "10*GeV" --gun.particle e- --crossingAngleBoost 0 --numberOfEvents 10 --random.enableEventSeed --random.seed 42 --outputFile IDEA_sim.root --compactFile $K4GEO/FCCee/IDEA/compact/IDEA_o2_v01/IDEA_o2_v01.xml --steeringFile SteeringFile_IDEA_o2_v01.py
 ```
 
+The steering file accepts `--no-simulateDRCalo`, which skips the sensitive
+detector setup for `DRBarrelTubes` and `DREndcapTubes`. Pass it whenever those
+subdetectors are missing from the compact file — their `regexSensitiveDetector`
+configuration resolves them by name and ddsim aborts if they are absent. The
+option is defined by the steering file itself, so it does not appear in
+`ddsim --help`.
+
 ## Running the digitization and reconstruction
 This section will be included as soon as the `IDEA_o2` specific digitization code will be merged.

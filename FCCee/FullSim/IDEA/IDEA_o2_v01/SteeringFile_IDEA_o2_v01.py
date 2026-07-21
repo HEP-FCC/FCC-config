@@ -1,5 +1,22 @@
+import argparse
+import sys
+
 from DDSim.DD4hepSimulation import DD4hepSimulation
 from g4units import cm, mm, GeV, MeV
+
+###################################
+# user options
+#
+# Also settable on the ddsim command line as --simulateDRCalo / --no-simulateDRCalo.
+# The option is stripped from sys.argv again because ddsim's own parser rejects
+# arguments it does not know.
+_parser = argparse.ArgumentParser(add_help=False, allow_abbrev=False)
+_parser.add_argument("--simulateDRCalo", action=argparse.BooleanOptionalAction, default=True)
+_opts, _rest = _parser.parse_known_args()
+sys.argv = [sys.argv[0]] + _rest
+
+simulateDRCalo = _opts.simulateDRCalo # set to False to skip the DR tubes SD action
+###################################
 
 SIM = DD4hepSimulation()
 
@@ -113,21 +130,24 @@ SIM.action.mapActions["SCEPCal_TimingLayer"] = "SCEPCal_TimingSDAction"
 SIM.filter.mapDetFilter["SCEPCal_MainLayer"] = ""
 SIM.filter.mapDetFilter["SCEPCal_TimingLayer"] = ""
 
-## Replace SDAction for DREndcapTubes subdetector
-SIM.action.mapActions["DREndcapTubes"] = "DRTubesSDAction"
-## Configure the regexSD for DREndcapTubes subdetector
-SIM.geometry.regexSensitiveDetector["DREndcapTubes"] = {
-    "Match": ["DRETS"],
-    "OutputLevel": 4,
-}
-
-## Replace SDAction for DRBarrelTubes subdetector
-SIM.action.mapActions["DRBarrelTubes"] = "DRTubesSDAction"
-## Configure the regexSD for DRBarrelTubes subdetector
-SIM.geometry.regexSensitiveDetector["DRBarrelTubes"] = {
-    "Match": ["DRBT"],
-    "OutputLevel": 4,
-}
+## Replace SDAction for the DREndcapTubes and DRBarrelTubes subdetectors
+if simulateDRCalo:
+    SIM.action.mapActions["DREndcapTubes"] = "DRTubesSDAction"
+    SIM.action.mapActions["DRBarrelTubes"] = "DRTubesSDAction"
+    ## Configure the regexSD for the two subdetectors
+    SIM.geometry.regexSensitiveDetector["DREndcapTubes"] = {
+        "Match": ["DRETS"],
+        "OutputLevel": 4,
+    }
+    SIM.geometry.regexSensitiveDetector["DRBarrelTubes"] = {
+        "Match": ["DRBT"],
+        "OutputLevel": 4,
+    }
+else:
+    ## Void action so the tubes are also skipped when they are still in the
+    ## geometry; a missing mapActions entry would fall back to SIM.action.calo.
+    SIM.action.mapActions["DREndcapTubes"] = "Geant4VoidSensitiveAction"
+    SIM.action.mapActions["DRBarrelTubes"] = "Geant4VoidSensitiveAction"
 
 ##  set the default run action
 SIM.action.run = []
