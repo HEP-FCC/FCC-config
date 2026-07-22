@@ -535,6 +535,38 @@ else:
     hcalBarrelReadoutName = ""
     hcalEndcapReadoutName = ""
 
+# - Configure geometry tools and indexing service.
+geotools = []
+from Configurables import TubeLayerModuleThetaCaloTool
+ecalBarrelGeometryTool = TubeLayerModuleThetaCaloTool("ecalBarrelGeometryTool",
+                                                      readoutName=ecalBarrelReadoutName,
+                                                      activeVolumeName="LAr_sensitive",
+                                                      activeFieldName="layer",
+                                                      activeVolumesNumber=ecalBarrelLayers,
+                                                      fieldNames=["system"],
+                                                      fieldValues=[IDs["ECAL_Barrel"]],
+                                                      OutputLevel=INFO)
+geotools += [ecalBarrelGeometryTool]
+
+from Configurables import TurbineEndcapCaloTool
+ecalEndcapGeometryTool = TurbineEndcapCaloTool ("ecalEndcapGeometryTool",
+                                                readoutName=ecalEndcapReadoutName)
+geotools += [ecalEndcapGeometryTool]
+
+if runHCal:
+    from Configurables import HCalPhiThetaCaloTool
+    hcalBarrelGeometryTool = HCalPhiThetaCaloTool ("hcalBarrelGeometryTool",
+                                                   readoutName=hcalBarrelReadoutName)
+    geotools += [hcalBarrelGeometryTool]
+    hcalEndcapGeometryTool = HCalPhiThetaCaloTool ("hcalEndcapGeometryTool",
+                                                   readoutName=hcalEndcapReadoutName)
+    geotools += [hcalEndcapGeometryTool]
+    
+
+from Configurables import k4__recCalo__CaloCellIndexerSvc
+ExtSvc += [k4__recCalo__CaloCellIndexerSvc (GeoTools = geotools)]
+
+
 # - EM scale calibration (sampling fraction)
 from Configurables import CalibrateInLayersTool
 #   * ECAL barrel
@@ -636,16 +668,6 @@ if addNoise:
         OutputLevel=INFO
     )
 
-    from Configurables import TubeLayerModuleThetaCaloTool
-    ecalBarrelGeometryTool = TubeLayerModuleThetaCaloTool("ecalBarrelGeometryTool",
-                                                          readoutName=ecalBarrelReadoutName,
-                                                          activeVolumeName="LAr_sensitive",
-                                                          activeFieldName="layer",
-                                                          activeVolumesNumber=ecalBarrelLayers,
-                                                          fieldNames=["system"],
-                                                          fieldValues=[IDs["ECAL_Barrel"]],
-                                                          OutputLevel=INFO)
-
     ecalEndcapNoisePath = dataFolder + "elecNoise_ecalendcap.root"
     ecalEndcapNoiseRMSHistName = "noise_endcap_wheel"
     from Configurables import NoiseCaloCellsFromFileTurbineEndcapTool
@@ -663,10 +685,6 @@ if addNoise:
                                                                   scaleFactor=1 / 1000.,  # MeV to GeV
                                                                   OutputLevel=INFO)
 
-    from Configurables import TurbineEndcapCaloTool
-    ecalEndcapGeometryTool = TurbineEndcapCaloTool("ecalEndcapGeometryTool",
-                                                   readoutName=ecalEndcapReadoutName,
-                                                   OutputLevel=INFO)
 else:
     ecalBarrelNoiseTool = None
     ecalBarrelGeometryTool = None
