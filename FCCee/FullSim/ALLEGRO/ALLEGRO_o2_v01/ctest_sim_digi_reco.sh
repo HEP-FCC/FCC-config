@@ -62,7 +62,6 @@ ddsim
 --compactFile "${K4GEO}/FCCee/ALLEGRO/compact/ALLEGRO_o2_v01/ALLEGRO_o2_v01.xml"
 --steeringFile "${SCRIPT_DIR}/SteeringFile_ALLEGRO_o2_v01.py"
 --numberOfEvents "${N_EVENTS}"
---crossingAngleBoost 0.0
 )
 
 # Append seed flags if a seed is specified
@@ -84,6 +83,7 @@ else
     --gun.distribution uniform
     --gun.energy "${ENERGY}"
     --gun.particle "${PARTICLE}"
+    --crossingAngleBoost 0.0
     )
 fi
 

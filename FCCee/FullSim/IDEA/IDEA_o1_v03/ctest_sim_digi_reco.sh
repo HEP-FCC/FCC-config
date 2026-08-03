@@ -82,6 +82,7 @@ else
     --gun.distribution uniform
     --gun.energy "${ENERGY}"
     --gun.particle "${PARTICLE}"
+    --crossingAngleBoost 0.0
     )
 fi
 
