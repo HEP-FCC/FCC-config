@@ -106,7 +106,7 @@ SIM.vertexSigma = [0.0, 0.0, 0.0, 0.0]
 if simulateCalo:
     SIM.action.calo = "Geant4ScintillatorCalorimeterAction"
     ## List of patterns matching sensitive detectors of type Calorimeter.
-    SIM.action.calorimeterSDTypes = ["calorimeter", "DRcaloSiPMSD"]
+    SIM.action.calorimeterSDTypes = ["calorimeter"]
     SIM.action.mapActions["DRcalo"] = "DRCaloSDAction"
     ## configure regex SD
     SIM.geometry.regexSensitiveDetector["DRcalo"] = {"Match": ["(core|clad)"], "OutputLevel": 3}
