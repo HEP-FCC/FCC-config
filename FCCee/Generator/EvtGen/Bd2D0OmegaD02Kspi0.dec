@@ -1,6 +1,6 @@
 # ==============================================
 # B0bar -> D0 omega
-#          with D0 -> KK, Kspipi, Kspi0
+#          with D0 -> Kspi0
 # ==============================================
 
 Alias Bd_SIGNAL       B0
@@ -18,9 +18,7 @@ Enddecay
 CDecay Bd_SIGNAL
 
 Decay MyD0 
-    0.334   K+  K-  PHSP;
-    0.333   MyK_S0 pi+ pi- D_DALITZ;
-    0.333   MyK_S0 pi0 PHSP;
+    1.000   MyK_S0  pi0  PHSP;
 Enddecay
 CDecay Myanti-D0
 
@@ -28,12 +26,9 @@ Decay Myomega
     1.000 pi+ pi- pi0 OMEGA_DALITZ;
 Enddecay
 
-# --- K_S0 decays (with PDG branching ratios)
+# --- K_S0 decays (Exclusive Pi+ Pi-)
 Decay MyK_S0
-    0.6920   pi+   pi-     PHSP;
-    0.3069   pi0   pi0     PHSP;
-    # We could include rare decays if desired 
-    # 0.0007   pi-   e+   nu_e   PHSP;
+    1.000   pi+   pi-     PHSP;
 Enddecay
 
 End

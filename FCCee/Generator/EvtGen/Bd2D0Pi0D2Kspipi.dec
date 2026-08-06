@@ -1,6 +1,6 @@
 # ==============================================
 # B0bar -> D0 pi0
-#          with D0 -> KK, Kspipi, Kspi0
+#          with D0 -> Kspipi
 # ==============================================
 
 Alias Bd_SIGNAL       B0
@@ -18,9 +18,7 @@ Enddecay
 CDecay Bd_SIGNAL
 
 Decay MyD0 
-    0.334   K+  K-  PHSP;
-    0.333   MyK_S0 pi+ pi- D_DALITZ;
-    0.333   MyK_S0 pi0 PHSP;
+    1.000   MyK_S0  pi- pi+  D_DALITZ;
 Enddecay
 CDecay Myanti-D0
 

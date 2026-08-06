@@ -1,6 +1,6 @@
 # ==============================================
-# B0bar -> D0 eta'
-#          with D0 -> KK, Kspipi, Kspi0
+# B0bar -> D0 omega
+#          with D0 -> Kspipi
 # ==============================================
 
 Alias Bd_SIGNAL       B0
@@ -9,24 +9,21 @@ ChargeConj Bd_SIGNAL  Bdbar_SIGNAL
 Alias MyD0       D0
 Alias Myanti-D0  anti-D0
 ChargeConj MyD0  Myanti-D0
-Alias Myetap eta'
+Alias Myomega omega
 Alias MyK_S0 K_S0
 
 Decay Bdbar_SIGNAL 
-    1.000   MyD0  Myetap PHSP;
+    1.000   Myomega MyD0 SVS;
 Enddecay
 CDecay Bd_SIGNAL
 
 Decay MyD0 
-    0.334   K+  K-  PHSP;
-    0.333   MyK_S0 pi+ pi- D_DALITZ;
-    0.333   MyK_S0 pi0 PHSP;
+    1.000   MyK_S0  pi- pi+  D_DALITZ;
 Enddecay
 CDecay Myanti-D0
 
-Decay Myetap
-    0.500 gamma gamma PHSP;
-    0.500 pi+ pi- pi0 PHSP;
+Decay Myomega
+    1.000 pi+ pi- pi0 OMEGA_DALITZ;
 Enddecay
 
 # --- K_S0 decays (with PDG branching ratios)
