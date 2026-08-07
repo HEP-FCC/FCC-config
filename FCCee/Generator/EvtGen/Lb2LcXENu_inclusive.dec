@@ -1,0 +1,69 @@
+Alias Lambda_b0sig      Lambda_b0
+Alias anti-Lambda_b0sig anti-Lambda_b0
+ChargeConj Lambda_b0sig anti-Lambda_b0sig
+
+#
+Alias MyLambda_c(2593)+       Lambda_c(2593)+
+Alias Myanti-Lambda_c(2593)-  anti-Lambda_c(2593)-
+ChargeConj MyLambda_c(2593)+  Myanti-Lambda_c(2593)-
+#
+Alias MyLambda_c(2625)+       Lambda_c(2625)+
+Alias Myanti-Lambda_c(2625)-  anti-Lambda_c(2625)-
+ChargeConj MyLambda_c(2625)+  Myanti-Lambda_c(2625)-
+#
+Alias MySigma_c+       Sigma_c+
+Alias Myanti-Sigma_c-  anti-Sigma_c-
+ChargeConj MySigma_c+  Myanti-Sigma_c-
+#
+Alias MySigma_c++       Sigma_c++
+Alias Myanti-Sigma_c--  anti-Sigma_c--
+ChargeConj MySigma_c++  Myanti-Sigma_c--
+#
+Alias MySigma_c0       Sigma_c0
+Alias Myanti-Sigma_c0  anti-Sigma_c0
+ChargeConj MySigma_c0  Myanti-Sigma_c0
+#
+
+Decay Lambda_b0sig
+  0.0620    Lambda_c+        e-  anti-nu_e     PHOTOS Lb2Baryonlnu 1 1 1 1;
+  0.0079    MyLambda_c(2593)+  e-  anti-nu_e     PHOTOS Lb2Baryonlnu 1 1 1 1;
+  0.0130    MyLambda_c(2625)+  e-  anti-nu_e     PHOTOS Lb2Baryonlnu 1 1 1 1;
+Enddecay
+CDecay anti-Lambda_b0sig
+
+Decay MyLambda_c(2593)+
+  0.24000      MySigma_c++         pi-         PHSP;
+  0.24000      MySigma_c0          pi+         PHSP;
+  0.18000      Lambda_c+         pi+    pi-  PHSP;
+  0.24000      MySigma_c+          pi0         PHSP;
+  0.09000      Lambda_c+         pi0    pi0  PHSP;
+  0.01000      Lambda_c+         gamma       PHSP;
+Enddecay
+CDecay Myanti-Lambda_c(2593)-
+#
+Decay MyLambda_c(2625)+
+  0.03420      MySigma_c++         pi-         PHSP;
+  0.03460      MySigma_c0          pi+         PHSP;
+  0.03420      MySigma_c+          pi0         PHSP;
+  0.54787      Lambda_c+         pi+    pi-  PHSP;
+  0.24913      Lambda_c+         pi0    pi0  PHSP;
+  0.01000      Lambda_c+         gamma       PHSP;
+Enddecay
+CDecay Myanti-Lambda_c(2625)-
+#
+Decay MySigma_c++
+  1.0000    Lambda_c+  pi+                   PHSP;
+Enddecay
+CDecay Myanti-Sigma_c-- 
+#
+Decay MySigma_c+
+1.0000    Lambda_c+  pi0                     PHSP;
+Enddecay
+CDecay Myanti-Sigma_c-
+#
+Decay MySigma_c0
+1.0000    Lambda_c+  pi-                     PHSP;
+Enddecay
+CDecay Myanti-Sigma_c0
+#
+End
