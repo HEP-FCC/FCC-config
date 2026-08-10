@@ -9,26 +9,34 @@ on:
   schedule:
         - cron: '16 5 * * *'
 
-
 jobs:
   build:
     strategy:
       matrix:
         build_type: ["nightly"]
         image: ["alma9"]
+        include:
+          - build_type: nightly
+            image: ubuntu24
+          - build_type: nightly
+            image: ubuntu26
       fail-fast: false
     runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/key4hep/key4hep-images/${{ matrix.image }}-cvmfs
+      options: --privileged
+      volumes:
+        - /home/runner/.cache/ccache:/root/.cache/ccache
+    defaults:
+      run:
+        shell: bash
     steps:
-    - name: Setup ccache
-      shell: bash
-      run: |
-        set -e
-        export CCACHE_DIR=/root/.cache/ccache
-        export CCACHE_SLOPPINESS=include_file_ctime,include_file_mtime
-        ccache --set-config=max_size=500M
-        ccache -z
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 #v7.0.1
+    - name: Mount CVMFS
+      run: /mount.sh
+    - uses: key4hep/key4hep-actions/cache-external-data@main
     - uses: key4hep/key4hep-actions/key4hep-build@main
       with:
         build_type: ${{ matrix.build_type }}
         image: ${{ matrix.image }}
+        stack: ${{ matrix.stack }}
