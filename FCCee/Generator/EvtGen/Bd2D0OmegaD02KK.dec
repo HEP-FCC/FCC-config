@@ -1,0 +1,28 @@
+# ==============================================
+# B0bar -> D0 omega
+#          with D0 -> KK
+# ==============================================
+
+Alias Bd_SIGNAL       B0
+Alias Bdbar_SIGNAL  anti-B0
+ChargeConj Bd_SIGNAL  Bdbar_SIGNAL
+Alias MyD0       D0
+Alias Myanti-D0  anti-D0
+ChargeConj MyD0  Myanti-D0
+Alias Myomega omega
+
+Decay Bdbar_SIGNAL 
+    1.000   Myomega MyD0 SVS;
+Enddecay
+CDecay Bd_SIGNAL
+
+Decay MyD0 
+    1.000   K+  K-  PHSP;
+Enddecay
+CDecay Myanti-D0
+
+Decay Myomega
+    1.000 pi+ pi- pi0 OMEGA_DALITZ;
+Enddecay
+
+End
