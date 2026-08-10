@@ -15,11 +15,6 @@ jobs:
       matrix:
         build_type: ["nightly"]
         image: ["alma9"]
-        include:
-          - build_type: nightly
-            image: ubuntu24
-          - build_type: nightly
-            image: ubuntu26
       fail-fast: false
     runs-on: ubuntu-latest
     container:
