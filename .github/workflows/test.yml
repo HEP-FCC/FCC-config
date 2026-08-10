@@ -19,6 +19,14 @@ jobs:
       fail-fast: false
     runs-on: ubuntu-latest
     steps:
+    - name: Setup ccache
+      shell: bash
+      run: |
+        set -e
+        export CCACHE_DIR=/root/.cache/ccache
+        export CCACHE_SLOPPINESS=include_file_ctime,include_file_mtime
+        ccache --set-config=max_size=500M
+        ccache -z
     - uses: actions/checkout@v4
     - uses: key4hep/key4hep-actions/key4hep-build@main
       with:
