@@ -125,7 +125,7 @@ k4run "${SCRIPT_DIR}/run_digi_reco.py"
 --includeHCal
 --includeMuon
 --runTrkHitDigitization
---addTracks
+--addTruthTracks
 --calibrateClusters
 --saveCells
 --runTrkFinder
