@@ -6,7 +6,8 @@ _ILD remains an open and evolving concept -> join us and help shape its future!_
 
 To begin working with the ILD software, follow the [ILD Simulation and Reconstruction Tutorial](https://key4hep.github.io/key4hep-doc/main/tutorials/key4hep-tutorials/gaudi_ild_reco/README.html).
 
-> **Important:** While the default model `ILD_l5_o1_v02` is designed for the _International Linear Collider (ILC)_, dedicated models for _FCC-ee_ are available and must be **actively selected** in your steering script or the command line:
+> [!IMPORTANT]
+> While the default model `ILD_l5_o1_v02` is designed for the _International Linear Collider (ILC)_, dedicated models for _FCC-ee_ are available and must be **actively selected** in your steering script or the command line:
 >
 > - `--detectorModel ILD_FCCee_v01`
 > - `--detectorModel ILD_FCCee_v02`
@@ -25,7 +26,8 @@ Configurations are maintained in the ILDConfig repository:
   - [Simulation steering file (`ddsim_steer.py`)](https://github.com/iLCSoft/ILDConfig/blob/master/StandardConfig/production/ddsim_steer.py)
   - [Reconstruction steering file (`ILDReconstruction.py`)](https://github.com/iLCSoft/ILDConfig/blob/master/StandardConfig/production/ILDReconstruction.py)
 
-> **Important:** The previous reconstruction framework based on `Marlin` does not support the ILD@FCC-ee models.
+> [!IMPORTANT]
+> The previous reconstruction framework based on `Marlin` does not support the ILD@FCC-ee models.
 
 ## Join the Community
 
