@@ -8,6 +8,7 @@ INPUT_FILE=""
 OUTPUT_FILE="o1_v03"
 N_EVENTS=10
 RANDOM_SEED=""
+RUN_TRACK_VALIDATION=false
 
 # --- Help Function ---
 print_usage() {
@@ -18,7 +19,7 @@ print_usage() {
     echo "  --outputFile  Base name for output files (default: output)"
     echo "  --nEvents     Number of events to simulate (default: 10)"
     echo "  --seed        Random seed for ddsim (optional)"
-    exit 1
+    echo "  --runTrackValidation    (default: false)"
 }
 
 # --- Parse Keyword Arguments ---
@@ -104,6 +105,10 @@ k4run "${SCRIPT_DIR}/run_digi_reco.py"
 --IOSvc.Input "IDEA_${OUTPUT_FILE}_sim.root"
 --IOSvc.Output "IDEA_${OUTPUT_FILE}_digi.root"
 )
+
+if $RUN_TRACK_VALIDATION; then
+    DIGI_CMD+=(--runTrkValidation)
+fi
 
 echo "Running: ${DIGI_CMD[*]}"
 "${DIGI_CMD[@]}"

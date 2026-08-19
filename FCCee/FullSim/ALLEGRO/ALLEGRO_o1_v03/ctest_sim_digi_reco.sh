@@ -8,17 +8,18 @@ INPUT_FILE=""
 OUTPUT_FILE="o1_v03"
 N_EVENTS=10
 RANDOM_SEED=""
+RUN_TRACK_VALIDATION=false
 
 # --- Help Function ---
 print_usage() {
     echo "Usage: $0 [OPTIONS]"
-    echo "  --particle    Particle type for ddsim gun (default: e-)"
-    echo "  --energy      Energy for ddsim gun (default: 10*GeV)"
-    echo "  --inputFile   Path to an input file (disables particle gun)"
-    echo "  --outputFile  Base name for output files (default: output)"
-    echo "  --nEvents     Number of events to simulate (default: 10)"
-    echo "  --seed        Random seed for ddsim (optional)"
-    exit 1
+    echo "  --particle              Particle type for ddsim gun (default: e-)"
+    echo "  --energy                Energy for ddsim gun (default: 10*GeV)"
+    echo "  --inputFile             Path to an input file (disables particle gun)"
+    echo "  --outputFile            Base name for output files (default: output)"
+    echo "  --nEvents               Number of events to simulate (default: 10)"
+    echo "  --seed                  Random seed for ddsim (optional)"
+    echo "  --runTrackValidation    (default: false)"
 }
 
 # --- Parse Keyword Arguments ---
@@ -36,6 +37,8 @@ while [[ $# -gt 0 ]]; do
             N_EVENTS="$2"; shift 2 ;;
         --seed)
             RANDOM_SEED="$2"; shift 2 ;;
+        --runTrackValidation)
+            RUN_TRACK_VALIDATION=true; shift 1 ;;
         -h|--help)
             print_usage ;;
         *)
@@ -131,6 +134,10 @@ k4run "${SCRIPT_DIR}/run_digi_reco.py"
 --runTrkFinder
 --runTrkFitter
 )
+
+if $RUN_TRACK_VALIDATION; then
+    DIGI_CMD+=(--runTrkValidation)
+fi
 
 echo "Running: ${DIGI_CMD[*]}"
 "${DIGI_CMD[@]}"
