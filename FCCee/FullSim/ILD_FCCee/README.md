@@ -2,6 +2,9 @@
 
 _ILD remains an open and evolving concept -> join us and help shape its future!_
 
+> [!NOTE]
+> _ILD@FCC-ee_ is under active development :building_construction: If you have any question, do not hesitate to contact [ild-software-conveners@desy.de](mailto:ild-software-conveners@desy.de)!
+
 ## Getting Started: Simulation and Reconstruction
 
 To begin working with the ILD software, follow the [ILD Simulation and Reconstruction Tutorial](https://key4hep.github.io/key4hep-doc/main/tutorials/key4hep-tutorials/gaudi_ild_reco/README.html).
