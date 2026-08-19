@@ -17,20 +17,20 @@ To begin working with the ILD software, follow the [ILD Simulation and Reconstru
 
 ## Geometry and Detector Models
 
-The geometry descriptions for ILD@FCC-ee are hosted within the **k4geo** repository. You can find the compact XML descriptions and model details here:
+The geometry descriptions for _ILD@FCC-ee_ are hosted within the `k4geo` repository. You can find the compact XML descriptions and model details here:
 
 - [ILD@FCC-ee Geometries](https://github.com/key4hep/k4geo/tree/main/FCCee/ILD_FCCee/compact)
 
 ## Steering and Configuration
 
-Configurations are maintained in the ILDConfig repository:
+Configurations are maintained in the `ILDConfig` repository:
 
 - [ILD Configurations](https://github.com/iLCSoft/ILDConfig/tree/master/StandardConfig/production)
   - [Simulation steering file (`ddsim_steer.py`)](https://github.com/iLCSoft/ILDConfig/blob/master/StandardConfig/production/ddsim_steer.py)
   - [Reconstruction steering file (`ILDReconstruction.py`)](https://github.com/iLCSoft/ILDConfig/blob/master/StandardConfig/production/ILDReconstruction.py)
 
 > [!IMPORTANT]
-> The previous reconstruction framework based on `Marlin` does not support the ILD@FCC-ee models.
+> The previous reconstruction framework based on `Marlin` does not support the _ILD@FCC-ee_ models.
 
 ## Join the Community
 
