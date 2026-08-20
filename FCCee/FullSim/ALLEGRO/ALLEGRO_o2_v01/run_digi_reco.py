@@ -45,6 +45,7 @@ parser.add_argument("--keepUncalibratedCells", type=str2bool, nargs="?", help="S
 parser.add_argument("--addNoise", type=str2bool, nargs="?", help="Add noise to cells (ECAL barrel only)", const=True, default=False)
 parser.add_argument("--addCrosstalk", type=str2bool, nargs="?", help="Add cross-talk to cells (ECAL barrel only)", const=True, default=False)
 parser.add_argument("--addTruthTracks", type=str2bool, nargs="?", help="Add reco-level tracks (smeared truth tracks)", const=True, default=False)
+parser.add_argument("--addTracks", type=str2bool, nargs="?", help="Add reco-level tracks", const=True, default=False)
 parser.add_argument("--doSWClustering", type=str2bool, nargs="?", help="Enable or disable sliding window clustering", const=True, default=True)
 parser.add_argument("--createClusterCellCollections", type=str2bool, nargs="?", help="Create new cluster cell collections or just link clusters to cells in standard cell collections", const=True, default=True)
 parser.add_argument("--doTopoClustering", type=str2bool, nargs="?", help="Enable or disable topo clustering", const=True, default=True)
@@ -64,19 +65,18 @@ runMuon = opts.includeMuon                          # if false, it will not digi
 addNoise = opts.addNoise                            # add noise or not to the cell energy
 addCrosstalk = opts.addCrosstalk                    # switch on/off the crosstalk
 addTruthTracks = opts.addTruthTracks                # add truth tracks or not
+addRecoTracks = opts.addTracks                      # add reco-levelh tracks or not (will turn on tracker hit digitization, track finding and fitting
 runTrkHitDigitization = opts.runTrkHitDigitization  # digitize tracker hits (DDPlanarDigi as default)
 useLegacyVTXDigitizer = opts.useLegacyVTXDigitizer  # digitize tracker hits (VTXdigitizer, smear truth)
 runTrkFinder = opts.runTrkFinder                    # run GGTF on digitized tracker hits
 runTrkFitter = opts.runTrkFitter                    # run track fitter on tracks
 runTrkValidation = opts.runTrkValidation            # run tracking validation
 
-# track validation needs track fitter
-if runTrkValidation:
-    runTrkFitter = True
-
-# track fitter needs track finder
-if runTrkFitter:
-    runTrkFinder = True
+# ensure consistency among options
+if runTrkValidation: addRecoTracks = True           # track validation needs tracks
+if addRecoTracks: runTrkFitter = True               # tracks need track fitting
+if runTrkFitter: runTrkFinder = True                # track fitter needs track finder
+if runTrkFinder: runTrkHitDigitization = True       # track finding needs tracker hit digitization
 
 # - what to save in output file
 #
