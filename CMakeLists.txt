@@ -12,7 +12,10 @@ include(CTest)
 add_test(NAME ALLEGRO_o1_v03 COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/FCCee/FullSim/ALLEGRO/ALLEGRO_o1_v03/ctest_sim_digi_reco.sh --seed 42)
 add_test(NAME ALLEGRO_o2_v01 COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/FCCee/FullSim/ALLEGRO/ALLEGRO_o2_v01/ctest_sim_digi_reco.sh --seed 42)
 add_test(NAME IDEA_o1_v03 COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/FCCee/FullSim/IDEA/IDEA_o1_v03/ctest_sim_digi_reco.sh --seed 42)
+add_test(NAME IDEA_o2_v01 COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/FCCee/FullSim/IDEA/IDEA_o2_v01/ctest_sim_digi_reco.sh)
 set_tests_properties(ALLEGRO_o1_v03 PROPERTIES TIMEOUT 1800) # 30 minutes
+# run alone to avoid OOM from parallel stacking
+set_tests_properties(IDEA_o2_v01 PROPERTIES RUN_SERIAL TRUE TIMEOUT 1800)
 
 add_test(NAME ComponentAccumulator_test COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/python/test/ComponentAccumulator_test.py)
 set_tests_properties(ComponentAccumulator_test PROPERTIES FAIL_REGULAR_EXPRESSION failure)
