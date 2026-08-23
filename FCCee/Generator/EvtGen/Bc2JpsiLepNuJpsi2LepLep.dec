@@ -1,0 +1,20 @@
+Alias   Bc_SIGNAL   B_c+
+Alias   Bcbar_SIGNAL    B_c-
+ChargeConj    Bc_SIGNAL   Bcbar_SIGNAL
+#
+Alias   MyJ/psi   J/psi
+ChargeConj    MyJ/psi   MyJ/psi
+#
+Decay Bc_SIGNAL
+# model as in the B_c+ block of DECAY.DEC, where the e and mu modes
+# have equal BR (0.019 each), so the 50:50 split is the physical ratio
+    0.5   MyJ/psi   mu+    nu_mu    PHOTOS  PHSP;
+    0.5   MyJ/psi   e+     nu_e     PHOTOS  PHSP;
+Enddecay
+CDecay    Bcbar_SIGNAL
+#
+Decay MyJ/psi
+    0.5   mu+   mu-    PHOTOS  VLL;
+    0.5   e+    e-     PHOTOS  VLL;
+Enddecay
+End

@@ -1,0 +1,34 @@
+Alias   Bc_SIGNAL   B_c+
+Alias   Bcbar_SIGNAL    B_c-
+ChargeConj    Bc_SIGNAL   Bcbar_SIGNAL
+#
+Alias   MyB_s0   B_s0
+Alias   Myanti-B_s0   anti-B_s0
+ChargeConj    MyB_s0   Myanti-B_s0
+#
+Alias   MyJ/psi   J/psi
+ChargeConj    MyJ/psi   MyJ/psi
+#
+Alias   Myphi   phi
+ChargeConj    Myphi   Myphi
+#
+Decay Bc_SIGNAL
+# model as in the B_c+ block of DECAY.DEC
+    1.0   MyB_s0   mu+    nu_mu    PHOTOS  PHSP;
+Enddecay
+CDecay    Bcbar_SIGNAL
+#
+Decay MyB_s0
+# model as in the B_s0 block of DECAY.DEC
+    1.0   MyJ/psi   Myphi    SVV_HELAMP  1.0 0.0 1.0 0.0 1.0 0.0;
+Enddecay
+CDecay    Myanti-B_s0
+#
+Decay MyJ/psi
+    1.0   mu+   mu-    PHOTOS  VLL;
+Enddecay
+#
+Decay Myphi
+    1.0   K+   K-    VSS;
+Enddecay
+End
