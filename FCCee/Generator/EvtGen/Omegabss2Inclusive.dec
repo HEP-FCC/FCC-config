@@ -1,0 +1,46 @@
+Alias   Omegabss_SIGNAL   Omega_b-
+Alias   Omegabssbar_SIGNAL    anti-Omega_b+
+ChargeConj    Omegabss_SIGNAL   Omegabssbar_SIGNAL
+#
+Decay Omegabss_SIGNAL
+# full list of decays copied from Omega_b- (PDG 5332) block in DECAY.DEC
+#                  SemiLeptonic Decays
+  0.05460    Omega_c0      e-    anti-nu_e                PHSP;
+  0.05460    Omega_c0      mu-   anti-nu_mu               PHSP;
+  0.02000    Omega_c0      tau-  anti-nu_tau              PHSP;
+#                  Hadronic Decays with Xi_c+
+  0.00600    Omega_c0      pi-                            PHSP;
+  0.02200    Omega_c0      pi-     pi+       pi-          PHSP;
+  0.00055    Omega_c0      K-                             PHSP;
+  0.02200    Omega_c0      D_s-                           PHSP;
+  0.0011     D0            Xi-                            PHSP;
+#
+  0.00047    Omega-        J/psi                          PHSP;
+  0.00038    Omega-        psi(2S)                        PHSP;
+#  aaa 10/19/05 Do not if this is correct but filling out with inclusives
+0.68192 d anti-u s cs_0 PYTHIA 43;
+0.10910 d anti-u d cs_0 PYTHIA 43;
+0.02728 d anti-u s su_0 PYTHIA 43;
+Enddecay
+#
+Decay Omegabssbar_SIGNAL
+# full list of decays copied from anti-Omega_b+ block in DECAY.DEC
+#                  SemiLeptonic Decays
+  0.05460    anti-Omega_c0      e+    nu_e                PHSP;
+  0.05460    anti-Omega_c0      mu+   nu_mu               PHSP;
+  0.02000    anti-Omega_c0      tau+  nu_tau              PHSP;
+#                  Hadronic Decays with Xi_c+
+  0.00600    anti-Omega_c0      pi+                       PHSP;
+  0.02200    anti-Omega_c0      pi+     pi+       pi-     PHSP;
+  0.00055    anti-Omega_c0      K+                        PHSP;
+  0.02200    anti-Omega_c0      D_s+                      PHSP;
+  0.0011     anti-D0            anti-Xi+                  PHSP;
+#
+  0.00047    anti-Omega+        J/psi                     PHSP;
+  0.00038    anti-Omega+        psi(2S)                   PHSP;
+#  aaa 10/19/05 Do not if this is correct but filling out with inclusives
+0.68192 u anti-d anti-s anti-cs_0 PYTHIA 43;
+0.10910 u anti-d anti-d anti-cs_0 PYTHIA 43;
+0.02728 u anti-d anti-s anti-su_0 PYTHIA 43;
+Enddecay
+End

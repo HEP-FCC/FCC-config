@@ -1,0 +1,74 @@
+Alias   Xibsu_SIGNAL   Xi_b0
+Alias   Xibsubar_SIGNAL    anti-Xi_b0
+ChargeConj    Xibsu_SIGNAL   Xibsubar_SIGNAL
+#
+Decay Xibsu_SIGNAL
+# full list of decays copied from Xi_b0 (PDG 5232) block in DECAY.DEC
+#                  SemiLeptonic Decays
+  0.05460    Xi_c+      e-    anti-nu_e                   PHSP;
+  0.05460    Xi_c+      mu-   anti-nu_mu                  PHSP;
+  0.02000    Xi_c+      tau-  anti-nu_tau                 PHSP;
+#                  Hadronic Decays with Xi_c+
+  0.00600    Xi_c+      pi-                               PHSP;
+  0.02200    Xi_c+      pi-     pi+       pi-             PHSP;
+  0.00055    Xi_c+      K-                                PHSP;
+  0.02200    Xi_c+      D_s-                              PHSP;
+  0.00047    Xi0        J/psi                             PHSP;
+# added by D.Litvintsev 12/8/03:
+  0.00020    D0         Lambda0                           PHSP;
+  0.00010    Lambda_c+  K-                                PHSP;
+  0.00020    Sigma_c0   anti-K0                           PHSP;
+  0.00020    Omega_c0   K0                                PHSP;
+#
+#  Additional decays from hep-ph/9709372 scaled to the Lambda_c0 pi rate
+  0.00020    Xi'_c+     pi-                               PHSP;
+  0.00003    Xi_c0      pi0                               PHSP;
+  0.00015    Xi_c0      eta                               PHSP;
+  0.00004    Xi_c0      eta'                              PHSP;
+  0.00020    Xi'_c0     pi0                               PHSP;
+  0.00020    Xi'_c0     eta                               PHSP;
+  0.00030    Xi'_c0     eta'                              PHSP;
+  0.00040    Sigma_c+   K-                                PHSP;
+#  aaa 10/19/05 Do not if this is correct but filling out with inclusives
+0.58591 d anti-u s cu_0 PYTHIA 43;
+0.01363 s anti-u s cu_1 PYTHIA 43;
+0.09539 s anti-u s cc_1 PYTHIA 43;
+0.10900 s anti-u d cu_1 PYTHIA 43;
+0.01363 d anti-u d uu_1 PYTHIA 43;
+Enddecay
+#
+Decay Xibsubar_SIGNAL
+# full list of decays copied from anti-Xi_b0 block in DECAY.DEC
+#                  SemiLeptonic Decays
+  0.05460    anti-Xi_c-      e+    nu_e                   PHSP;
+  0.05460    anti-Xi_c-      mu+   nu_mu                  PHSP;
+  0.02000    anti-Xi_c-      tau+  nu_tau                 PHSP;
+#                  Hadronic Decays with anti-Xi_c-
+  0.00600    anti-Xi_c-      pi+                          PHSP;
+  0.02200    anti-Xi_c-      pi+     pi+       pi-        PHSP;
+  0.00055    anti-Xi_c-      K+                           PHSP;
+  0.02200    anti-Xi_c-      D_s+                         PHSP;
+  0.00047    anti-Xi0        J/psi                        PHSP;
+# added by D.Litvintsev 12/8/03:
+  0.00020    anti-D0         anti-Lambda0                 PHSP;
+  0.00010    anti-Lambda_c-  K+                           PHSP;
+  0.00020    anti-Sigma_c0   K0                           PHSP;
+  0.00020    anti-Omega_c0   anti-K0                      PHSP;
+#
+#  Additional decays from hep-ph/9709372 scaled to the Lambda_c0 pi rate
+  0.00020    anti-Xi'_c-     pi+                          PHSP;
+  0.00003    anti-Xi_c0      pi0                          PHSP;
+  0.00015    anti-Xi_c0      eta                          PHSP;
+  0.00004    anti-Xi_c0      eta'                         PHSP;
+  0.00020    anti-Xi'_c0     pi0                          PHSP;
+  0.00020    anti-Xi'_c0     eta                          PHSP;
+  0.00030    anti-Xi'_c0     eta'                         PHSP;
+  0.00040    anti-Sigma_c-   K+                           PHSP;
+#  aaa 10/19/05 Do not if this is correct but filling out with inclusives
+0.58591 u anti-d anti-s anti-cu_0 PYTHIA 43;
+0.01363 u anti-s anti-s anti-cu_1 PYTHIA 43;
+0.09539 u anti-s anti-s anti-cc_1 PYTHIA 43;
+0.10900 u anti-s anti-d anti-cu_1 PYTHIA 43;
+0.01363 u anti-d anti-d anti-uu_1 PYTHIA 43;
+Enddecay
+End
