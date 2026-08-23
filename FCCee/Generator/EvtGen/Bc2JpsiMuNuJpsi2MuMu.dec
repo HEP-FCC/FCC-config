@@ -1,0 +1,17 @@
+Alias   Bc_SIGNAL   B_c+
+Alias   Bcbar_SIGNAL    B_c-
+ChargeConj    Bc_SIGNAL   Bcbar_SIGNAL
+#
+Alias   MyJ/psi   J/psi
+ChargeConj    MyJ/psi   MyJ/psi
+#
+Decay Bc_SIGNAL
+# model as in the B_c+ block of DECAY.DEC
+    1.0   MyJ/psi   mu+    nu_mu    PHOTOS  PHSP;
+Enddecay
+CDecay    Bcbar_SIGNAL
+#
+Decay MyJ/psi
+    1.0   mu+   mu-    PHOTOS  VLL;
+Enddecay
+End
