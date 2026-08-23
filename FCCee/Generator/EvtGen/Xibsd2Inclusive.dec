@@ -1,0 +1,65 @@
+Alias   Xibsd_SIGNAL   Xi_b-
+Alias   Xibsdbar_SIGNAL    anti-Xi_b+
+ChargeConj    Xibsd_SIGNAL   Xibsdbar_SIGNAL
+#
+Decay Xibsd_SIGNAL
+# full list of decays copied from Xi_b- (PDG 5132) block in DECAY.DEC
+#                  SemiLeptonic Decays
+  0.05460    Xi_c0      e-    anti-nu_e                   PHSP;
+  0.05460    Xi_c0      mu-   anti-nu_mu                  PHSP;
+  0.02000    Xi_c0      tau-  anti-nu_tau                 PHSP;
+#                  Hadronic Decays with Xi_c0
+  0.00600    Xi_c0      pi-                               PHSP;
+  0.02200    Xi_c0      pi-     pi+       pi-             PHSP;
+  0.00055    Xi_c0      K-                                PHSP;
+  0.02200    Xi_c0      D_s-                              PHSP;
+  0.00047    Xi-        J/psi                             PHSP;
+# added by D.Litvintsev 12/8/03:
+  0.00038    Xi-        psi(2S)                           PHSP;
+  0.00018    D0         Lambda0   pi-                     PHSP;
+  0.00020    Sigma_c0   K-                                PHSP;
+  0.00020    Omega_c0   K-                                PHSP;
+#
+#  aaa 10/19/05 Do not if this is correct but filling out with inclusives
+0.38757 d anti-u d cs_0 PYTHIA 43;
+0.16995 d anti-u d cs_1 PYTHIA 43;
+0.06335 s anti-u d cs_0 PYTHIA 43;
+0.00568 d anti-u s cs_1 PYTHIA 43;
+0.00797 d anti-u s cs_0 PYTHIA 43;
+0.06148 s anti-c d cs_0 PYTHIA 43;
+0.06918 d anti-u d cd_0 PYTHIA 43;
+0.03999 s anti-c d cd_0 PYTHIA 43;
+0.00865 d anti-u d su_0 PYTHIA 43;
+0.00500 s anti-c d su_0 PYTHIA 43;
+Enddecay
+#
+Decay Xibsdbar_SIGNAL
+# full list of decays copied from anti-Xi_b+ block in DECAY.DEC
+#                  SemiLeptonic Decays
+  0.05460    anti-Xi_c0      e+    nu_e                   PHSP;
+  0.05460    anti-Xi_c0      mu+   nu_mu                  PHSP;
+  0.02000    anti-Xi_c0      tau+  nu_tau                 PHSP;
+#                  Hadronic Decays with anti-Xi_c0
+  0.00600    anti-Xi_c0      pi+                          PHSP;
+  0.02200    anti-Xi_c0      pi+     pi+       pi-        PHSP;
+  0.00055    anti-Xi_c0      K+                           PHSP;
+  0.02200    anti-Xi_c0      D_s+                         PHSP;
+  0.00047    anti-Xi+        J/psi                        PHSP;
+# added by D.Litvintsev 12/8/03:
+  0.00038    anti-Xi+        psi(2S)                      PHSP;
+  0.00018    anti-D0         anti-Lambda0   pi+           PHSP;
+  0.00020    anti-Sigma_c0   K+                           PHSP;
+  0.00020    anti-Omega_c0   K+                           PHSP;
+#  aaa 10/19/05 Do not if this is correct but filling out with inclusives
+0.38757 u anti-d anti-d anti-cs_0 PYTHIA 43;
+0.16995 u anti-d anti-d anti-cs_1 PYTHIA 43;
+0.06335 u anti-s anti-d anti-cs_0 PYTHIA 43;
+0.00568 u anti-d anti-s anti-cs_1 PYTHIA 43;
+0.00797 u anti-d anti-s anti-cs_0 PYTHIA 43;
+0.06148 c anti-s anti-d anti-cs_0 PYTHIA 43;
+0.06918 u anti-d anti-d anti-cd_0 PYTHIA 43;
+0.03999 c anti-s anti-d anti-cd_0 PYTHIA 43;
+0.00865 u anti-d anti-d anti-su_0 PYTHIA 43;
+0.00500 c anti-s anti-d anti-su_0 PYTHIA 43;
+Enddecay
+End
