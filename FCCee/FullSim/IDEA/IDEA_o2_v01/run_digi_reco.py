@@ -9,7 +9,7 @@ from Gaudi.Configuration import *
 CI = True
 
 detector_xml = (
-    "FCCee/IDEA/compact/IDEA_o2_v01/reduced/IDEA_o2_v01_CI.xml"
+    "FCCee/IDEA/compact/IDEA_o2_v01_CI/IDEA_o2_v01_CI.xml"
     if CI
     else "FCCee/IDEA/compact/IDEA_o2_v01/IDEA_o2_v01.xml"
 )
