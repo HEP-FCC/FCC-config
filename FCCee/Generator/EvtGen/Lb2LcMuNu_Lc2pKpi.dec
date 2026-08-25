@@ -1,15 +1,15 @@
-Alias Lambda_b0sig      Lambda_b0
-Alias anti-Lambda_b0sig anti-Lambda_b0
-ChargeConj Lambda_b0sig anti-Lambda_b0sig
-
+Alias Lb_SIGNAL      Lambda_b0
+Alias Lbbar_SIGNAL anti-Lambda_b0
+ChargeConj Lb_SIGNAL Lbbar_SIGNAL
+#
 Alias MyLambda_c+       Lambda_c+
 Alias Myanti-Lambda_c-  anti-Lambda_c-
 ChargeConj MyLambda_c+  Myanti-Lambda_c-
 
-Decay Lambda_b0sig
+Decay Lb_SIGNAL
   0.0620    MyLambda_c+        mu-  anti-nu_mu     PHOTOS Lb2Baryonlnu 1 1 1 1;
 Enddecay
-CDecay anti-Lambda_b0sig
+CDecay Lbbar_SIGNAL
 
 Decay MyLambda_c+
   1.000         p+      K-      pi+          PHOTOS LAMBDAC_PHH;
