@@ -287,29 +287,33 @@ if addTracks:
 # Tracker digitization
 if runTrkHitDigitization:
     import math
-    # different sensors for inner/outer barrel layers
-    # see https://indico.cern.ch/event/1244371/contributions/5350233
-    innerVertexResolution_x = 0.003  # [mm], assume 3 µm resolution for ARCADIA sensor
-    innerVertexResolution_y = 0.003  # [mm], assume 3 µm resolution for ARCADIA sensor
-    innerVertexResolution_t = 1000  # [ns]
-    outerVertexResolution_x = 0.050 / math.sqrt(12)  # [mm], assume ATLASPix3 sensor with 50 µm pitch
-    outerVertexResolution_y = 0.150 / math.sqrt(12)  # [mm], assume ATLASPix3 sensor with 150 µm pitch
-    outerVertexResolution_t = 1000  # [ns]
+    # different sensors for inner and outer barrel/disks layers (see https://indico.cern.ch/event/1244371/contributions/5350233)
+    # but assume DRD3 OCTOPUS resolutions (see https://indico.cern.ch/event/1702794/contributions/7161947/attachments/3320556/5945016/ALLEGRO_ID_INTRODUCTION_28July.pdf)
+    innerVertexResolution_x = 0.003 # [mm], assume 3 µm resolution for DRD3 OCTOPUS sensors
+    innerVertexResolution_y = 0.003 # [mm], assume 3 µm resolution for DRD3 OCTOPUS sensors
+    innerVertexResolution_t = 5     # [ns], assume 5 ns timing resolution from time-over-threshold for DRD3 OCTOPUS sensors
+    innerVertexNlayers = 3          # Set this to 4 when using the ultra-light inner vertex detector and to 5 when using FCC-SEED (set in $K4GEO/FCCee/IDEA/compact/IDEA_o1_v04/VertexComplete_o1_v04.xml)
+
+    outerVertexResolution_x = 0.003 # [mm], assume 3 µm resolution for DRD3 OCTOPUS sensors
+    outerVertexResolution_y = 0.003 # [mm], assume 3 µm resolution for DRD3 OCTOPUS sensors
+    outerVertexResolution_t = 5     # [ns], assume 5 ns timing resolution from time-over-threshold for DRD3 OCTOPUS sensors
+
+    outerVertexBarrelNlayers = 2
 
     # silicon wrapper hits parameters
-    siWrapperResolution_x = 0.050 / math.sqrt(12)  # [mm]
-    siWrapperResolution_y = 1.0 / math.sqrt(12)  # [mm]
-    siWrapperResolution_t = 0.040  # [ns], assume 40 ps timing resolution for a single layer -> Should lead to <30 ps resolution when >1 hit
+    siWrapperResolution_x = 0.050 / math.sqrt(12)  # [mm], assume 50 µm pitch for the silicon wrapper (hybrid LGADs or monolithic sensor with gain), leading to a binary resolution of 50/sqrt(12) µm
+    siWrapperResolution_y = 0.050 / math.sqrt(12)  # [mm], assume 50 µm pitch for the silicon wrapper (hybrid LGADs or monolithic sensor with gain), leading to a binary resolution of 50/sqrt(12) µm
+    siWrapperResolution_t = 0.040                  # [ns], assume 40 ps timing resolution per hit
 
     # Define arguments for digitizers
     vxd_barrel_digi_args = {
         "IsStrip": False,
-        "ResolutionU": [innerVertexResolution_x]*3 + [outerVertexResolution_x]*2,
-        "ResolutionV": [innerVertexResolution_y]*3 + [outerVertexResolution_y]*2,
-        "ResolutionT": [innerVertexResolution_t]*3 + [outerVertexResolution_t]*2,
+        "ResolutionU": [innerVertexResolution_x]*innerVertexNlayers + [outerVertexResolution_x]*outerVertexBarrelNlayers,
+        "ResolutionV": [innerVertexResolution_y]*innerVertexNlayers + [outerVertexResolution_y]*outerVertexBarrelNlayers,
+        "ResolutionT": [innerVertexResolution_t]*innerVertexNlayers + [outerVertexResolution_t]*outerVertexBarrelNlayers,
         "SimTrackHitCollectionName": ["VertexBarrelCollection"],
         "SimTrkHitRelCollection": ["VTXBSimDigiLinks"],
-        "SubDetectorName": "VertexBarrel",
+        "SubDetectorName": "Vertex",
         "TrackerHitCollectionName": ["VTXBDigis"],
         "ForceHitsOntoSurface": True,
         "CellIDBits": 32,
@@ -330,9 +334,9 @@ if runTrkHitDigitization:
 
     siWr_barrel_digi_args = {
         "IsStrip": False,
-        "ResolutionU": [siWrapperResolution_x]*4,
-        "ResolutionV": [siWrapperResolution_y]*4,
-        "ResolutionT": [siWrapperResolution_t]*4,
+        "ResolutionU": [siWrapperResolution_x]*2,
+        "ResolutionV": [siWrapperResolution_y]*2,
+        "ResolutionT": [siWrapperResolution_t]*2,
         "SimTrackHitCollectionName": ["SiWrBCollection"],
         "SimTrkHitRelCollection": ["SiWrBSimDigiLinks"],
         "SubDetectorName": "SiWrB",
@@ -343,9 +347,9 @@ if runTrkHitDigitization:
 
     siWr_endcap_digi_args = {
         "IsStrip": False,
-        "ResolutionU": [siWrapperResolution_x]*4,
-        "ResolutionV": [siWrapperResolution_y]*4,
-        "ResolutionT": [siWrapperResolution_t]*4,
+        "ResolutionU": [siWrapperResolution_x]*2,
+        "ResolutionV": [siWrapperResolution_y]*2,
+        "ResolutionT": [siWrapperResolution_t]*2,
         "SimTrackHitCollectionName": ["SiWrDCollection"],
         "SimTrkHitRelCollection": ["SiWrDSimDigiLinks"],
         "SubDetectorName": "SiWrD",
