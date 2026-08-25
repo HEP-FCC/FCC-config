@@ -7,7 +7,7 @@ Alias Myanti-Lambda_c-  anti-Lambda_c-
 ChargeConj MyLambda_c+  Myanti-Lambda_c-
 
 Decay Lb_SIGNAL
-  0.0620    MyLambda_c+        e-  anti-e_nu     PHOTOS Lb2Baryonlnu 1 1 1 1;
+  0.0620    MyLambda_c+        e-  anti-nu_e     PHOTOS Lb2Baryonlnu 1 1 1 1;
 Enddecay
 CDecay Lbbar_SIGNAL
 
