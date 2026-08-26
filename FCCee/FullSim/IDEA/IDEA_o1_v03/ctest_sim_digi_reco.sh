@@ -96,8 +96,9 @@ DCHfilename="https://fccsw.web.cern.ch/fccsw/filesForSimDigiReco/IDEA/DataAlgFOR
 GGTFmodel="https://fccsw.web.cern.ch/fccsw/filesForSimDigiReco/IDEA/IDEA_o1_v03/SimpleGatrIDEAv3o1.onnx"
 
 echo "Checking prerequisites..."
-wget -nv --no-clobber "$DCHfilename"
-wget -nv --no-clobber "$GGTFmodel"
+echo "Checking prerequisites..."
+wget -nv --no-clobber ""$DCHfilename""
+wget -nv --no-clobber ""$GGTFmodel""
 
 # --- DIGI/RECO Step ---
 DIGI_CMD=(

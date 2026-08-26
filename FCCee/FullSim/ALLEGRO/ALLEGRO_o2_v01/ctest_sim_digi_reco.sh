@@ -51,10 +51,15 @@ done
 if [[ -z "${KEY4HEP_STACK}" ]]; then
     echo "Sourcing Key4hep environment..."
     source /cvmfs/sw-nightlies.hsf.org/key4hep/setup.sh
+    echo "Sourcing Key4hep environment..."
+    source /cvmfs/sw-nightlies.hsf.org/key4hep/setup.sh
 else
+    echo "The Key4hep stack is already loaded."
     echo "The Key4hep stack is already loaded."
 fi
 
+# Workaround to have ctests working (get the directory of this script)
+SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 # Workaround to have ctests working (get the directory of this script)
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 

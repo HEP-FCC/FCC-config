@@ -51,13 +51,75 @@ done
 if [[ -z "${KEY4HEP_STACK}" ]]; then
     echo "Sourcing Key4hep environment..."
     source /cvmfs/sw-nightlies.hsf.org/key4hep/setup.sh
+    echo "Sourcing Key4hep environment..."
+    source /cvmfs/sw-nightlies.hsf.org/key4hep/setup.sh
 else
+    echo "The Key4hep stack is already loaded."
     echo "The Key4hep stack is already loaded."
 fi
 
 # Workaround to have ctests working (get the directory of this script)
+# Workaround to have ctests working (get the directory of this script)
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 
+# --- Build ddsim command ---
+DDSIM_CMD=(
+ddsim
+--outputFile "ALLEGRO_${OUTPUT_FILE}_sim.root"
+--compactFile "${K4GEO}/FCCee/ALLEGRO/compact/ALLEGRO_o1_v03/ALLEGRO_o1_v03.xml"
+--steeringFile "${SCRIPT_DIR}/SteeringFile_ALLEGRO_o1_v03.py"
+--numberOfEvents "${N_EVENTS}"
+)
+
+# Append seed flags if a seed is specified
+if [[ -n "${RANDOM_SEED}" ]]; then
+    DDSIM_CMD+=(
+    --random.enableEventSeed
+    --random.seed "${RANDOM_SEED}"
+    )
+fi
+
+# Toggle between Input File and Particle Gun
+if [[ -n "${INPUT_FILE}" ]]; then
+    echo "Using input file: ${INPUT_FILE} (Particle gun disabled)"
+    DDSIM_CMD+=(--inputFiles "${INPUT_FILE}")
+else
+    echo "Using particle gun: ${N_EVENTS} event(s) of ${PARTICLE} at ${ENERGY}"
+    DDSIM_CMD+=(
+    --enableGun
+    --gun.distribution uniform
+    --gun.energy "${ENERGY}"
+    --gun.particle "${PARTICLE}"
+    --crossingAngleBoost 0.0
+    )
+fi
+
+# Run the SIM step
+echo "Running: ${DDSIM_CMD[*]}"
+"${DDSIM_CMD[@]}"
+
+# --- Prerequisites ---
+echo "Checking and downloading prerequisites..."
+REMOTE_BASE_ALLEGRO="https://fccsw.web.cern.ch/fccsw/filesForSimDigiReco/ALLEGRO/ALLEGRO_o1_v03"
+REMOTE_BASE_IDEA="https://fccsw.web.cern.ch/fccsw/filesForSimDigiReco/IDEA"
+
+PREREQS=(
+"${REMOTE_BASE_ALLEGRO}/capacitances_ecalBarrelFCCee_theta.root"
+"${REMOTE_BASE_ALLEGRO}/cellNoise_map_electronicsNoiseLevel_ecalB_thetamodulemerged.root"
+"${REMOTE_BASE_ALLEGRO}/cellNoise_map_electronicsNoiseLevel_ecalB_thetamodulemerged_hcalB_thetaphi.root"
+"${REMOTE_BASE_ALLEGRO}/cellNoise_map_endcapTurbine_electronicsNoiseLevel.root"
+"${REMOTE_BASE_ALLEGRO}/cellNoise_map_electronicsNoiseLevel_ecalB_ECalBarrelModuleThetaMerged_ecalE_ECalEndcapTurbine_hcalB_HCalBarrelReadout_hcalE_HCalEndcapReadout.root"
+"${REMOTE_BASE_ALLEGRO}/elecNoise_ecalBarrelFCCee_theta.root"
+"${REMOTE_BASE_ALLEGRO}/lgbm_calibration-CaloClusters.onnx"
+"${REMOTE_BASE_ALLEGRO}/lgbm_calibration-CaloTopoClusters.onnx"
+"${REMOTE_BASE_ALLEGRO}/neighbours_map_ecalB_thetamodulemerged.root"
+"${REMOTE_BASE_ALLEGRO}/neighbours_map_ecalE_turbine.root"
+"${REMOTE_BASE_ALLEGRO}/neighbours_map_ecalB_thetamodulemerged_hcalB_hcalEndcap_phitheta.root"
+"${REMOTE_BASE_ALLEGRO}/neighbours_map_ecalB_thetamodulemerged_ecalE_turbine_hcalB_hcalEndcap_phitheta.root"
+"${REMOTE_BASE_ALLEGRO}/xtalk_neighbours_map_ecalB_thetamodulemerged.root"
+"${REMOTE_BASE_IDEA}/IDEA_o1_v03/SimpleGatrIDEAv3o1.onnx"
+"${REMOTE_BASE_IDEA}/DataAlgFORGEANT.root"
+)
 # --- Build ddsim command ---
 DDSIM_CMD=(
 ddsim
