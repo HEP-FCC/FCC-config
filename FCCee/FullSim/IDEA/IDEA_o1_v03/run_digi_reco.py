@@ -14,8 +14,8 @@ def str2bool(value):
         return False
     raise argparse.ArgumentTypeError("Boolean value expected.")
 
-parser.add_argument("--addTruthTracks", type=str2bool, nargs="?", const=True, default=False)
-parser.add_argument("--runTrkValidation", type=str2bool, nargs="?", const=True, default=False)
+parser.add_argument("--addTruthTracks", type=str2bool, nargs="?", help="Add reco-level tracks (smeared truth tracks)", const=True, default=False)
+parser.add_argument("--runTrkValidation", type=str2bool, nargs="?", help="Run tracking validation", const=True, default=False)
 opts = parser.parse_known_args()[0]
 addTruthTracks = opts.addTruthTracks
 addRecoTracks = True
