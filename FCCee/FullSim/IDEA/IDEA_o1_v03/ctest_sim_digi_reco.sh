@@ -5,7 +5,7 @@ set -e
 PARTICLE="e-"
 ENERGY="10*GeV"
 INPUT_FILE=""
-OUTPUT_FILE="output"
+OUTPUT_FILE="o1_v03"
 N_EVENTS=10
 RANDOM_SEED=""
 
@@ -82,6 +82,7 @@ else
     --gun.distribution uniform
     --gun.energy "${ENERGY}"
     --gun.particle "${PARTICLE}"
+    --crossingAngleBoost 0.0
     )
 fi
 
@@ -106,11 +107,5 @@ k4run "${SCRIPT_DIR}/run_digi_reco.py"
 
 echo "Running: ${DIGI_CMD[*]}"
 "${DIGI_CMD[@]}"
-
-# --- Cleanup ---
-echo "Cleaning up prerequisite files..."
-rm -f DataAlgFORGEANT.root
-rm -f SimpleGatrIDEAv3o1.onnx
-rm -f TrackHitDistances.root
 
 echo "Completed successfully"
