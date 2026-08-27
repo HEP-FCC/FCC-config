@@ -16,3 +16,6 @@ set_tests_properties(ALLEGRO_o1_v03 PROPERTIES TIMEOUT 1800) # 30 minutes
 
 add_test(NAME ComponentAccumulator_test COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/python/test/ComponentAccumulator_test.py)
 set_tests_properties(ComponentAccumulator_test PROPERTIES FAIL_REGULAR_EXPRESSION failure)
+add_test(NAME DetIDs_test COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/python/test/DetIDs_test.py)
+
+add_test(NAME ALLEGRO_CreateCaloCellsConfig_test COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/python/test/ALLEGRO/CreateCaloCellsConfig_test.py)

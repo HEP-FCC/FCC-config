@@ -1,5 +1,5 @@
 #
-# File: python/FCC_config.ComponentAccumulator.py
+# File: python/FCC_config/ComponentAccumulator.py
 # Author: scott snyder <snyder@bnl.gov>
 # Date: Feb, 2026
 # Purpose: ComponentAccumulator-style configuration for key4hep.
