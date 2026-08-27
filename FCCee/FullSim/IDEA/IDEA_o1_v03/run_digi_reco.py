@@ -1,7 +1,25 @@
 import os
 import subprocess
+import argparse
 
 from Gaudi.Configuration import *
+from k4FWCore.parseArgs import parser
+
+def str2bool(value):
+    if isinstance(value, bool):
+        return value
+    if value.lower() in ("yes", "true", "t", "y", "1"):
+        return True
+    if value.lower() in ("no", "false", "f", "n", "0"):
+        return False
+    raise argparse.ArgumentTypeError("Boolean value expected.")
+
+parser.add_argument("--addTruthTracks", type=str2bool, nargs="?", help="Add reco-level tracks (smeared truth tracks)", const=True, default=False)
+parser.add_argument("--runTrkValidation", type=str2bool, nargs="?", help="Run tracking validation", const=True, default=False)
+opts = parser.parse_known_args()[0]
+addTruthTracks = opts.addTruthTracks
+addRecoTracks = True
+runTrkValidation = opts.runTrkValidation
 
 # Loading the input SIM file, defining output file
 from k4FWCore import IOSvc
@@ -118,87 +136,130 @@ muon_digitizer.SimTrkHitRelCollection = ["MSTrackerHitRelations"]
 muon_digitizer.TrackerHitCollectionName = ["MSTrackerHits"]
 #muon_digitizer.OutputLevel = 1  # DEBUG level
 
-# Create tracks from gen particles
-from Configurables import TracksFromGenParticles
-tracksFromGenParticles = TracksFromGenParticles("CreateTracksFromGenParticles",
-                                                InputGenParticles = ["MCParticles"],
-                                                InputSimTrackerHits=[
-                                                    "VertexBarrelCollection",
-                                                    "VertexEndcapCollection",
-                                                    "DCHCollection",
-                                                    "SiWrBCollection",
-                                                    "SiWrDCollection"
-                                                ],
-                                                OutputTracks = ["TracksFromGenParticles"],
-                                                OutputMCRecoTrackParticleAssociation = ["TracksFromGenParticlesAssociation"],
-                                                ExtrapolateToECal=False,
-                                                OutputLevel = INFO)
+if addTruthTracks:
+    # Create tracks from gen particles
+    from Configurables import TracksFromGenParticles
+    tracksFromGenParticles = TracksFromGenParticles("CreateTracksFromGenParticles",
+                                                    InputGenParticles = ["MCParticles"],
+                                                    InputSimTrackerHits=[
+                                                        "VertexBarrelCollection",
+                                                        "VertexEndcapCollection",
+                                                        "DCHCollection",
+                                                        "SiWrBCollection",
+                                                        "SiWrDCollection"
+                                                    ],
+                                                    OutputTracks = ["TracksFromGenParticles"],
+                                                    OutputMCRecoTrackParticleAssociation = ["TracksFromGenParticlesAssociation"],
+                                                    ExtrapolateToECal=False,
+                                                    OutputLevel = INFO)
 
-# produce a TH1 with distances between gen tracks and simTrackerHits
-from Configurables import PlotTrackHitDistances, RootHistSvc
-from Configurables import Gaudi__Histograming__Sink__Root as RootHistoSink
-plotTrackDCHHitDistances = PlotTrackHitDistances("PlotTrackDCHHitDistances",
-                                             InputSimTrackerHits = ["DCHCollection"],
-                                             InputTracksFromGenParticlesAssociation = tracksFromGenParticles.OutputMCRecoTrackParticleAssociation,
-                                             Bz = 2.0)
+    # produce a TH1 with distances between gen tracks and simTrackerHits
+    from Configurables import PlotTrackHitDistances, RootHistSvc
+    from Configurables import Gaudi__Histograming__Sink__Root as RootHistoSink
+    plotTrackDCHHitDistances = PlotTrackHitDistances("PlotTrackDCHHitDistances",
+                                                 InputSimTrackerHits = ["DCHCollection"],
+                                                 InputTracksFromGenParticlesAssociation = tracksFromGenParticles.OutputMCRecoTrackParticleAssociation,
+                                                 Bz = 2.0)
 
-hps = RootHistSvc("HistogramPersistencySvc")
-root_hist_svc = RootHistoSink("RootHistoSink")
-root_hist_svc.FileName = "TrackHitDistances.root"
+    hps = RootHistSvc("HistogramPersistencySvc")
+    root_hist_svc = RootHistoSink("RootHistoSink")
+    root_hist_svc.FileName = "TrackHitDistances.root"
 
-# Calculate dNdx from tracks
-from Configurables import TrackdNdxDelphesBased
-dNdxFromTracks = TrackdNdxDelphesBased("dNdxFromTracks",
-                                  InputLinkCollection=tracksFromGenParticles.OutputMCRecoTrackParticleAssociation,
-                                  OutputCollection=["DCHdNdxCollection"],
-                                  ZmaxParameterName="DCH_gas_Lhalf",
-                                  ZminParameterName="DCH_gas_Lhalf",
-                                  RminParameterName="DCH_gas_inner_cyl_R",
-                                  RmaxParameterName="DCH_gas_outer_cyl_R",
-                                  FillFactor=1.0,
-                                  OutputLevel=ERROR)
+    # Calculate dNdx from tracks
+    from Configurables import TrackdNdxDelphesBased
+    dNdxFromTracks = TrackdNdxDelphesBased("dNdxFromTracks",
+                                      InputLinkCollection=tracksFromGenParticles.OutputMCRecoTrackParticleAssociation,
+                                      OutputCollection=["DCHdNdxCollection"],
+                                      ZmaxParameterName="DCH_gas_Lhalf",
+                                      ZminParameterName="DCH_gas_Lhalf",
+                                      RminParameterName="DCH_gas_inner_cyl_R",
+                                      RmaxParameterName="DCH_gas_outer_cyl_R",
+                                      FillFactor=1.0,
+                                      OutputLevel=ERROR)
 
 
-# Load the Geometric Graph Track Finder (GGTF), following example from:
-# k4RecTracker/Tracking/test/testTrackFinder/runTestTrackFinder.py
-from Configurables import GGTFTrackFinder
+if addRecoTracks:
+    # Load the Geometric Graph Track Finder (GGTF).
+    from Configurables import GGTFTrackFinder
 
-url = "https://key4hep.web.cern.ch/testFiles/k4RecTracker/SimpleGatrIDEAv3o1.onnx"
-filename = "SimpleGatrIDEAv3o1.onnx"
-subprocess.run(["wget", url, "-O", filename], check=True)
-absolute_path = os.path.abspath(filename)
+    url = "https://key4hep.web.cern.ch/testFiles/k4RecTracker/SimpleGatrIDEAv3o1.onnx"
+    filename = "SimpleGatrIDEAv3o1.onnx"
+    subprocess.run(["wget", url, "-O", filename], check=True)
+    absolute_path = os.path.abspath(filename)
 
-trackFinder = GGTFTrackFinder(
-    "GGTFTrackFinder",
-    InputPlanarHitCollections=["VTXBDigis", "VTXDDigis", "SiWrDDigis", "SiWrBDigis"],
-    InputWireHitCollections=["DCHDigis"],
-    OutputTracksGGTF=["PrefitTracks"],
-    ModelPath=absolute_path,
-    Tbeta=0.6,    # default clustering parameters
-    Td=0.3,       # form the example in k4RecTracker
-    OutputLevel=INFO,
-)
+    trackFinder = GGTFTrackFinder(
+        "GGTFTrackFinder",
+        InputPlanarHitCollections=["VTXBDigis", "VTXDDigis", "SiWrDDigis", "SiWrBDigis"],
+        InputWireHitCollections=["DCHDigis"],
+        OutputTracksGGTF=["PrefitTracks"],
+        ModelPath=absolute_path,
+        Tbeta=0.6,
+        Td=0.3,
+        OutputLevel=INFO,
+    )
 
-# Track fitter using Genfit2, following example from
-# k4RecTracker/Tracking/test/testTrackFitter/runTestTrackFitter.py
-from Configurables import GenfitTrackFitter
+    # Track fitter using Genfit2.
+    from Configurables import GenfitTrackFitter
+    trackFitter = GenfitTrackFitter(
+        "GenfitTrackFitter",
+        InputTracks=["PrefitTracks"],
+        OutputFittedTracks=["FittedTracks"],
+        OutputFittedTracksWithFilteredHits=["FittedTracksWithFilteredHits"],
+        RunSingleEvaluation = True,
+        UseBrems = True,
+        BetaInit = 100,
+        BetaFinal = 0.1,
+        BetaSteps = 15,
+        InitializationType = 1,
+        SkipTrackOrdering = False,
+        FilterTrackHits = True,
+        OutputLevel=INFO,
+    )
 
-trackFitter = GenfitTrackFitter(
-    "GenfitTrackFitter",
-    
-    InputTracks=["PrefitTracks"],
-    OutputFittedTracks=["FittedTracks"],
-    OutputFittedTracksWithFilteredHits=["FittedTracksWithFilteredHits"],
-    RunSingleEvaluation = True,
-    UseBrems = True,
-    BetaInit = 100,
-    BetaFinal = 0.1,
-    BetaSteps = 15,
-    InitializationType = 1,
-    SkipTrackOrdering = False,
-    FilterTrackHits = True,
-    OutputLevel=INFO,
-)
+if runTrkValidation:
+    from Configurables import PerfectTrackFinder, GenfitTrackFitter
+    perfect_finder = PerfectTrackFinder(
+        "PerfectTrackFinder",
+        InputMCParticles=["MCParticles"],
+        InputPlanarHitCollections=["VTXBSimDigiLinks", "VTXDSimDigiLinks", "SiWrBSimDigiLinks", "SiWrDSimDigiLinks"],
+        InputWireHitCollections=["DCHDigisSimAssociationCollection"],
+        OutputPerfectTracks=["PerfectPrefitTracks"],
+        OutputLevel=INFO
+    )
+    perfect_fitter = GenfitTrackFitter(
+        "PerfectTrackFitter",
+        InputTracks=["PerfectPrefitTracks"],
+        OutputFittedTracks=["PerfectFittedTracks"],
+        OutputFittedTracksWithFilteredHits=["PerfectFittedTracksWithFilteredHits"],
+        OutputFittedHits=["PerfectFittedHits"],
+        RunSingleEvaluation=True,
+        UseBrems=True,
+        BetaInit=100.0,
+        BetaFinal=0.1,
+        BetaSteps=15,
+        InitializationType=1,
+        SkipTrackOrdering=False,
+        FilterTrackHits=True,
+        OutputLevel=INFO
+    )
+    from Configurables import TrackingValidation
+    trackValidation = TrackingValidation(
+        "TrackingValidation",
+        OutputFile=io_svc.Output.replace(".root", "_trkval.root"),
+        Mode=0,
+        Bz=2.0,
+        RefPointX=0.0,
+        RefPointY=0.0,
+        RefPointZ=0.0,
+        DoPerfectFit=1,
+        FinderEfficiencyDefinition=1,
+        FinderPurityThreshold=0.75,
+        MCParticles=["MCParticles"],
+        HitSimLinks=["VTXBSimDigiLinks", "VTXDSimDigiLinks", "SiWrBSimDigiLinks", "SiWrDSimDigiLinks", "DCHDigisSimAssociationCollection"],
+        FinderTracks=["PrefitTracks"],
+        FittedTracks=["FittedTracks"],
+        PerfectFittedTracks=["PerfectFittedTracks"],
+        OutputLevel=INFO)
 
 ################ Dual-readout calorimeter
 # SiPM emulation
@@ -377,35 +438,36 @@ audsvc = AuditorSvc()
 audsvc.Auditors = [chra]
 
 from k4FWCore import ApplicationMgr
+top_alg = [
+    vtxb_digitizer,
+    vtxd_digitizer,
+    siwrb_digitizer,
+    siwrd_digitizer,
+    dch_digitizer,
+    muon_digitizer,
+]
+if addTruthTracks:
+    top_alg += [tracksFromGenParticles, plotTrackDCHHitDistances, dNdxFromTracks]
+if addRecoTracks:
+    top_alg += [trackFinder, trackFitter]
+if runTrkValidation:
+    top_alg += [perfect_finder, perfect_fitter, trackValidation]
+top_alg += [sipmEdep, sipmOptical, topoClusterAll, createTruthLinks]
+ext_svc = [
+    EventDataSvc("EventDataSvc"),
+    geoservice,
+    audsvc,
+    UniqueIDGenSvc("uidSvc"),
+    rndmEngine,
+    rndmGenSvc,
+]
+if addTruthTracks:
+    ext_svc.insert(0, root_hist_svc)
 application_mgr = ApplicationMgr(
-    TopAlg = [
-        vtxb_digitizer,
-        vtxd_digitizer,
-        siwrb_digitizer,
-        siwrd_digitizer,
-        dch_digitizer,
-        muon_digitizer,
-        tracksFromGenParticles,
-        plotTrackDCHHitDistances,
-        dNdxFromTracks,
-        trackFinder,
-        trackFitter,
-        sipmEdep,
-        sipmOptical,
-        topoClusterAll,
-        createTruthLinks
-    ],
+    TopAlg = top_alg,
     EvtSel = 'NONE',
     EvtMax = -1,
-    ExtSvc = [
-        root_hist_svc,
-        EventDataSvc("EventDataSvc"),
-        geoservice,
-        audsvc,
-        UniqueIDGenSvc("uidSvc"),
-        rndmEngine,
-        rndmGenSvc
-    ],
+    ExtSvc = ext_svc,
     StopOnSignal = True,
 )
 
