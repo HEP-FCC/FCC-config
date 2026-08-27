@@ -37,6 +37,8 @@ while [[ $# -gt 0 ]]; do
             N_EVENTS="$2"; shift 2 ;;
         --seed)
             RANDOM_SEED="$2"; shift 2 ;;
+        --runTrackValidation)
+            RUN_TRACK_VALIDATION=true; shift ;;
         -h|--help)
             print_usage ;;
         *)

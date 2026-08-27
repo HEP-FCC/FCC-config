@@ -20,6 +20,7 @@ print_usage() {
     echo "  --nEvents     Number of events to simulate (default: 10)"
     echo "  --seed        Random seed for ddsim (optional)"
     echo "  --runTrackValidation    (default: false)"
+    exit 1
 }
 
 # --- Parse Keyword Arguments ---
@@ -38,7 +39,7 @@ while [[ $# -gt 0 ]]; do
         --seed)
             RANDOM_SEED="$2"; shift 2 ;;
         --runTrackValidation)
-            RUN_TRACK_VALIDATION=true; shift 1 ;;
+            RUN_TRACK_VALIDATION=true; shift ;;
         -h|--help)
             print_usage ;;
         *)
@@ -51,15 +52,10 @@ done
 if [[ -z "${KEY4HEP_STACK}" ]]; then
     echo "Sourcing Key4hep environment..."
     source /cvmfs/sw-nightlies.hsf.org/key4hep/setup.sh
-    echo "Sourcing Key4hep environment..."
-    source /cvmfs/sw-nightlies.hsf.org/key4hep/setup.sh
 else
-    echo "The Key4hep stack is already loaded."
     echo "The Key4hep stack is already loaded."
 fi
 
-# Workaround to have ctests working (get the directory of this script)
-SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 # Workaround to have ctests working (get the directory of this script)
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 
@@ -133,7 +129,7 @@ k4run "${SCRIPT_DIR}/run_digi_reco.py"
 --includeHCal
 --includeMuon
 --runTrkHitDigitization
---addTracks
+--addTruthTracks
 --calibrateClusters
 --saveCells
 --runTrkFinder
