@@ -1,0 +1,3 @@
+# List of email addresses to notify on git_sync failure, one per line.
+# Lines starting with '#' and blank lines are ignored.
+someone@example.com

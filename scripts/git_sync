@@ -1,0 +1,85 @@
+#!/bin/bash
+#
+# Syncs this repository's currently checked-out branch with its remote.
+# Meant to be run regularly (e.g. from cron) on a production machine.
+#
+# Failure notifications are emailed to the addresses listed in
+# git_sync_recipients.txt (one address per line, '#' comments allowed).
+
+SCRIPT_PATH=$(realpath "${0}")
+SCRIPT_DIR=$(dirname "${SCRIPT_PATH}")
+REPO_DIR=$(realpath "${SCRIPT_DIR}/..")
+LOG_DIR="${REPO_DIR}/log"
+LOGFILE="${LOG_DIR}/git_sync.log"
+RECIPIENTS_FILE="${SCRIPT_DIR}/git_sync_recipients.txt"
+
+# Send emails
+function send_email {
+  local addresses
+  addresses=$(grep -v '^\s*#' "${RECIPIENTS_FILE}" 2>/dev/null | grep -v '^\s*$')
+
+  if [ -z "${addresses}" ]; then
+    echo "$(date)  WARNING: No recipients found in ${RECIPIENTS_FILE}, cannot send email." >> "${LOGFILE}"
+    return
+  fi
+
+  read -r -d '' MESSAGE << EOM
+Hello,
+
+The FCC-config git sync encountered an issue:
+
+${1}
+EOM
+
+  mail -s "FCC-config git sync" ${addresses} <<< "${MESSAGE}"
+}
+
+
+# Preparing logging
+mkdir -p "${LOG_DIR}"
+rm -rf "${LOGFILE}"
+
+echo "$(date)  INFO: Syncing with git server in progress..." >> "${LOGFILE}"
+
+SYNCLOCK="${REPO_DIR}/.sync.lock"
+# Making sure the last sync went OK and there is no .sync.lock file left
+if [ -f "${SYNCLOCK}" ]; then
+  echo "$(date)  WARNING: Encountered git sync lock. Aborting..." >> "${LOGFILE}"
+
+  if [ "$(find "${SYNCLOCK}" -mmin +720 -mmin -840)" ]; then
+    echo "$(date)  WARNING: Git sync lock too old, sending email about it..." >> "${LOGFILE}"
+    send_email "Git sync lock too old, please check the logs and possibly remove the lock from ${SYNCLOCK}"
+
+    exit 3
+  fi
+
+  exit 0
+fi
+
+cd "${REPO_DIR}" || exit 1
+
+# Create sync lock
+touch "${SYNCLOCK}"
+
+BRANCH=$(git rev-parse --abbrev-ref HEAD)
+
+if [ -n "$(git status --untracked-files=no --porcelain)" ]; then
+  echo "$(date)  ERROR: Git tree contains uncommited changes. Aborting..." >> "${LOGFILE}"
+  send_email "Git tree contains uncommited changes, please clear or commit them!"$'\n\n'"$(git status)"
+
+  exit 3
+fi
+
+git pull >> "${LOGFILE}" 2>&1
+
+if [ "$(git rev-parse "${BRANCH}")" != "$(git rev-parse "origin/${BRANCH}")" ]; then
+  echo "$(date)  ERROR: Git pull did not succeed. Aborting..." >> "${LOGFILE}"
+  send_email "Git pull did not succeed. Status of the repository:"$'\n\n'"$(git status)"
+
+  exit 3
+fi
+
+# Clear sync lock
+rm -rf "${SYNCLOCK}"
+
+echo "$(date)  INFO: Syncing with git server finished." >> "${LOGFILE}"
