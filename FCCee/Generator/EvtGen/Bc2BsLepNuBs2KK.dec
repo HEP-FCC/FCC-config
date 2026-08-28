@@ -1,0 +1,29 @@
+# Bc+ -> Bs0 l+ nu ; Bs0 -> K+ K-
+# final state  K+ K-   (2 charged tracks, no neutrals)
+#
+# The whole K+K- final state of the Bs comes from this one mode
+# (DECAY.DEC, BR 0.000033, PHSP): no intermediate resonance and no
+# combinatorics, which makes it a clean efficiency cross-check even though
+# the rate is small.
+Alias   Bc_SIGNAL   B_c+
+Alias   Bcbar_SIGNAL    B_c-
+ChargeConj    Bc_SIGNAL   Bcbar_SIGNAL
+#
+Alias   MyB_s0   B_s0
+Alias   Myanti-B_s0   anti-B_s0
+ChargeConj    MyB_s0   Myanti-B_s0
+#
+Decay Bc_SIGNAL
+# models as in the B_c+ block of DECAY.DEC, where the e and mu modes
+# have equal BR (0.0403 each), so the 50:50 split is the physical ratio
+    0.5   MyB_s0   mu+    nu_mu    PHOTOS  PHSP;
+    0.5   MyB_s0   e+     nu_e     PHOTOS  PHSP;
+Enddecay
+CDecay    Bcbar_SIGNAL
+#
+Decay MyB_s0
+# model as in the B_s0 block of DECAY.DEC
+    1.0   K+   K-    PHSP;
+Enddecay
+CDecay    Myanti-B_s0
+End
