@@ -1,0 +1,75 @@
+# Bc+ -> Bs0 l+ nu ; Bs0 -> Ds- 3pi ; Ds- -> K+ K- pi-
+# final state  K+ K- pi+ pi+ pi- pi-   (6 charged tracks, no neutrals)
+#
+# The two Bs modes below are the same topology: Bs -> Ds- pi- pi+ pi+ is the
+# non-resonant part and Bs -> a_1+ Ds- the resonant one. Together they are 75%
+# of the K+K-2pi+2pi- final state in DECAY.DEC (0.0084 and 0.0085), kept here in
+# the ratio of their DECAY.DEC branching fractions, renormalised.
+Alias   Bc_SIGNAL   B_c+
+Alias   Bcbar_SIGNAL    B_c-
+ChargeConj    Bc_SIGNAL   Bcbar_SIGNAL
+#
+Alias   MyB_s0   B_s0
+Alias   Myanti-B_s0   anti-B_s0
+ChargeConj    MyB_s0   Myanti-B_s0
+#
+Alias   MyD_s+   D_s+
+Alias   MyD_s-   D_s-
+ChargeConj    MyD_s+   MyD_s-
+#
+Alias   Myphi   phi
+ChargeConj    Myphi   Myphi
+#
+Alias   MyK*0   K*0
+Alias   Myanti-K*0   anti-K*0
+ChargeConj    MyK*0   Myanti-K*0
+#
+Alias   Mya_1+   a_1+
+Alias   Mya_1-   a_1-
+ChargeConj    Mya_1+   Mya_1-
+#
+Alias   Myrho0   rho0
+ChargeConj    Myrho0   Myrho0
+#
+Decay Bc_SIGNAL
+# models as in the B_c+ block of DECAY.DEC, where the e and mu modes
+# have equal BR (0.0403 each), so the 50:50 split is the physical ratio
+    0.5   MyB_s0   mu+    nu_mu    PHOTOS  PHSP;
+    0.5   MyB_s0   e+     nu_e     PHOTOS  PHSP;
+Enddecay
+CDecay    Bcbar_SIGNAL
+#
+Decay MyB_s0
+# 0.0084 : 0.0085 in DECAY.DEC, renormalised
+    0.4970   MyD_s-   pi-   pi+   pi+    PHSP;
+    0.5030   Mya_1+   MyD_s-                SVS;
+Enddecay
+CDecay    Myanti-B_s0
+#
+Decay MyD_s-
+# the two resonant paths to K+ K- pi-, in the ratio of their
+# DECAY.DEC branching fractions (0.045 : 0.030491, renormalised)
+    0.5961   Myphi   pi-    SVS;
+    0.4039   MyK*0   K-     SVS;
+Enddecay
+CDecay    MyD_s+
+#
+Decay Mya_1+
+# only the all-charged path is kept; rho+ pi0 has a pi0
+    1.0   Myrho0   pi+    VVS_PWAVE 1.0 0.0 0.0 0.0 0.0 0.0;
+Enddecay
+CDecay    Mya_1-
+#
+Decay Myrho0
+    1.0   pi+   pi-    VSS;
+Enddecay
+#
+Decay Myphi
+    1.0   K+   K-    VSS;
+Enddecay
+#
+Decay MyK*0
+    1.0   K+   pi-    VSS;
+Enddecay
+CDecay    Myanti-K*0
+End

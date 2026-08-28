@@ -1,0 +1,40 @@
+# Bc+ -> Bs0 l+ nu ; Bs0 -> Ds- pi+ ; Ds- -> pi- pi- pi- pi+ pi+
+# topology  1pi + 5pi : one bachelor pion from the Bs, five from the Ds
+# final state  pi+ pi+ pi+ pi- pi- pi-   (6 charged tracks, no neutrals)
+#
+# Ds- -> 5 charged pions is a real DECAY.DEC mode (BR 0.008 for D_s+ -> 3pi+ 2pi-,
+# PHSP). This is the 1pi+5pi route to pi+pi+pi+pi-pi-pi-; the complementary
+# 3pi+3pi topology (Bs -> Ds 3pi with Ds -> 3pi) is in Bc2BsLepNuBs23Pi3Pi.dec.
+# In DECAY.DEC this route is 21% of the 3pi+3pi- final state.
+Alias   Bc_SIGNAL   B_c+
+Alias   Bcbar_SIGNAL    B_c-
+ChargeConj    Bc_SIGNAL   Bcbar_SIGNAL
+#
+Alias   MyB_s0   B_s0
+Alias   Myanti-B_s0   anti-B_s0
+ChargeConj    MyB_s0   Myanti-B_s0
+#
+Alias   MyD_s+   D_s+
+Alias   MyD_s-   D_s-
+ChargeConj    MyD_s+   MyD_s-
+#
+Decay Bc_SIGNAL
+# models as in the B_c+ block of DECAY.DEC, where the e and mu modes
+# have equal BR (0.0403 each), so the 50:50 split is the physical ratio
+    0.5   MyB_s0   mu+    nu_mu    PHOTOS  PHSP;
+    0.5   MyB_s0   e+     nu_e     PHOTOS  PHSP;
+Enddecay
+CDecay    Bcbar_SIGNAL
+#
+Decay MyB_s0
+# model as in the B_s0 block of DECAY.DEC
+    1.0   MyD_s-   pi+    PHSP;
+Enddecay
+CDecay    Myanti-B_s0
+#
+Decay MyD_s-
+# charge conjugate of D_s+ -> pi+ pi+ pi+ pi- pi-  (DECAY.DEC, BR 0.008, PHSP)
+    1.0   pi-   pi-   pi-   pi+   pi+    PHSP;
+Enddecay
+CDecay    MyD_s+
+End

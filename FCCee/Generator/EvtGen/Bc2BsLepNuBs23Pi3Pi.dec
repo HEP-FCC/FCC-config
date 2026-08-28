@@ -1,0 +1,79 @@
+# Bc+ -> Bs0 l+ nu ; Bs0 -> Ds- 3pi ; Ds- -> pi- pi+ pi-
+# topology  3pi + 3pi : three bachelor pions from the Bs, three from the Ds
+# final state  pi+ pi+ pi+ pi- pi- pi-   (6 charged tracks, no neutrals)
+#
+# Same Bs decay as Bc2BsLepNuBs2KKPiPiPiPi.dec -- only the Ds decay differs --
+# so the two cards probe the same Bs topology with a KKpi and a 3pi Ds.
+# The complementary 1pi+5pi route is in Bc2BsLepNuBs21Pi5Pi.dec.
+#
+# Ds- -> 3 charged pions proceeds through scalar resonances; the direct
+# D_s+ -> pi+ pi- pi+ mode has zero BR in DECAY.DEC. The two dominant paths are
+# f_0 pi+ (47% of the 3-charged-pion rate) and f'_0 pi+ (22%), kept here in
+# their DECAY.DEC ratio, renormalised.
+Alias   Bc_SIGNAL   B_c+
+Alias   Bcbar_SIGNAL    B_c-
+ChargeConj    Bc_SIGNAL   Bcbar_SIGNAL
+#
+Alias   MyB_s0   B_s0
+Alias   Myanti-B_s0   anti-B_s0
+ChargeConj    MyB_s0   Myanti-B_s0
+#
+Alias   MyD_s+   D_s+
+Alias   MyD_s-   D_s-
+ChargeConj    MyD_s+   MyD_s-
+#
+Alias   Mya_1+   a_1+
+Alias   Mya_1-   a_1-
+ChargeConj    Mya_1+   Mya_1-
+#
+Alias   Myrho0   rho0
+ChargeConj    Myrho0   Myrho0
+#
+Alias   Myf_0   f_0
+ChargeConj    Myf_0   Myf_0
+#
+Alias   Myf'_0   f'_0
+ChargeConj    Myf'_0   Myf'_0
+#
+Decay Bc_SIGNAL
+# models as in the B_c+ block of DECAY.DEC, where the e and mu modes
+# have equal BR (0.0403 each), so the 50:50 split is the physical ratio
+    0.5   MyB_s0   mu+    nu_mu    PHOTOS  PHSP;
+    0.5   MyB_s0   e+     nu_e     PHOTOS  PHSP;
+Enddecay
+CDecay    Bcbar_SIGNAL
+#
+Decay MyB_s0
+# non-resonant and resonant Ds + 3pi, 0.0084 : 0.0085 in DECAY.DEC, renormalised
+    0.4970   MyD_s-   pi-   pi+   pi+    PHSP;
+    0.5030   Mya_1+   MyD_s-                SVS;
+Enddecay
+CDecay    Myanti-B_s0
+#
+Decay MyD_s-
+# the two dominant scalar paths to pi- pi+ pi-, 0.005235 : 0.002472, renormalised
+    0.6792   Myf_0    pi-    PHSP;
+    0.3208   Myf'_0   pi-    PHSP;
+Enddecay
+CDecay    MyD_s+
+#
+Decay Mya_1+
+# only the all-charged path is kept; rho+ pi0 has a pi0
+    1.0   Myrho0   pi+    VVS_PWAVE 1.0 0.0 0.0 0.0 0.0 0.0;
+Enddecay
+CDecay    Mya_1-
+#
+Decay Myrho0
+    1.0   pi+   pi-    VSS;
+Enddecay
+#
+Decay Myf_0
+# only the all-charged path is kept; pi0 pi0 is dropped
+    1.0   pi+   pi-    PHSP;
+Enddecay
+#
+Decay Myf'_0
+# only the all-charged 2-body path is kept
+    1.0   pi+   pi-    PHSP;
+Enddecay
+End
