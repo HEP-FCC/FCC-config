@@ -13,6 +13,11 @@ LOG_DIR="${REPO_DIR}/log"
 LOGFILE="${LOG_DIR}/git_sync.log"
 RECIPIENTS_FILE="${SCRIPT_DIR}/git_sync_recipients.txt"
 
+# CERN anonymous SMTP relay, see:
+# https://mailservices.docs.cern.ch/Miscellaneous/Anonymous_smtp/
+SMTP_SERVER="smtp://cernmx.cern.ch:25"
+FROM_ADDRESS="fcc-config-noreply@cern.ch"
+
 # Send emails
 function send_email {
   local addresses
@@ -31,7 +36,11 @@ The FCC-config git sync encountered an issue:
 ${1}
 EOM
 
-  mail -s "FCC-config git sync" ${addresses} <<< "${MESSAGE}"
+  mail -s "FCC-config git sync" \
+    -S "smtp=${SMTP_SERVER}" \
+    -S smtp-auth=none \
+    -S "from=${FROM_ADDRESS}" \
+    ${addresses} <<< "${MESSAGE}"
 }
 
 
