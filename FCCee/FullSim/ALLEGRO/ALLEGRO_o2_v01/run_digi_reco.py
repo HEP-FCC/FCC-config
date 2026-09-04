@@ -461,24 +461,25 @@ if runTrkHitDigitization:
     ExtSvc += [UniqueIDGenSvc("uidSvc")]
 
     ### FIXME: add the STT digitizer once available
-    # from Configurables import DCHdigi_v02
-    # dch_digitizer = DCHdigi_v02(
-    #     "DCHdigi2",
-    #     InputSimHitCollection=["DCHCollection"],
-    #     OutputDigihitCollection = ["DCHDigis"],
-    #     OutputLinkCollection = ["DCHDigisSimAssociationCollection"],
-    #     DCH_name="DCH_v2",
-    #     zResolution_mm = 30.,               # in mm
-    #     xyResolution_mm = 0.1,              # in mm
-    #     Deadtime_ns = 400.0,                # in ns
-    #     GasType=0,                          # 0: He(90%)-Isobutane(10%), 1: pure He, 2: Ar(50%)-Ethane(50%), 3: pure Ar
-    #     ReadoutWindowStartTime_ns=1.0,      # in ns (taking into account time of flight, drift, and signal travel)
-    #     ReadoutWindowDuration_ns=450.0,     # in ns
-    #     DriftVelocity_um_per_ns=-1.0,       # in um/ns, if negative, automatically chosen based on GasType
-    #     SignalVelocity_mm_per_ns=200.0,     # in mm/ns (Default: 2/3 of the speed of light)
-    #     OutputLevel=INFO,
-    # )
-    # TopAlg += [dch_digitizer]
+   from Configurables import WireTrackerDigi_v01
+    stt_digitizer = WireTrackerDigi_v01(
+        "WireTrackerV1",
+        InputSimHitCollection=["STTCollection"],
+        OutputDigihitCollection = ["STTDigis"],
+        OutputLinkCollection = ["STTDigisSimAssociationCollection"],
+        DCH_name="STT_o1_v01",
+        zResolution_mm = 30.,               # in mm
+        xyResolution_mm = 0.1,              # in mm
+        Deadtime_ns = 400.0,                # in ns
+        GasType=0,                          # 0: He(90%)-Isobutane(10%), 1: pure He, 2: Ar(50%)-Ethane(50%), 3: pure Ar
+        ReadoutWindowStartTime_ns=1.0,      # in ns (taking into account time of flight, drift, and signal travel)
+        ReadoutWindowDuration_ns=450.0,     # in ns
+        DriftVelocity_um_per_ns=-1.0,       # in um/ns, if negative, automatically chosen based on GasType
+        SignalVelocity_mm_per_ns=200.0,     # in mm/ns (Default: 2/3 of the speed of light)
+        OutputLevel=DEBUG,
+        isSTT = True
+    )
+    TopAlg += [stt_digitizer]
 
 if runTrkFinder:
     # Run consistency checks first
