@@ -1647,6 +1647,7 @@ if doTopoClustering:
                           False,
                           False,
                           addShapeParameters,
+                          False,
                           False)
 
 
