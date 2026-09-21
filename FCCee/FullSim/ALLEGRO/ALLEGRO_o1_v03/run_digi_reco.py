@@ -51,7 +51,8 @@ parser.add_argument("--createClusterCellCollections", type=str2bool, nargs="?", 
 parser.add_argument("--doTopoClustering", type=str2bool, nargs="?", help="Enable or disable topo clustering", const=True, default=True)
 parser.add_argument("--calibrateClusters", type=str2bool, nargs="?", help="Apply MVA calibration to clusters", const=True, default=False)
 parser.add_argument("--reconstructPi0s", type=str2bool, nargs="?", help="Search for cluster pairs consistent with the pi0 hypothesis", const=True, default=True)
-parser.add_argument("--runPhotonID", type=str2bool, nargs="?", help="Apply photon ID tool to clusters", const=True, default=False)
+parser.add_argument("--runPhotonID", type=str2bool, nargs="?", help="Apply BDT-based photon ID tool to clusters", const=True, default=False)
+parser.add_argument("--runTRAPPIST", type=str2bool, nargs="?", help="Run TRAPPIST-based photon/pi0 ID", const=True, default=False)
 parser.add_argument("--runTrkHitDigitization", type=str2bool, nargs="?", help="Digitize tracker hits", const=True, default=False)
 parser.add_argument("--useLegacyVTXDigitizer", type=str2bool, nargs="?", help="Perform VTXdigitizer-based digitization of tracker hits", const=True, default=False)
 parser.add_argument("--runTrkFinder", type=str2bool, nargs="?", help="Run Geometric Graph Track Finding (GGTF) on digitized tracker hits", const=True, default=False)
@@ -176,6 +177,10 @@ logEWeightInPhotonID = False
 
 # resolved pi0 reconstruction by cluster pairing
 addPi0RecoTool = opts.reconstructPi0s
+
+# run TRAPPIST-based photon/pi0 ID
+# For the details see: https://indico.cern.ch/event/1603697/#2-photon-pi0-classification-st
+runTRAPPISTTool = opts.runTRAPPIST
 
 #
 # ALGORITHMS AND SERVICES SETUP
@@ -1244,7 +1249,8 @@ def setupTopoClusters(inputCells,
                       applyUpDownstreamCorrections,
                       applyMVAClusterEnergyCalibration,
                       addShapeParameters,
-                      runPhotonIDTool):
+                      runPhotonIDTool,
+                      runTRAPPISTTool):
 
     global TopAlg
 
@@ -1391,7 +1397,36 @@ def setupTopoClusters(inputCells,
                 OutputLevel=INFO
             )
             TopAlg += [Pi0RecoAlg]
+            
+    if runTRAPPISTTool:
+        if not addPi0RecoTool:
+            print("TRAPPIST tool cannot be run if invariant mass-based pi0 reconstruction is not enabled")
+            runTRAPPISTTool = False
+        else:
+            inClusters = Pi0RecoAlg.unpairedClusters.Path
 
+            from Configurables import TRAPPISTPi0PhotonInference
+            TRAPPISTInferenceAlg = TRAPPISTPi0PhotonInference(
+                "TRAPPIST" + outputClusters,
+                inClusters=[inClusters],
+                outClusters=[inClusters + "WithScore"],
+                ONNXModelPath=dataFolder + "TRAPPIST_topoclustering.onnx",
+                OutputLevel=INFO,
+            )
+
+            from Configurables import ClusterPi0PhotonID
+
+            Pi0PhotonIDAlg = ClusterPi0PhotonID(
+                "IdentifiedPi0TRAPPISTScore",
+                inClusters=TRAPPISTInferenceAlg.outClusters,
+                outParticles=["TRAPPISTParticles"],
+                Threshold=0.5,
+                OutputLevel=INFO,
+            )
+            
+            TopAlg += [TRAPPISTInferenceAlg]
+            TopAlg += [Pi0PhotonIDAlg]
+            
     if applyMVAClusterEnergyCalibration:
         # note that this only works for ecal barrel given various hardcoded quantities
         inClusters = ""
@@ -1539,7 +1574,8 @@ if doTopoClustering:
                       applyUpDownstreamCorrections,
                       applyMVAClusterEnergyCalibration,
                       addShapeParameters,
-                      runPhotonIDTool)
+                      runPhotonIDTool,
+                      runTRAPPISTTool)
 
     # ECAL endcap topoclusters
     EMECCaloTopoClusterInputs = {"ECAL_Endcap": ecalEndcapPositionedCellsName}
@@ -1553,6 +1589,7 @@ if doTopoClustering:
                       False,
                       False,
                       addShapeParameters,
+                      False,
                       False)
 
     # ECAL topoclusters with noise
@@ -1567,7 +1604,8 @@ if doTopoClustering:
                           applyUpDownstreamCorrections,
                           applyMVAClusterEnergyCalibration,
                           addShapeParameters,
-                          runPhotonIDTool)
+                          runPhotonIDTool,
+                          runTRAPPISTTool)
 
         EMECCaloTopoClusterInputsWithNoise = {"ECAL_Endcap": ecalEndcapPositionedCellsName + "WithNoise" if filterNoiseThreshold < 0 else ecalEndcapPositionedCellsName + "WithNoiseFiltered"}
         setupTopoClusters(EMECCaloTopoClusterInputsWithNoise,
@@ -1579,6 +1617,7 @@ if doTopoClustering:
                           False,
                           False,
                           addShapeParameters,
+                          False,
                           False)
 
     # ECAL + HCAL
@@ -1694,6 +1733,14 @@ if addShapeParameters:
         if algo.__class__.__name__ == "AugmentClustersFCCee":
             io_svc.outputCommands.append("drop %s" % algo.inClusters)
 
+# If running TRAPPIST, the unpaired clusters produced by PairCaloClustersPi0
+# can be dropped because TRAPPIST produces a copy with the score added.
+if runTRAPPISTTool:
+    for algo in TopAlg:
+        if algo.__class__.__name__ == "PairCaloClustersPi0":
+            io_svc.outputCommands.append(
+                "drop %s" % algo.unpairedClusters.Path
+            )
 
 # configure the application
 print(TopAlg)
