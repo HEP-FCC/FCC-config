@@ -102,10 +102,10 @@ siwrd_digitizer.TrackerHitCollectionName = ["SiWrDDigis"]
 siwrd_digitizer.ForceHitsOntoSurface = True
 
 ############### DCH Digitizer
-from Configurables import DCHdigi_v02
+from Configurables import WireTrackerDigi_v01
 
-dch_digitizer = DCHdigi_v02(
-    "DCHdigi2",
+dch_digitizer = WireTrackerDigi_v01(
+    "DCHDigitizer",
     InputSimHitCollection=["DCHCollection"],
     OutputDigihitCollection = ["DCHDigis"],
     OutputLinkCollection = ["DCHDigisSimAssociationCollection"],

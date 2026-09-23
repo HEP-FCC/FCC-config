@@ -464,9 +464,9 @@ if runTrkHitDigitization:
 
     from Configurables import UniqueIDGenSvc
     ExtSvc += [UniqueIDGenSvc("uidSvc")]
-    from Configurables import DCHdigi_v02
-    dch_digitizer = DCHdigi_v02(
-        "DCHdigi2",
+    from Configurables import WireTrackerDigi_v01
+    dch_digitizer = WireTrackerDigi_v01(
+        "DCHDigitizer",
         InputSimHitCollection=["DCHCollection"],
         OutputDigihitCollection = ["DCHDigis"],
         OutputLinkCollection = ["DCHDigisSimAssociationCollection"],
