@@ -517,6 +517,7 @@ if runTrkFitter:
 
     trackFitter = GenfitTrackFitter(
         "GenfitTrackFitter",
+        WireTrackerName = "STT_o1_v01",
         InputTracks=["PrefitTracks"],
         OutputFittedTracks=["FittedTracks"],
         OutputFittedTracksWithFilteredHits=["FittedTracksWithFilteredHits"],
