@@ -500,7 +500,7 @@ if runTrkFinder:
     trackFinder = GGTFTrackFinder(
         "GGTFTrackFinder",
         InputPlanarHitCollections=["VTXBDigis", "VTXDDigis", "SiWrDDigis", "SiWrBDigis"],
-        InputWireHitCollections=[],  #FIXME: add STT hits when available
+        InputWireHitCollections=["STTDigis"],
         OutputTracksGGTF=["PrefitTracks"],
         ModelPath=modelPath,
         Tbeta=tbeta,    # default clustering parameters
@@ -540,13 +540,13 @@ if runTrkValidation:
         "PerfectTrackFinder",
         InputMCParticles=["MCParticles"],
         InputPlanarHitCollections=["VTXBSimDigiLinks","VTXDSimDigiLinks","SiWrBSimDigiLinks","SiWrDSimDigiLinks"],
-        # InputWireHitCollections=["STTDigisSimAssociationCollection"],
-        InputWireHitCollections=[],
+        InputWireHitCollections=["STTDigisSimAssociationCollection"],
         OutputPerfectTracks=["PerfectPrefitTracks"],
         OutputLevel=INFO
     )
     perfect_fitter = GenfitTrackFitter(
         "PerfectTrackFitter",
+        WireTrackerName = "STT_o1_v01",
         InputTracks=["PerfectPrefitTracks"],
         OutputFittedTracks=["PerfectFittedTracks"],
         OutputFittedTracksWithFilteredHits=["PerfectFittedTracksWithFilteredHits"],
@@ -578,8 +578,7 @@ if runTrkValidation:
         FinderEfficiencyDefinition=1,
         FinderPurityThreshold=0.75,
         MCParticles=["MCParticles"],
-        # HitSimLinks=["VTXBSimDigiLinks","VTXDSimDigiLinks","SiWrBSimDigiLinks","SiWrDSimDigiLinks","STTDigisSimAssociationCollection"],
-        HitSimLinks=["VTXBSimDigiLinks","VTXDSimDigiLinks","SiWrBSimDigiLinks","SiWrDSimDigiLinks"],
+        HitSimLinks=["VTXBSimDigiLinks","VTXDSimDigiLinks","SiWrBSimDigiLinks","SiWrDSimDigiLinks","STTDigisSimAssociationCollection"],
         FinderTracks=["PrefitTracks"],
         FittedTracks=["FittedTracks"],
         PerfectFittedTracks=["PerfectFittedTracks"],
