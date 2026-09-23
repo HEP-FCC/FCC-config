@@ -460,7 +460,6 @@ if runTrkHitDigitization:
     from Configurables import UniqueIDGenSvc
     ExtSvc += [UniqueIDGenSvc("uidSvc")]
 
-    ### FIXME: add the STT digitizer once available
     from Configurables import WireTrackerDigi_v01
     stt_digitizer = WireTrackerDigi_v01(
         "WireTrackerV1",
