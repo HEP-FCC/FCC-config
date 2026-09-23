@@ -476,7 +476,7 @@ if runTrkHitDigitization:
         ReadoutWindowDuration_ns=450.0,     # in ns
         DriftVelocity_um_per_ns=-1.0,       # in um/ns, if negative, automatically chosen based on GasType
         SignalVelocity_mm_per_ns=200.0,     # in mm/ns (Default: 2/3 of the speed of light)
-        OutputLevel=DEBUG,
+        OutputLevel=INFO,
         isSTT = True
     )
     TopAlg += [stt_digitizer]
