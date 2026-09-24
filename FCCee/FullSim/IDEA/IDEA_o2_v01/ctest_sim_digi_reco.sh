@@ -16,11 +16,5 @@ k4run "${SCRIPT_DIR}/run_digi_reco.py" \
       --IOSvc.Input IDEA_o2_v01_sim.root \
       --IOSvc.Output IDEA_o2_v01_digi_reco.root
 
-# Sanity: at least one topo cluster must have been grown.
-python3 - <<'EOF'
-import sys, podio.reading
-r = podio.reading.get_reader("IDEA_o2_v01_digi_reco.root")
-n = sum(len(f.get("TopoGrownClusters")) for f in r.get("events"))
-print("TopoGrownClusters produced:", n)
-sys.exit(0 if n > 0 else 1)
-EOF
+# Sanity: the two final products -- truth tracks and topo clusters.
+python3 "${SCRIPT_DIR}/check_digi_reco.py" IDEA_o2_v01_digi_reco.root
