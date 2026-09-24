@@ -51,7 +51,7 @@ parser.add_argument("--createClusterCellCollections", type=str2bool, nargs="?", 
 parser.add_argument("--doTopoClustering", type=str2bool, nargs="?", help="Enable or disable topo clustering", const=True, default=True)
 parser.add_argument("--calibrateClusters", type=str2bool, nargs="?", help="Apply MVA calibration to clusters", const=True, default=False)
 parser.add_argument("--reconstructPi0s", type=str2bool, nargs="?", help="Search for cluster pairs consistent with the pi0 hypothesis", const=True, default=True)
-parser.add_argument("--runPhotonID", type=str2bool, nargs="?", help="Apply photon ID tool to clusters", const=True, default=False)
+parser.add_argument("--runPhotonID", type=str2bool, nargs="?", help="Apply BDT-based photon ID tool to clusters", const=True, default=False)
 parser.add_argument("--runTRAPPIST", type=str2bool, nargs="?", help="Run TRAPPIST-based photon/pi0 ID", const=True, default=False)
 parser.add_argument("--runTrkHitDigitization", type=str2bool, nargs="?", help="Digitize tracker hits", const=True, default=False)
 parser.add_argument("--useLegacyVTXDigitizer", type=str2bool, nargs="?", help="Perform VTXdigitizer-based digitization of tracker hits", const=True, default=False)
