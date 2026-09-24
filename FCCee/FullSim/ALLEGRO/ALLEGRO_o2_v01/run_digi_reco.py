@@ -1036,7 +1036,9 @@ def setupSWClusters(inputCells,
                     applyUpDownstreamCorrections,
                     applyMVAClusterEnergyCalibration,
                     addShapeParameters,
+                    addPi0RecoTool,
                     runPhotonIDTool,
+                    runTRAPPISTTool,
                     clusterType="StandardSize"):
 
     global TopAlg
@@ -1200,6 +1202,59 @@ def setupSWClusters(inputCells,
             outputSaveClusters.remove(clusterAlg.clusters.Path)
         else:
             addShapeParameters = False
+            
+    # tool to identify resolved pi0->two photon cluster candidates
+    # see: https://indico.cern.ch/event/1483299/contributions/6488594/attachments/3056315/5403634/ALLEGRO_photon_pi0_20250424.pdf
+    # FIXME: massPeak, massLow and massHigh values were determined using topoclusters and should be re-evaluated for SW clusters
+    if addPi0RecoTool:
+        if addShapeParameters:
+            inClusters = augmentClusterAlg.outClusters.Path
+        else:
+            inClusters = clusterAlg.clusters.Path
+            
+        from Configurables import PairCaloClustersPi0
+        Pi0RecoAlg = PairCaloClustersPi0(
+            "resolvedPi0FromClusterPair" + outputClusters,
+            inClusters=inClusters,
+            unpairedClusters="Unpaired" + inClusters,
+            pairedClusters="Paired" + inClusters,
+            reconstructedPi0="ResolvedPi0Particle" + outputClusters,
+            massPeak=0.122201, # values determined from a dedicated study
+            massLow=0.0754493,
+            massHigh=0.153543,
+            OutputLevel=INFO
+        )
+        TopAlg += [Pi0RecoAlg]
+            
+    if runTRAPPISTTool:
+        if not addPi0RecoTool:
+            print("TRAPPIST tool cannot be run if invariant mass-based pi0 reconstruction is not enabled")
+            runTRAPPISTTool = False
+        else:
+            inClusters = Pi0RecoAlg.unpairedClusters.Path
+
+            from Configurables import TRAPPISTPi0PhotonInference
+            TRAPPISTInferenceAlg = TRAPPISTPi0PhotonInference(
+                "TRAPPIST" + outputClusters,
+                inClusters=[inClusters],
+                outClusters=[inClusters + "WithScore"],
+                ONNXModelPath=dataFolder + "TRAPPIST_SWclustering.onnx",
+                OutputLevel=INFO,
+            )
+
+            from Configurables import ClusterPi0PhotonID
+
+            Pi0PhotonIDAlg = ClusterPi0PhotonID(
+                "IdentifiedPi0TRAPPISTScore" + outputClusters,
+                inClusters=TRAPPISTInferenceAlg.outClusters,
+                outParticles=["TRAPPISTParticles" + outputClusters],
+                outParticleIDs=["TRAPPISTParticleIDs" + outputClusters],
+                Threshold=0.5,
+                OutputLevel=INFO,
+            )
+            
+            TopAlg += [TRAPPISTInferenceAlg]
+            TopAlg += [Pi0PhotonIDAlg]
 
     if applyMVAClusterEnergyCalibration:
         # note that this only works for ecal barrel given various hardcoded quantities
@@ -1256,6 +1311,7 @@ def setupTopoClusters(inputCells,
                       applyUpDownstreamCorrections,
                       applyMVAClusterEnergyCalibration,
                       addShapeParameters,
+                      addPi0RecoTool,
                       runPhotonIDTool,
                       runTRAPPISTTool):
 
@@ -1388,22 +1444,27 @@ def setupTopoClusters(inputCells,
         else:
             addShapeParameters = False
 
-        # tool to identify resolved pi0->two photon cluster candidates
-        # see: https://indico.cern.ch/event/1483299/contributions/6488594/attachments/3056315/5403634/ALLEGRO_photon_pi0_20250424.pdf
-        if addPi0RecoTool:
-            from Configurables import PairCaloClustersPi0
-            Pi0RecoAlg = PairCaloClustersPi0(
-                "resolvedPi0FromClusterPair" + outputClusters,
-                inClusters=augmentClusterAlg.outClusters.Path,
-                unpairedClusters="Unpaired" + augmentClusterAlg.outClusters.Path,
-                pairedClusters="Paired" + augmentClusterAlg.outClusters.Path,
-                reconstructedPi0="ResolvedPi0Particle" + outputClusters,
-                massPeak=0.122201, # values determined from a dedicated study
-                massLow=0.0754493,
-                massHigh=0.153543,
-                OutputLevel=INFO
-            )
-            TopAlg += [Pi0RecoAlg]
+    # tool to identify resolved pi0->two photon cluster candidates
+    # see: https://indico.cern.ch/event/1483299/contributions/6488594/attachments/3056315/5403634/ALLEGRO_photon_pi0_20250424.pdf
+    if addPi0RecoTool:
+        if addShapeParameters:
+            inClusters = augmentClusterAlg.outClusters.Path
+        else:
+            inClusters = clusterAlg.clusters.Path
+            
+        from Configurables import PairCaloClustersPi0
+        Pi0RecoAlg = PairCaloClustersPi0(
+            "resolvedPi0FromClusterPair" + outputClusters,
+            inClusters=inClusters,
+            unpairedClusters="Unpaired" + inClusters,
+            pairedClusters="Paired" + inClusters,
+            reconstructedPi0="ResolvedPi0Particle" + outputClusters,
+            massPeak=0.122201, # values determined from a dedicated study
+            massLow=0.0754493,
+            massHigh=0.153543,
+            OutputLevel=INFO
+        )
+        TopAlg += [Pi0RecoAlg]
             
     if runTRAPPISTTool:
         if not addPi0RecoTool:
@@ -1424,15 +1485,16 @@ def setupTopoClusters(inputCells,
             from Configurables import ClusterPi0PhotonID
 
             Pi0PhotonIDAlg = ClusterPi0PhotonID(
-                "IdentifiedPi0TRAPPISTScore",
+                "IdentifiedPi0TRAPPISTScore" + outputClusters,
                 inClusters=TRAPPISTInferenceAlg.outClusters,
-                outParticles=["TRAPPISTParticles"],
+                outParticles=["TRAPPISTParticles" + outputClusters],
+                outParticleIDs=["TRAPPISTParticleIDs" + outputClusters],
                 Threshold=0.5,
                 OutputLevel=INFO,
             )
             
             TopAlg += [TRAPPISTInferenceAlg]
-            TopAlg += [Pi0PhotonIDAlg]    
+            TopAlg += [Pi0PhotonIDAlg]  
 
     if applyMVAClusterEnergyCalibration:
         # note that this only works for ecal barrel given various hardcoded quantities
@@ -1489,7 +1551,9 @@ if doSWClustering:
                     applyUpDownstreamCorrections,
                     applyMVAClusterEnergyCalibration,
                     addShapeParameters,
-                    runPhotonIDTool)
+                    addPi0RecoTool,
+                    runPhotonIDTool,
+                    runTRAPPISTTool)
 
     # SW ECAL endcap clusters
     EMECCaloClusterInputs = {"ECAL_Endcap": ecalEndcapPositionedCellsName}
@@ -1501,6 +1565,8 @@ if doSWClustering:
                     False,
                     False,
                     addShapeParameters,
+                    False,
+                    False,
                     False)
 
     # SW ECAL barrel and endcap clusters with noise
@@ -1513,7 +1579,9 @@ if doSWClustering:
                         applyUpDownstreamCorrections,
                         applyMVAClusterEnergyCalibration,
                         addShapeParameters,
-                        runPhotonIDTool)
+                        addPi0RecoTool,
+                        runPhotonIDTool,
+                        runTRAPPISTTool)
 
         EMECCaloClusterInputsWithNoise = {"ECAL_Endcap": ecalEndcapPositionedCellsName + "WithNoise" if filterNoiseThreshold < 0 else ecalEndcapPositionedCellsName + "WithNoiseFiltered"}
         setupSWClusters(EMECCaloClusterInputsWithNoise,
@@ -1523,6 +1591,8 @@ if doSWClustering:
                         False,
                         False,
                         addShapeParameters,
+                        False,
+                        False,
                         False)
 
     # ECAL + HCAL clusters
@@ -1546,6 +1616,8 @@ if doSWClustering:
                         False,
                         False,
                         addShapeParameters,
+                        False,
+                        False,
                         False)
 
     # experimental: MUON clusters
@@ -1566,6 +1638,8 @@ if doSWClustering:
                         False,
                         False,
                         False,
+                        False,
+                        False,
                         "MuonSize")
 
 if doTopoClustering:
@@ -1581,6 +1655,7 @@ if doTopoClustering:
                       applyUpDownstreamCorrections,
                       applyMVAClusterEnergyCalibration,
                       addShapeParameters,
+                      addPi0RecoTool,
                       runPhotonIDTool,
                       runTRAPPISTTool)
 
@@ -1597,6 +1672,7 @@ if doTopoClustering:
                       False,
                       addShapeParameters,
                       False,
+                      False,
                       False)
 
     # ECAL topoclusters with noise
@@ -1611,6 +1687,7 @@ if doTopoClustering:
                           applyUpDownstreamCorrections,
                           applyMVAClusterEnergyCalibration,
                           addShapeParameters,
+                          addPi0RecoTool,
                           runPhotonIDTool,
                           runTRAPPISTTool)
 
@@ -1624,6 +1701,7 @@ if doTopoClustering:
                           False,
                           False,
                           addShapeParameters,
+                          False,
                           False,
                           False)
 
@@ -1651,6 +1729,7 @@ if doTopoClustering:
                           False,
                           False,
                           addShapeParameters,
+                          False,
                           False,
                           False)
 
@@ -1748,7 +1827,7 @@ if runTRAPPISTTool:
         if algo.__class__.__name__ == "PairCaloClustersPi0":
             io_svc.outputCommands.append(
                 "drop %s" % algo.unpairedClusters.Path
-            )
+           )
 
 
 # configure the application
