@@ -1219,7 +1219,7 @@ def setupSWClusters(inputCells,
             unpairedClusters="Unpaired" + inClusters,
             pairedClusters="Paired" + inClusters,
             reconstructedPi0="ResolvedPi0Particle" + outputClusters,
-            massPeak=0.122201, # values determined from a dedicated study
+            massPeak=0.122201, # values determined from a study based on topoclusters, to be updated
             massLow=0.0754493,
             massHigh=0.153543,
             OutputLevel=INFO
