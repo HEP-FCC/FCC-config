@@ -41,6 +41,7 @@ outerVertexResolution_t = 1000 # [ns]
 
 vtxb_digitizer = DDPlanarDigi("VTXBdigitizer")
 vtxb_digitizer.SubDetectorName = "Vertex"
+vtxb_digitizer.CellIDBits = 32
 vtxb_digitizer.IsStrip = False
 vtxb_digitizer.ResolutionU = [innerVertexResolution_x, innerVertexResolution_x, innerVertexResolution_x, outerVertexResolution_x, outerVertexResolution_x]
 vtxb_digitizer.ResolutionV = [innerVertexResolution_y, innerVertexResolution_y, innerVertexResolution_y, outerVertexResolution_y, outerVertexResolution_y]
@@ -52,6 +53,7 @@ vtxb_digitizer.ForceHitsOntoSurface = True
 
 vtxd_digitizer = DDPlanarDigi("VTXDdigitizer")
 vtxd_digitizer.SubDetectorName = "Vertex"
+vtxd_digitizer.CellIDBits = 32
 vtxd_digitizer.IsStrip = False
 vtxd_digitizer.ResolutionU = [outerVertexResolution_x, outerVertexResolution_x, outerVertexResolution_x]
 vtxd_digitizer.ResolutionV = [outerVertexResolution_y, outerVertexResolution_y, outerVertexResolution_y]
@@ -68,6 +70,7 @@ siWrapperResolution_t   = 0.040 # [ns], 40 ps per layer -> <30 ps when >1 hit
 
 siwrb_digitizer = DDPlanarDigi("SiWrBdigitizer")
 siwrb_digitizer.SubDetectorName = "SiWrB"
+siwrb_digitizer.CellIDBits = 32
 siwrb_digitizer.IsStrip = False
 siwrb_digitizer.ResolutionU = [siWrapperResolution_x]*4
 siwrb_digitizer.ResolutionV = [siWrapperResolution_y]*4
@@ -79,6 +82,7 @@ siwrb_digitizer.ForceHitsOntoSurface = True
 
 siwrd_digitizer = DDPlanarDigi("SiWrDdigitizer")
 siwrd_digitizer.SubDetectorName = "SiWrD"
+siwrd_digitizer.CellIDBits = 32
 siwrd_digitizer.IsStrip = False
 siwrd_digitizer.ResolutionU = [siWrapperResolution_x]*4
 siwrd_digitizer.ResolutionV = [siWrapperResolution_y]*4
