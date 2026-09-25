@@ -1,4 +1,11 @@
 #!/usr/bin/env python
+#
+# File: python/test/ComponentAccumulator_test.py
+# Author: scott snyder <snyder@bnl.gov>
+# Date: Feb, 2026
+# Purpose: Unit tests for ComponentAccumulator.
+#
+
 
 
 class TestAlg:
