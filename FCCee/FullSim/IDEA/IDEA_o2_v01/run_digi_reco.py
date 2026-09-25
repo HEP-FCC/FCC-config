@@ -2,11 +2,14 @@ import os
 import math
 
 from Gaudi.Configuration import *
+from k4FWCore.parseArgs import parser
 
-# Reduced barrel wedge (fast, low memory) vs the full detector.
-# Set to False to run the full IDEA_o2_v01 geometry -- note it needs considerably more memory,
-# and the ddsim step must then be given the full compact file too.
-CI = True
+parser.add_argument(
+    "--ci", action="store_true",
+    help="Use the reduced barrel wedge instead of the full IDEA_o2_v01 geometry (fast, low "
+         "memory); the ddsim step must then be given the same compact file",
+)
+CI = parser.parse_known_args()[0].ci
 
 detector_xml = (
     "FCCee/IDEA/compact/IDEA_o2_v01_CI/IDEA_o2_v01_CI.xml"

@@ -13,6 +13,7 @@ ddsim --compactFile "${K4GEO}/FCCee/IDEA/compact/IDEA_o2_v01_CI/IDEA_o2_v01_CI.x
       --outputFile IDEA_o2_v01_sim.root
 
 k4run "${SCRIPT_DIR}/run_digi_reco.py" \
+      --ci \
       --IOSvc.Input IDEA_o2_v01_sim.root \
       --IOSvc.Output IDEA_o2_v01_digi_reco.root
 
