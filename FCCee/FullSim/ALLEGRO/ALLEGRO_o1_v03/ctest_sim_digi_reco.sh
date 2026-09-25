@@ -114,6 +114,8 @@ PREREQS=(
 "${REMOTE_BASE_ALLEGRO}/neighbours_map_ecalB_thetamodulemerged_hcalB_hcalEndcap_phitheta.root"
 "${REMOTE_BASE_ALLEGRO}/neighbours_map_ecalB_thetamodulemerged_ecalE_turbine_hcalB_hcalEndcap_phitheta.root"
 "${REMOTE_BASE_ALLEGRO}/xtalk_neighbours_map_ecalB_thetamodulemerged.root"
+"${REMOTE_BASE_ALLEGRO}/TRAPPIST_topoclustering.onnx"
+"${REMOTE_BASE_ALLEGRO}/TRAPPIST_SWclustering.onnx"
 "${REMOTE_BASE_IDEA}/IDEA_o1_v03/SimpleGatrIDEAv3o1.onnx"
 "${REMOTE_BASE_IDEA}/DataAlgFORGEANT.root"
 )
@@ -132,6 +134,8 @@ k4run "${SCRIPT_DIR}/run_digi_reco.py"
 --addTruthTracks
 --calibrateClusters
 --saveCells
+--reconstructPi0s
+--runTRAPPIST
 --runTrkFinder
 --runTrkFitter
 )
