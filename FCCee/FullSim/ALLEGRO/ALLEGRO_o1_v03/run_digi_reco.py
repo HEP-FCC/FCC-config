@@ -225,11 +225,12 @@ geoservice.detectors = [
 ]
 ExtSvc += [geoservice]
 
-# retrieve subdetector IDs
+# retrieve subdetector IDs and some other constants
 import xml.etree.ElementTree as ET
 tree = ET.parse(path_to_detector + 'DectDimensions.xml')
 root = tree.getroot()
 IDs = {}
+nSiWrLayers = 0
 for constant in root.find('define').findall('constant'):
     if (
         constant.get('name') == 'DetID_VXD_Barrel'
@@ -246,9 +247,18 @@ for constant in root.find('define').findall('constant'):
         IDs[constant.get("name")[6:]] = int(constant.get('value'))
     if (constant.get('name') == 'DetID_Muon_Endcap_1'):
         IDs[constant.get("name")[6:-2]] = int(constant.get('value'))
+    if (constant.get('name') == 'SiWr_nLayers'):
+        nSiWrLayers = int(constant.get('value'))
+
 # debug
 print("Subdetector IDs:")
 print(IDs)
+
+if nSiWrLayers == 0:
+    print("Could not read number of SiWr layers from DectDimensions.xml, will default to 1")
+    nSiWrLayers = 1
+else:
+    print("Number of SiWr layers from DectDimensions.xml:", nSiWrLayers)
 
 # Input/Output handling
 from k4FWCore import IOSvc
@@ -314,6 +324,7 @@ if runTrkHitDigitization:
     outerVertexResolution_t = 5     # [ns], assume 5 ns timing resolution from time-over-threshold for DRD3 OCTOPUS sensors
 
     outerVertexBarrelNlayers = 2
+    vertexDisksNLayers = 3
 
     # silicon wrapper hits parameters
     siWrapperResolution_x = 0.050 / math.sqrt(12)  # [mm], assume 50 µm pitch for the silicon wrapper (hybrid LGADs or monolithic sensor with gain), leading to a binary resolution of 50/sqrt(12) µm
@@ -336,9 +347,9 @@ if runTrkHitDigitization:
 
     vxd_endcap_digi_args = {
         "IsStrip": False,
-        "ResolutionU": [outerVertexResolution_x]*3,
-        "ResolutionV": [outerVertexResolution_y]*3,
-        "ResolutionT": [outerVertexResolution_t]*3,
+        "ResolutionU": [outerVertexResolution_x]*vertexDisksNLayers,
+        "ResolutionV": [outerVertexResolution_y]*vertexDisksNLayers,
+        "ResolutionT": [outerVertexResolution_t]*vertexDisksNLayers,
         "SimTrackHitCollectionName": ["VertexEndcapCollection"],
         "SimTrkHitRelCollection": ["VTXDSimDigiLinks"],
         "SubDetectorName": "VertexDisks",
@@ -347,11 +358,12 @@ if runTrkHitDigitization:
         "CellIDBits": 32,
     }
 
+    # the factor 2 comes from the fact that each stave has sensors on both sides
     siWr_barrel_digi_args = {
         "IsStrip": False,
-        "ResolutionU": [siWrapperResolution_x]*2,
-        "ResolutionV": [siWrapperResolution_y]*2,
-        "ResolutionT": [siWrapperResolution_t]*2,
+        "ResolutionU": [siWrapperResolution_x]*2*nSiWrLayers,
+        "ResolutionV": [siWrapperResolution_y]*2*nSiWrLayers,
+        "ResolutionT": [siWrapperResolution_t]*2*nSiWrLayers,
         "SimTrackHitCollectionName": ["SiWrBCollection"],
         "SimTrkHitRelCollection": ["SiWrBSimDigiLinks"],
         "SubDetectorName": "SiWrB",
@@ -360,11 +372,12 @@ if runTrkHitDigitization:
         "CellIDBits": 32,
     }
 
+    # the factor 2 comes from the fact that each module has sensors on both sides
     siWr_endcap_digi_args = {
         "IsStrip": False,
-        "ResolutionU": [siWrapperResolution_x]*2,
-        "ResolutionV": [siWrapperResolution_y]*2,
-        "ResolutionT": [siWrapperResolution_t]*2,
+        "ResolutionU": [siWrapperResolution_x]*2*nSiWrLayers,
+        "ResolutionV": [siWrapperResolution_y]*2*nSiWrLayers,
+        "ResolutionT": [siWrapperResolution_t]*2*nSiWrLayers,
         "SimTrackHitCollectionName": ["SiWrDCollection"],
         "SimTrkHitRelCollection": ["SiWrDSimDigiLinks"],
         "SubDetectorName": "SiWrD",
@@ -468,6 +481,7 @@ if runTrkHitDigitization:
 
     from Configurables import UniqueIDGenSvc
     ExtSvc += [UniqueIDGenSvc("uidSvc")]
+
     from Configurables import WireTrackerDigi_v01
     dch_digitizer = WireTrackerDigi_v01(
         "DCHDigitizer",
