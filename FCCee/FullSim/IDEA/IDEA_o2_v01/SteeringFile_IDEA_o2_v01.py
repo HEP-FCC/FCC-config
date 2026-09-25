@@ -459,7 +459,6 @@ SIM.outputConfig.forceLCIO = False
 ##       SIM.outputConfig.myExtension = '.csv'
 ##
 
-
 ################################################################################
 ## Configuration for the Particle Handler/ MCTruth treatment
 ################################################################################
