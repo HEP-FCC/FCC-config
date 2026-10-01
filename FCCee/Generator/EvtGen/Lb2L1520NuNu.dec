@@ -1,0 +1,19 @@
+Alias      Lb_SIGNAL      Lambda_b0
+Alias      Lbbar_SIGNAL  	anti-Lambda_b0
+ChargeConj Lb_SIGNAL      Lbbar_SIGNAL
+#
+Alias      MyLambda(1520)0      Lambda(1520)0
+Alias      Myanti-Lambda(1520)0 anti-Lambda(1520)0
+ChargeConj MyLambda(1520)0      Myanti-Lambda(1520)0
+#
+Decay Lb_SIGNAL
+  1.000        MyLambda(1520)0    nu_e    anti-nu_e           PHSP;
+Enddecay
+CDecay Lbbar_SIGNAL
+#
+Decay MyLambda(1520)0
+  1.000        p+       K-              PHSP;
+Enddecay
+CDecay Myanti-Lambda(1520)0
+#
+End
