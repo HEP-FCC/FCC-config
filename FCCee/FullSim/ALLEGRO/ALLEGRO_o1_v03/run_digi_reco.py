@@ -6,7 +6,7 @@
 #
 
 # Logger
-from Gaudi.Configuration import INFO, DEBUG, VERBOSE, ERROR
+from Gaudi.Configuration import INFO, WARNING, DEBUG, VERBOSE, ERROR
 # units and physical constants
 from GaudiKernel.PhysicalConstants import pi
 
@@ -433,7 +433,7 @@ if runTrkHitDigitization:
                                        )
         TopAlg += [siwrd_digitizer]
 
-    else:
+    elif False:
         # digitize vertex hits through "native" DDPlanarDigi
         from Configurables import DDPlanarDigi
 
@@ -459,6 +459,82 @@ if runTrkHitDigitization:
             "SiWrEndcapDigitizer",
             **siWr_endcap_digi_args,
             OutputLevel=INFO
+        )
+
+        TopAlg += [ VXDBarrelDigitizer ]
+        TopAlg += [ VXDEndcapDigitizer ]
+        TopAlg += [ SiWrBarrelDigitizer ]
+        TopAlg += [ SiWrEndcapDigitizer ]
+    else:
+        # use projection-based digitiser
+        # note: in order to work, barrel detector need ZPlanarData extension and disks need ZDiskPetalsData extension
+        # both containing layer information
+        # from which the sensor thickness is determined
+        # see also https://github.com/key4hep/k4geo/blob/e1ba7bc3e0d7291ebe3f6a02abfa784f879e36cb/detector/tracker/VertexEndcap_o1_v06_geo.cpp#L117
+        from Configurables import VTXdigitizerDetailed
+
+        VXDBarrelDigitizer = VTXdigitizerDetailed(
+            "VXDBarrelDigitizer",
+            inputSimHits="VertexBarrelCollection",
+            outputDigiHits="VTXBDigis",
+            outputSimDigiAssociation="VTXBSimDigiLinks",
+            detectorName="VertexInnerBarrel", # FIXME - we also need vertex outer barrel. Do we need a separate digitiser??
+            PixSizePhi=[innerVertexResolution_x]*innerVertexNlayers + [outerVertexResolution_x]*outerVertexBarrelNlayers,  # FIXME check x/y vs phi/theta
+            PixSizeTheta=[innerVertexResolution_y]*innerVertexNlayers + [outerVertexResolution_y]*outerVertexBarrelNlayers,  # FIXME check x/y vs phi/theta
+            tResolution=[innerVertexResolution_t]*innerVertexNlayers + [outerVertexResolution_t]*outerVertexBarrelNlayers,
+            Threshold=100.0,  # FIXME
+            ThresholdSmearing=20.0,  # FIXME
+            OutputLevel=DEBUG,
+            DebugHistos=True,
+            DebugFileName="Debug_VTXBarrelDigitizer.root",
+        )
+
+        VXDEndcapDigitizer = VTXdigitizerDetailed(
+            "VXDEndcapDigitizer",
+            inputSimHits="VertexEndcapCollection",
+            outputDigiHits="VTXDDigis",
+            outputSimDigiAssociation="VTXDSimDigiLinks",
+            detectorName="VertexDisks",
+            PixSizePhi=[outerVertexResolution_x]*3,  # FIXME check x/y vs phi/theta
+            PixSizeTheta=[outerVertexResolution_y]*3,  # FIXME check x/y vs phi/theta
+            tResolution=[outerVertexResolution_t]*3,
+            Threshold=100.0,  # FIXME
+            ThresholdSmearing=20.0,  # FIXME
+            OutputLevel=DEBUG,
+            DebugHistos=True,
+            DebugFileName="Debug_VTXEndcapDigitizer.root",
+        )
+
+        SiWrBarrelDigitizer = VTXdigitizerDetailed(
+            "SiWrBarrelDigitizer",
+            inputSimHits="SiWrBCollection",
+            outputDigiHits="SiWrBDigis",
+            outputSimDigiAssociation="SiWrBSimDigiLinks",
+            detectorName="SiWrB",
+            PixSizePhi=[siWrapperResolution_x]*2,  # FIXME check x/y vs theta/phi
+            PixSizeTheta=[siWrapperResolution_y]*2,  # FIXME check x/y vs theta/phi
+            tResolution=[siWrapperResolution_t]*2,
+            Threshold=100.0,  # FIXME
+            ThresholdSmearing=20.0,  # FIXME
+            OutputLevel=DEBUG,
+            DebugHistos=True,
+            DebugFileName="Debug_SiWrBarrelDigitizer.root",
+        )
+
+        SiWrEndcapDigitizer = VTXdigitizerDetailed(
+            "SiWrEndcapDigitizer",
+            inputSimHits="SiWrDCollection",
+            outputDigiHits="SiWrDDigis",
+            outputSimDigiAssociation="SiWrDSimDigiLinks",
+            detectorName="SiWrD",
+            PixSizePhi=[siWrapperResolution_x]*2,  # FIXME check x/y vs phi/theta
+            PixSizeTheta=[siWrapperResolution_y]*2,  # FIXME check x/y vs phi/theta
+            tResolution=[siWrapperResolution_t]*2,
+            Threshold=100.0,  # FIXME
+            ThresholdSmearing=20.0,  # FIXME
+            OutputLevel=DEBUG,
+            DebugHistos=True,
+            DebugFileName="Debug_SiWrEndcapDigitizer.root",
         )
 
         TopAlg += [ VXDBarrelDigitizer ]
