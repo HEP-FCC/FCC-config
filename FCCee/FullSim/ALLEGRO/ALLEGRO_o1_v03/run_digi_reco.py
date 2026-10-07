@@ -30,6 +30,7 @@ wire_tracker = SimpleNamespace(
     is_stt=False,
     drop_hits=False,
     drop_hits_command="DCHCollection*",
+    readoutWindowDuration_ns=450.,
 )
 
 run_digi_reco(path_to_detector, detectors_to_use, wire_tracker)
