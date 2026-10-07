@@ -1048,8 +1048,6 @@ def run_digi_reco(path_to_detector, detectors_to_use, wire_tracker):
             SignalVelocity_mm_per_ns=200.0,     # in mm/ns (Default: 2/3 of the speed of light)
             OutputLevel=INFO,
         )
-        if wire_tracker.is_stt:
-            wire_digi_kwargs["isSTT"] = True
         wire_digitizer = WireTrackerDigi_v01(wire_tracker.digi_algo_name, **wire_digi_kwargs)
         TopAlg += [wire_digitizer]
 
