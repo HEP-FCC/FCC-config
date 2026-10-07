@@ -11,7 +11,7 @@
 # Specialised steering files only need to set path_to_detector, detectors_to_use,
 # and a wire_tracker SimpleNamespace, then call run_digi_reco.
 
-from Gaudi.Configuration import INFO
+from Gaudi.Configuration import INFO, DEBUG
 from GaudiKernel.PhysicalConstants import pi
 
 
@@ -53,7 +53,8 @@ def add_parser_args(parser):
     parser.add_argument("--runTrkHitDigitization", type=str2bool, nargs="?", help="Digitize tracker hits", const=True, default=False)
     parser.add_argument("--useLegacyVTXDigitizer", type=str2bool, nargs="?", help="Perform VTXdigitizer-based digitization of tracker hits", const=True, default=False)
     parser.add_argument("--runTrkFinder", type=str2bool, nargs="?", help="Run Geometric Graph Track Finding (GGTF) on digitized tracker hits", const=True, default=False)
-    parser.add_argument("--runTrkFitter", type=str2bool, nargs="?", help="Run track fitter on tracks", const=True, default=False)
+    parser.add_argument("--runTrkFitter", type=str2bool, nargs="?", help="Run track fitter on tracks found by GGTF", const=True, default=False)
+    parser.add_argument("--runConformalTracking", type=str2bool, nargs="?", help="Run conformal tracking on digitized tracker hits", const=True, default=False)
     parser.add_argument("--runTrkValidation", type=str2bool, nargs="?", help="Run tracking validation", const=True, default=False)
 
 
@@ -585,23 +586,23 @@ def run_digi_reco(path_to_detector, detectors_to_use, wire_tracker):
         detector geometry to load.
     wire_tracker : SimpleNamespace
         Bundle of wire-tracker-specific configuration.  Required attributes:
-          det_id_key          – constant name in DectDimensions.xml, e.g. 'DetID_STT'
-          id_name             – key used in the IDs dict, e.g. 'STT'
-          hit_collection      – e.g. 'STTCollection'
-          digi_collection     – e.g. 'STTDigis'
-          sim_digi_links      – e.g. 'STTDigisSimAssociationCollection'
+          det_id_key               - constant name in DectDimensions.xml, e.g. 'DetID_STT'
+          id_name                  - key used in the IDs dict, e.g. 'STT'
+          hit_collection           - e.g. 'STTCollection'
+          digi_collection          - e.g. 'STTDigis'
+          sim_digi_links           - e.g. 'STTDigisSimAssociationCollection'
           dNdx_output_collection
           dNdx_Zmax_param
           dNdx_Zmin_param
           dNdx_Rmin_param
           dNdx_Rmax_param
           dNdx_fill_factor
-          digi_algo_name      – e.g. 'WireTrackerV1'
-          dchi_name           – e.g. 'STT_o1_v01'
-          is_stt              – bool, pass isSTT=True to WireTrackerDigi_v01 if True
-          drop_hits           – initial value of the dropWireHits flag
-          drop_hits_command   – collection pattern to drop, e.g. 'STTCollection*'
-          readoutWindowDuration_ns – duration of readout window in ns 
+          digi_algo_name           - e.g. 'WireTrackerV1'
+          dchi_name                - e.g. 'STT_o1_v01'
+          is_stt                   - bool, pass isSTT=True to WireTrackerDigi_v01 if True
+          drop_hits                - initial value of the dropWireHits flag
+          drop_hits_command        - collection pattern to drop, e.g. 'STTCollection*'
+          readoutWindowDuration_ns - duration of readout window in ns
     """
 
     import os
@@ -639,6 +640,7 @@ def run_digi_reco(path_to_detector, detectors_to_use, wire_tracker):
     useLegacyVTXDigitizer = opts.useLegacyVTXDigitizer  # digitize tracker hits (VTXdigitizer, smear truth)
     runTrkFinder = opts.runTrkFinder                    # run GGTF on digitized tracker hits
     runTrkFitter = opts.runTrkFitter                    # run track fitter on tracks
+    runConformalTracking = opts.runConformalTracking    # run conformal tracking on digitized tracker hits
     runTrkValidation = opts.runTrkValidation            # run tracking validation
 
     # ensure consistency among options
@@ -646,6 +648,7 @@ def run_digi_reco(path_to_detector, detectors_to_use, wire_tracker):
     if addRecoTracks: runTrkFitter = True               # tracks need track fitting
     if runTrkFitter: runTrkFinder = True                # track fitter needs track finder
     if runTrkFinder: runTrkHitDigitization = True       # track finding needs tracker hit digitization
+    if runConformalTracking: runTrkHitDigitization = True  # conformal tracking needs tracker hit digitization
 
     # - what to save in output file
     #
@@ -1052,6 +1055,76 @@ def run_digi_reco(path_to_detector, detectors_to_use, wire_tracker):
         wire_digitizer = WireTrackerDigi_v01(wire_tracker.digi_algo_name, **wire_digi_kwargs)
         TopAlg += [wire_digitizer]
 
+    if runConformalTracking:
+        from Configurables import ConformalTracking
+        tracking = ConformalTracking()
+        tracking.TrackerHitCollectionNames = [
+            "VTXBDigis",
+            "VTXDDigis",
+            "SiWrBDigis",
+            "SiWrDDigis",
+        ]
+        tracking.RelationsNames = [
+            "VTXBSimDigiLinks",
+            "VTXDSimDigiLinks",
+            "SiWrBSimDigiLinks",
+            "SiWrDSimDigiLinks",
+        ]
+        tracking.MCParticleCollectionName = ["MCParticles"]
+        tracking.SiTrackCollectionName = "NewSiTracks"
+
+        tracking.MainTrackerHitCollectionNames = [
+            "VTXBDigis",
+            "VTXDDigis",
+            "SiWrBDigis",
+            "SiWrDDigis",
+        ]
+        tracking.VertexBarrelHitCollectionNames = ["VTXBDigis"]
+        tracking.VertexEndcapHitCollectionNames = ["VTXDDigis"]
+
+        tracking.DebugPlots = True
+        tracking.DebugTiming = False
+        tracking.MaxHitInvertedFit = 0
+        tracking.MinClustersOnTrackAfterFit = 3
+        tracking.RetryTooManyTracks = False
+        tracking.SortTreeResults = True
+        tracking.ThetaRange = 0.05
+        tracking.TooManyTracks = 100000
+        tracking.trackPurity = 0.7
+
+        CT_MAX_DIST = 0.05
+
+        # The keys (VXDBarrel, VXDEndcap...) are simply names and are not passed to ConformalTracking
+        parameters = {
+            "SiliconTracking": {
+                "collections": ["VTXBDigis","VTXDDigis","SiWrBDigis","SiWrDDigis"],
+                "params": {
+                    "MaxCellAngle": 0.01,
+                    "MaxCellAngleRZ": 0.01,
+                    "Chi2Cut": 100,
+                    "MinClustersOnTrack": 3,
+                    "MaxDistance": CT_MAX_DIST,
+                    "SlopeZRange": 10.0,
+                    "HighPTCut": 10.0,
+                },
+                "flags": ["HighPTFit", "VertexToTracker"],
+                "functions": ["CombineCollections", "BuildNewTracks"],
+            },
+        }
+
+        from conformal_tracking_utils import configure_conformal_tracking_steps
+        configure_conformal_tracking_steps(tracking, parameters)
+        tracking.OutputLevel = DEBUG
+        TopAlg += [tracking]
+
+        from Configurables import RootHistSvc
+        from Configurables import Gaudi__Histograming__Sink__Root as RootHistoSink
+        hps = RootHistSvc("HistogramPersistencySvc")
+        root_hist_svc = RootHistoSink("RootHistoSink")
+        root_hist_svc.FileName = "ALLEGRO_conformal_tracking_hist.root"
+        ExtSvc += [root_hist_svc]
+
+
     if runTrkFinder:
         # Run consistency checks first
         if not runTrkHitDigitization:
@@ -1099,10 +1172,9 @@ def run_digi_reco(path_to_detector, detectors_to_use, wire_tracker):
             InitializationType = 1,
             SkipTrackOrdering = False,
             FilterTrackHits = True,
+            WireTrackerName = wire_tracker.dchi_name,
             OutputLevel=INFO,
         )
-        if wire_tracker.is_stt:
-            trk_fitter_kwargs["WireTrackerName"] = wire_tracker.dchi_name
         trackFitter = GenfitTrackFitter("GenfitTrackFitter", **trk_fitter_kwargs)
         TopAlg += [trackFitter]
 
@@ -1130,10 +1202,9 @@ def run_digi_reco(path_to_detector, detectors_to_use, wire_tracker):
             InitializationType=1,
             SkipTrackOrdering=False,
             FilterTrackHits=True,
+            WireTrackerName=wire_tracker.dchi_name,
             OutputLevel=INFO
         )
-        if wire_tracker.is_stt:
-            perf_fitter_kwargs["WireTrackerName"] = wire_tracker.dchi_name
         perfect_fitter = GenfitTrackFitter("PerfectTrackFitter", **perf_fitter_kwargs)
 
         TopAlg += [perfect_finder, perfect_fitter]
