@@ -21,4 +21,16 @@ ddsim --enableGun --gun.distribution uniform --gun.energy "10*GeV" --gun.particl
 ```
 
 ## Running the digitization and reconstruction
-This section will be included as soon as the `IDEA_o2` specific digitization code will be merged.
+
+```
+k4run run_digi_reco.py --IOSvc.Input IDEA_sim.root --IOSvc.Output IDEA_digi_reco.root
+```
+
+This runs the tracker digitization, truth tracking, the optical calorimeter digitization
+(`CreateOpticalCaloCells`) and the seed/merge/grow clustering, producing `TopoGrownClusters`.
+
+By default `run_digi_reco.py` sets `CI = True`, which uses the reduced barrel wedge
+(`IDEA_o2_v01_CI/IDEA_o2_v01_CI.xml`) and drops the dual-readout endcap collections. To run the full
+detector, set `CI = False` in the file and pass the full compact file to `ddsim` as shown above.
+
+`ctest_sim_digi_reco.sh` runs both steps on the reduced wedge and is what the CI test invokes.
