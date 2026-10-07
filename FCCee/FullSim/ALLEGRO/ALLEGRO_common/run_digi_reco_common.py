@@ -1046,6 +1046,7 @@ def run_digi_reco(path_to_detector, detectors_to_use, wire_tracker):
             ReadoutWindowDuration_ns=450.0,     # in ns
             DriftVelocity_um_per_ns=-1.0,       # in um/ns, if negative, automatically chosen based on GasType
             SignalVelocity_mm_per_ns=200.0,     # in mm/ns (Default: 2/3 of the speed of light)
+            isSTT=wire_tracker.is_stt,
             OutputLevel=INFO,
         )
         wire_digitizer = WireTrackerDigi_v01(wire_tracker.digi_algo_name, **wire_digi_kwargs)
