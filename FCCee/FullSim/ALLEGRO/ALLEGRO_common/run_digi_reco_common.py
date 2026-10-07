@@ -1074,8 +1074,8 @@ def run_digi_reco(path_to_detector, detectors_to_use, wire_tracker):
         tracking.SiTrackCollectionName = "NewSiTracks"
 
         tracking.MainTrackerHitCollectionNames = [
-            "VTXBDigis",
-            "VTXDDigis",
+            "VTXBDigis",  # should this be commented out? Isnt it double counted with vertex barrel and endcap hits?
+            "VTXDDigis",  # should this be commented out? Isnt it double counted with vertex barrel and endcap hits?
             "SiWrBDigis",
             "SiWrDDigis",
         ]
@@ -1091,6 +1091,9 @@ def run_digi_reco(path_to_detector, detectors_to_use, wire_tracker):
         tracking.ThetaRange = 0.05
         tracking.TooManyTracks = 100000
         tracking.trackPurity = 0.7
+        # system IDs of the ECal face surfaces used to extrapolate the tracks to the calorimeter
+        tracking.ECalBarrelFaceSystemID = IDs["ECAL_Barrel"]
+        tracking.ECalEndcapFaceSystemID = IDs["ECAL_Endcap"]
 
         CT_MAX_DIST = 0.05
 
@@ -1114,7 +1117,6 @@ def run_digi_reco(path_to_detector, detectors_to_use, wire_tracker):
 
         from conformal_tracking_utils import configure_conformal_tracking_steps
         configure_conformal_tracking_steps(tracking, parameters)
-        tracking.OutputLevel = DEBUG
         TopAlg += [tracking]
 
         from Configurables import RootHistSvc
