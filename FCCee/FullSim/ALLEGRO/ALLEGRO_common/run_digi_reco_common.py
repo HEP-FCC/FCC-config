@@ -601,6 +601,7 @@ def run_digi_reco(path_to_detector, detectors_to_use, wire_tracker):
           is_stt              – bool, pass isSTT=True to WireTrackerDigi_v01 if True
           drop_hits           – initial value of the dropWireHits flag
           drop_hits_command   – collection pattern to drop, e.g. 'STTCollection*'
+          readoutWindowDuration_ns – duration of readout window in ns 
     """
 
     import os
