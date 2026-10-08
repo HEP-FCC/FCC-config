@@ -138,6 +138,7 @@ k4run "${SCRIPT_DIR}/run_digi_reco.py"
 --runTRAPPIST
 --runTrkFinder
 --runTrkFitter
+--runConformalTracking
 )
 
 if [[ "${RUN_TRK_VALIDATION}" == true ]]; then
