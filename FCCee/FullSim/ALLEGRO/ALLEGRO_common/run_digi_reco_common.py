@@ -1058,47 +1058,26 @@ def run_digi_reco(path_to_detector, detectors_to_use, wire_tracker):
 
     if runConformalTracking:
         from Configurables import ConformalTracking
-        tracking = ConformalTracking()
-        tracking.TrackerHitCollectionNames = [
-            "VTXBDigis",
-            "VTXDDigis",
-            "SiWrBDigis",
-            "SiWrDDigis",
-        ]
-        tracking.RelationsNames = [
-            "VTXBSimDigiLinks",
-            "VTXDSimDigiLinks",
-            "SiWrBSimDigiLinks",
-            "SiWrDSimDigiLinks",
-        ]
-        tracking.MCParticleCollectionName = ["MCParticles"]
-        tracking.SiTrackCollectionName = "ConformalSiTracks"
+        conformalTracking = ConformalTracking("ConformalTracking",
+                                              TrackerHitCollectionNames=["VTXBDigis", "VTXDDigis", "SiWrBDigis", "SiWrDDigis"],
+                                              RelationsNames=["VTXBSimDigiLinks", "VTXDSimDigiLinks", "SiWrBSimDigiLinks", "SiWrDSimDigiLinks"],
+                                              MCParticleCollectionName=["MCParticles"],
+                                              SiTrackCollectionName="ConformalSiTracks"
+                                              MainTrackerHitCollectionNames=["VTXBDigis", "VTXDDigis", "SiWrBDigis", "SiWrDDigis"],
+                                              VertexBarrelHitCollectionNames=["VTXBDigis"],
+                                              VertexEndcapHitCollectionNames=["VTXDDigis"],
+                                              DebugPlots=True,
+                                              DebugTiming=False,
+                                              MaxHitInvertedFit=0,
+                                              MinClustersOnTrackAfterFit=3,
+                                              RetryTooManyTracks=False,
+                                              SortTreeResults=True,
+                                              ThetaRange=0.05,
+                                              TooManyTracks=100000,
+                                              trackPurity=0.7,
+                                              ECalBarrelFaceSystemID=IDs["ECAL_Barrel"],
+                                              ECalEndcapFaceSystemID=IDs["ECAL_Endcap"])
 
-        tracking.MainTrackerHitCollectionNames = [
-            "VTXBDigis",
-            "VTXDDigis",
-            "SiWrBDigis",
-            "SiWrDDigis",
-        ]
-        tracking.VertexBarrelHitCollectionNames = ["VTXBDigis"]
-        tracking.VertexEndcapHitCollectionNames = ["VTXDDigis"]
-
-        tracking.DebugPlots = True
-        tracking.DebugTiming = False
-        tracking.MaxHitInvertedFit = 0
-        tracking.MinClustersOnTrackAfterFit = 3
-        tracking.RetryTooManyTracks = False
-        tracking.SortTreeResults = True
-        tracking.ThetaRange = 0.05
-        tracking.TooManyTracks = 100000
-        tracking.trackPurity = 0.7
-        # system IDs of the ECal face surfaces used to extrapolate the tracks to the calorimeter
-        tracking.ECalBarrelFaceSystemID = IDs["ECAL_Barrel"]
-        tracking.ECalEndcapFaceSystemID = IDs["ECAL_Endcap"]
-
-        CT_MAX_DIST = 0.05
-
-        # The keys (VXDBarrel, VXDEndcap...) are simply names and are not passed to ConformalTracking
         parameters = {
             "SiliconTracking": {
                 "collections": ["VTXBDigis","VTXDDigis","SiWrBDigis","SiWrDDigis"],
@@ -1107,7 +1086,7 @@ def run_digi_reco(path_to_detector, detectors_to_use, wire_tracker):
                     "MaxCellAngleRZ": 0.01,
                     "Chi2Cut": 100,
                     "MinClustersOnTrack": 3,
-                    "MaxDistance": CT_MAX_DIST,
+                    "MaxDistance": 0.05
                     "SlopeZRange": 10.0,
                     "HighPTCut": 10.0,
                 },
@@ -1117,8 +1096,8 @@ def run_digi_reco(path_to_detector, detectors_to_use, wire_tracker):
         }
 
         from conformal_tracking_utils import configure_conformal_tracking_steps
-        configure_conformal_tracking_steps(tracking, parameters)
-        TopAlg += [tracking]
+        configure_conformal_tracking_steps(conformalTracking, parameters)
+        TopAlg += [conformalTracking]
 
         saveGaudiHists = True
 
