@@ -621,6 +621,7 @@ def run_digi_reco(path_to_detector, detectors_to_use, wire_tracker):
     # - general settings not set via CLI
     filterNoiseThreshold = -1                  # if addNoise is true, and filterNoiseThreshold is >0, will filter away cells with abs(energy) below filterNoiseThreshold * expected sigma(noise)
     # filterNoiseThreshold = 2                 # if addNoise is true, and filterNoiseThreshold is >0, will filter away cells with abs(energy) below filterNoiseThreshold * expected sigma(noise)
+    saveGaudiHists = False                     # save Gaudi::accumulator hists to separate ROOT files (they are filled by e.g. the DDPlanarDigi digitisers and ConformalTracking
 
     # - general settings set via CLI
     from k4FWCore.parseArgs import parser
@@ -1071,11 +1072,11 @@ def run_digi_reco(path_to_detector, detectors_to_use, wire_tracker):
             "SiWrDSimDigiLinks",
         ]
         tracking.MCParticleCollectionName = ["MCParticles"]
-        tracking.SiTrackCollectionName = "NewSiTracks"
+        tracking.SiTrackCollectionName = "ConformalSiTracks"
 
         tracking.MainTrackerHitCollectionNames = [
-            "VTXBDigis",  # should this be commented out? Isnt it double counted with vertex barrel and endcap hits?
-            "VTXDDigis",  # should this be commented out? Isnt it double counted with vertex barrel and endcap hits?
+            "VTXBDigis",
+            "VTXDDigis",
             "SiWrBDigis",
             "SiWrDDigis",
         ]
@@ -1119,13 +1120,7 @@ def run_digi_reco(path_to_detector, detectors_to_use, wire_tracker):
         configure_conformal_tracking_steps(tracking, parameters)
         TopAlg += [tracking]
 
-        from Configurables import RootHistSvc
-        from Configurables import Gaudi__Histograming__Sink__Root as RootHistoSink
-        hps = RootHistSvc("HistogramPersistencySvc")
-        root_hist_svc = RootHistoSink("RootHistoSink")
-        root_hist_svc.FileName = "ALLEGRO_conformal_tracking_hist.root"
-        ExtSvc += [root_hist_svc]
-
+        saveGaudiHists = True
 
     if runTrkFinder:
         # Run consistency checks first
@@ -1977,6 +1972,16 @@ def run_digi_reco(path_to_detector, detectors_to_use, wire_tracker):
                     "drop %s" % algo.unpairedClusters.Path
                )
 
+    # this dumps to a separate output ROOT file the Gaudi::accumulator histograms
+    # filled by the scheduled algorithms, in our case ConformalTracking (if enabled)
+    # and all the Si digitisers based on DDPlanarDigi
+    if saveGaudiHists:
+        from Configurables import RootHistSvc
+        from Configurables import Gaudi__Histograming__Sink__Root as RootHistoSink
+        hps = RootHistSvc("HistogramPersistencySvc")
+        root_hist_svc = RootHistoSink("RootHistoSink")
+        root_hist_svc.FileName = "ALLEGRO_gaudi_hist.root"
+        ExtSvc += [root_hist_svc]
 
     # configure the application
     print(TopAlg)
