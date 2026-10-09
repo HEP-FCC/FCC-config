@@ -1062,7 +1062,7 @@ def run_digi_reco(path_to_detector, detectors_to_use, wire_tracker):
                                               TrackerHitCollectionNames=["VTXBDigis", "VTXDDigis", "SiWrBDigis", "SiWrDDigis"],
                                               RelationsNames=["VTXBSimDigiLinks", "VTXDSimDigiLinks", "SiWrBSimDigiLinks", "SiWrDSimDigiLinks"],
                                               MCParticleCollectionName=["MCParticles"],
-                                              SiTrackCollectionName="ConformalSiTracks"
+                                              SiTrackCollectionName="ConformalSiTracks",
                                               MainTrackerHitCollectionNames=["VTXBDigis", "VTXDDigis", "SiWrBDigis", "SiWrDDigis"],
                                               VertexBarrelHitCollectionNames=["VTXBDigis"],
                                               VertexEndcapHitCollectionNames=["VTXDDigis"],
@@ -1086,7 +1086,7 @@ def run_digi_reco(path_to_detector, detectors_to_use, wire_tracker):
                     "MaxCellAngleRZ": 0.01,
                     "Chi2Cut": 100,
                     "MinClustersOnTrack": 3,
-                    "MaxDistance": 0.05
+                    "MaxDistance": 0.05,
                     "SlopeZRange": 10.0,
                     "HighPTCut": 10.0,
                 },
