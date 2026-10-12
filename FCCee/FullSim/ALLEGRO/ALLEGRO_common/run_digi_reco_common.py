@@ -1078,6 +1078,7 @@ def run_digi_reco(path_to_detector, detectors_to_use, wire_tracker):
                                               ECalBarrelFaceSystemID=IDs["ECAL_Barrel"],
                                               ECalEndcapFaceSystemID=IDs["ECAL_Endcap"])
 
+# the following parameters have not yet been tuned to ALLEGRO
         parameters = {
             "SiliconTracking": {
                 "collections": ["VTXBDigis","VTXDDigis","SiWrBDigis","SiWrDDigis"],
