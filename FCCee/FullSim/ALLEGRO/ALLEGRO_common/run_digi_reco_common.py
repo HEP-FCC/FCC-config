@@ -1068,6 +1068,7 @@ def run_digi_reco(path_to_detector, detectors_to_use, wire_tracker):
                                               VertexEndcapHitCollectionNames=["VTXDDigis"],
                                               DebugPlots=True,
                                               DebugTiming=False,
+                                              # the following parameters have not yet been tuned to ALLEGRO
                                               MaxHitInvertedFit=0,
                                               MinClustersOnTrackAfterFit=3,
                                               RetryTooManyTracks=False,
