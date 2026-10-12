@@ -621,7 +621,7 @@ def run_digi_reco(path_to_detector, detectors_to_use, wire_tracker):
     # - general settings not set via CLI
     filterNoiseThreshold = -1                  # if addNoise is true, and filterNoiseThreshold is >0, will filter away cells with abs(energy) below filterNoiseThreshold * expected sigma(noise)
     # filterNoiseThreshold = 2                 # if addNoise is true, and filterNoiseThreshold is >0, will filter away cells with abs(energy) below filterNoiseThreshold * expected sigma(noise)
-    saveGaudiHists = False                     # save Gaudi::accumulator hists to separate ROOT files (they are filled by e.g. the DDPlanarDigi digitisers and ConformalTracking
+    saveGaudiHists = False                     # save Gaudi::accumulator hists to separate ROOT files (they are filled by e.g. the DDPlanarDigi digitisers and ConformalTracking)
 
     # - general settings set via CLI
     from k4FWCore.parseArgs import parser
