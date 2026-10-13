@@ -51,7 +51,7 @@ def add_parser_args(parser):
     parser.add_argument("--runPhotonID", type=str2bool, nargs="?", help="Apply BDT-based photon ID tool to clusters", const=True, default=False)
     parser.add_argument("--runTRAPPIST", type=str2bool, nargs="?", help="Run TRAPPIST-based photon/pi0 ID", const=True, default=False)
     parser.add_argument("--runTrkHitDigitization", type=str2bool, nargs="?", help="Digitize tracker hits", const=True, default=False)
-    parser.add_argument("--useLegacyVTXDigitizer", type=str2bool, nargs="?", help="Perform VTXdigitizer-based digitization of tracker hits", const=True, default=False)
+    parser.add_argument("--siDigitizer", type=str.lower, choices=["vtxdigitizer", "ddplanardigi", "vtxdigitizerdetailed"], help="Digitizer for silicon tracker hits: vtxdigitizer (smear truth), ddplanardigi or vtxdigitizerdetailed (projection-based)", default="ddplanardigi")
     parser.add_argument("--runTrkFinder", type=str2bool, nargs="?", help="Run Geometric Graph Track Finding (GGTF) on digitized tracker hits", const=True, default=False)
     parser.add_argument("--runTrkFitter", type=str2bool, nargs="?", help="Run track fitter on tracks found by GGTF", const=True, default=False)
     parser.add_argument("--runConformalTracking", type=str2bool, nargs="?", help="Run conformal tracking on digitized tracker hits", const=True, default=False)
@@ -638,7 +638,7 @@ def run_digi_reco(path_to_detector, detectors_to_use, wire_tracker):
     addTruthTracks = opts.addTruthTracks                # add truth tracks or not
     addRecoTracks = opts.addTracks                      # add reco-levelh tracks or not (will turn on tracker hit digitization, track finding and fitting
     runTrkHitDigitization = opts.runTrkHitDigitization  # digitize tracker hits (DDPlanarDigi as default)
-    useLegacyVTXDigitizer = opts.useLegacyVTXDigitizer  # digitize tracker hits (VTXdigitizer, smear truth)
+    siDigitizer = opts.siDigitizer                      # digitizer for silicon tracker hits (vtxdigitizer, ddplanardigi or vtxdigitizerdetailed)
     runTrkFinder = opts.runTrkFinder                    # run GGTF on digitized tracker hits
     runTrkFitter = opts.runTrkFitter                    # run track fitter on tracks
     runConformalTracking = opts.runConformalTracking    # run conformal tracking on digitized tracker hits
@@ -941,7 +941,7 @@ def run_digi_reco(path_to_detector, detectors_to_use, wire_tracker):
         }
 
 
-        if useLegacyVTXDigitizer:
+        if siDigitizer == "vtxdigitizer":
             # digitize silicon hits through VTXdigitizer (smearing truth hits)
             from Configurables import VTXdigitizer
             vtxb_digitizer = VTXdigitizer("VTXBdigitizer",
@@ -1000,7 +1000,7 @@ def run_digi_reco(path_to_detector, detectors_to_use, wire_tracker):
                                            )
             TopAlg += [siwrd_digitizer]
 
-        elif False:
+        elif siDigitizer == "ddplanardigi":
             # digitize vertex hits through "native" DDPlanarDigi
             from Configurables import DDPlanarDigi
 
@@ -1032,7 +1032,8 @@ def run_digi_reco(path_to_detector, detectors_to_use, wire_tracker):
             TopAlg += [ VXDEndcapDigitizer ]
             TopAlg += [ SiWrBarrelDigitizer ]
             TopAlg += [ SiWrEndcapDigitizer ]
-        else:
+
+        elif siDigitizer == "vtxdigitizerdetailed":
             # use projection-based digitiser
             # note: in order to work, barrel detector need ZPlanarData extension and disks need ZDiskPetalsData extension
             # both containing layer information
@@ -1049,10 +1050,10 @@ def run_digi_reco(path_to_detector, detectors_to_use, wire_tracker):
                 PixSizePhi=vxd_barrel_digi_args["ResolutionU"],  # FIXME check x/y vs phi/theta
                 PixSizeTheta=vxd_barrel_digi_args["ResolutionV"],  # FIXME check x/y vs phi/theta
                 tResolution=vxd_barrel_digi_args["ResolutionT"],
-                Threshold=100.0,  # FIXME
-                ThresholdSmearing=20.0,  # FIXME
-                OutputLevel=DEBUG,
-                DebugHistos=True,
+                Threshold=0.0,  # FIXME
+                ThresholdSmearing=0.0,  # FIXME
+                OutputLevel=INFO,
+                DebugHistos=False,
                 DebugFileName="Debug_VTXBarrelDigitizer.root",
             )
 
@@ -1065,10 +1066,10 @@ def run_digi_reco(path_to_detector, detectors_to_use, wire_tracker):
                 PixSizePhi=vxd_endcap_digi_args["ResolutionU"],  # FIXME check x/y vs phi/theta
                 PixSizeTheta=vxd_endcap_digi_args["ResolutionV"],  # FIXME check x/y vs phi/theta
                 tResolution=vxd_endcap_digi_args["ResolutionT"],
-                Threshold=100.0,  # FIXME
-                ThresholdSmearing=20.0,  # FIXME
-                OutputLevel=DEBUG,
-                DebugHistos=True,
+                Threshold=0.0,  # FIXME
+                ThresholdSmearing=0.0,  # FIXME
+                OutputLevel=INFO,
+                DebugHistos=False,
                 DebugFileName="Debug_VTXEndcapDigitizer.root",
             )
 
@@ -1081,10 +1082,10 @@ def run_digi_reco(path_to_detector, detectors_to_use, wire_tracker):
                 PixSizePhi=siWr_barrel_digi_args["ResolutionU"],  # FIXME check x/y vs phi/theta
                 PixSizeTheta=siWr_barrel_digi_args["ResolutionV"],  # FIXME check x/y vs phi/theta
                 tResolution=siWr_barrel_digi_args["ResolutionT"],
-                Threshold=100.0,  # FIXME
-                ThresholdSmearing=20.0,  # FIXME
-                OutputLevel=DEBUG,
-                DebugHistos=True,
+                Threshold=0.0,  # FIXME
+                ThresholdSmearing=0.0,  # FIXME
+                OutputLevel=INFO,
+                DebugHistos=False,
                 DebugFileName="Debug_SiWrBarrelDigitizer.root",
             )
 
@@ -1097,10 +1098,10 @@ def run_digi_reco(path_to_detector, detectors_to_use, wire_tracker):
                 PixSizePhi=siWr_endcap_digi_args["ResolutionU"],  # FIXME check x/y vs phi/theta
                 PixSizeTheta=siWr_endcap_digi_args["ResolutionV"],  # FIXME check x/y vs phi/theta
                 tResolution=siWr_endcap_digi_args["ResolutionT"],
-                Threshold=100.0,  # FIXME
-                ThresholdSmearing=20.0,  # FIXME
-                OutputLevel=DEBUG,
-                DebugHistos=True,
+                Threshold=0.0,  # FIXME
+                ThresholdSmearing=0.0,  # FIXME
+                OutputLevel=INFO,
+                DebugHistos=False,
                 DebugFileName="Debug_SiWrEndcapDigitizer.root",
             )
 
@@ -1183,8 +1184,8 @@ def run_digi_reco(path_to_detector, detectors_to_use, wire_tracker):
         # Run consistency checks first
         if not runTrkHitDigitization:
             raise RuntimeError("To run the track finder, the tracker hits digitization must be enabled.")
-        if useLegacyVTXDigitizer:
-            raise RuntimeError("The track finder requires DDPlanarDigi digitization of silicon detector hits.")
+        if siDigitizer == "vtxdigitizer":
+            raise RuntimeError("The track finder does not support VTXdigitizer digitization of silicon detector hits.")
 
         # Load the GGTF, following example from:
         # k4RecTracker/Tracking/test/testTrackFinder/runTestTrackFinder.py
