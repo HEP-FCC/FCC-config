@@ -1063,7 +1063,7 @@ def run_digi_reco(path_to_detector, detectors_to_use, wire_tracker):
                                               RelationsNames=["VTXBSimDigiLinks", "VTXDSimDigiLinks", "SiWrBSimDigiLinks", "SiWrDSimDigiLinks"],
                                               MCParticleCollectionName=["MCParticles"],
                                               SiTrackCollectionName="ConformalSiTracks",
-                                              MainTrackerHitCollectionNames=["VTXBDigis", "VTXDDigis", "SiWrBDigis", "SiWrDDigis"],
+                                              MainTrackerHitCollectionNames=[],
                                               VertexBarrelHitCollectionNames=["VTXBDigis"],
                                               VertexEndcapHitCollectionNames=["VTXDDigis"],
                                               DebugPlots=True,
