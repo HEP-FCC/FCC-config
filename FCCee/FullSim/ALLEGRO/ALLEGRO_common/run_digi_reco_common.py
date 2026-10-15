@@ -11,7 +11,7 @@
 # Specialised steering files only need to set path_to_detector, detectors_to_use,
 # and a wire_tracker SimpleNamespace, then call run_digi_reco.
 
-from Gaudi.Configuration import INFO, DEBUG
+from Gaudi.Configuration import INFO, WARNING, DEBUG
 from GaudiKernel.PhysicalConstants import pi
 
 
@@ -51,7 +51,7 @@ def add_parser_args(parser):
     parser.add_argument("--runPhotonID", type=str2bool, nargs="?", help="Apply BDT-based photon ID tool to clusters", const=True, default=False)
     parser.add_argument("--runTRAPPIST", type=str2bool, nargs="?", help="Run TRAPPIST-based photon/pi0 ID", const=True, default=False)
     parser.add_argument("--runTrkHitDigitization", type=str2bool, nargs="?", help="Digitize tracker hits", const=True, default=False)
-    parser.add_argument("--useLegacyVTXDigitizer", type=str2bool, nargs="?", help="Perform VTXdigitizer-based digitization of tracker hits", const=True, default=False)
+    parser.add_argument("--siDigitizer", type=str.lower, choices=["vtxdigitizer", "ddplanardigi", "vtxdigitizerdetailed"], help="Digitizer for silicon tracker hits: vtxdigitizer (smear truth), ddplanardigi or vtxdigitizerdetailed (projection-based)", default="ddplanardigi")
     parser.add_argument("--runTrkFinder", type=str2bool, nargs="?", help="Run Geometric Graph Track Finding (GGTF) on digitized tracker hits", const=True, default=False)
     parser.add_argument("--runTrkFitter", type=str2bool, nargs="?", help="Run track fitter on tracks found by GGTF", const=True, default=False)
     parser.add_argument("--runConformalTracking", type=str2bool, nargs="?", help="Run conformal tracking on digitized tracker hits", const=True, default=False)
@@ -638,7 +638,7 @@ def run_digi_reco(path_to_detector, detectors_to_use, wire_tracker):
     addTruthTracks = opts.addTruthTracks                # add truth tracks or not
     addRecoTracks = opts.addTracks                      # add reco-levelh tracks or not (will turn on tracker hit digitization, track finding and fitting
     runTrkHitDigitization = opts.runTrkHitDigitization  # digitize tracker hits (DDPlanarDigi as default)
-    useLegacyVTXDigitizer = opts.useLegacyVTXDigitizer  # digitize tracker hits (VTXdigitizer, smear truth)
+    siDigitizer = opts.siDigitizer                      # digitizer for silicon tracker hits (vtxdigitizer, ddplanardigi or vtxdigitizerdetailed)
     runTrkFinder = opts.runTrkFinder                    # run GGTF on digitized tracker hits
     runTrkFitter = opts.runTrkFitter                    # run track fitter on tracks
     runConformalTracking = opts.runConformalTracking    # run conformal tracking on digitized tracker hits
@@ -791,11 +791,12 @@ def run_digi_reco(path_to_detector, detectors_to_use, wire_tracker):
     ]
     ExtSvc += [geoservice]
 
-    # retrieve subdetector IDs
+    # retrieve subdetector IDs and some other constants from DectDimensions.xml
     import xml.etree.ElementTree as ET
     tree = ET.parse(path_to_detector + 'DectDimensions.xml')
     root = tree.getroot()
     IDs = {}
+    siWrapperNlayers = 0
     for constant in root.find('define').findall('constant'):
         if (
             constant.get('name') == 'DetID_VXD_Barrel'
@@ -812,9 +813,18 @@ def run_digi_reco(path_to_detector, detectors_to_use, wire_tracker):
             IDs[constant.get("name")[6:]] = int(constant.get('value'))
         if (constant.get('name') == 'DetID_Muon_Endcap_1'):
             IDs[constant.get("name")[6:-2]] = int(constant.get('value'))
+        if (constant.get('name') == 'SiWr_nLayers'):
+            siWrapperNlayers = int(constant.get('value'))
+
     # debug
     print("Subdetector IDs:")
     print(IDs)
+
+    if siWrapperNlayers == 0:
+        print("Could not read number of SiWr layers from DectDimensions.xml, will default to 1")
+        siWrapperNlayers = 1
+    else:
+        print("Number of SiWr layers from DectDimensions.xml:", siWrapperNlayers)
 
     # Input/Output handling
     from k4FWCore import IOSvc
@@ -871,21 +881,29 @@ def run_digi_reco(path_to_detector, detectors_to_use, wire_tracker):
         import math
         # different sensors for inner and outer barrel/disks layers (see https://indico.cern.ch/event/1244371/contributions/5350233)
         # but assume DRD3 OCTOPUS resolutions (see https://indico.cern.ch/event/1702794/contributions/7161947/attachments/3320556/5945016/ALLEGRO_ID_INTRODUCTION_28July.pdf)
+        innerVertexPitch_x = 0.020      # [mm]
+        innerVertexPitch_y = 0.020      # [mm]
         innerVertexResolution_x = 0.003 # [mm], assume 3 µm resolution for DRD3 OCTOPUS sensors
         innerVertexResolution_y = 0.003 # [mm], assume 3 µm resolution for DRD3 OCTOPUS sensors
         innerVertexResolution_t = 5     # [ns], assume 5 ns timing resolution from time-over-threshold for DRD3 OCTOPUS sensors
         innerVertexNlayers = 3          # Set this to 4 when using the ultra-light inner vertex detector and to 5 when using FCC-SEED (set in $K4GEO/FCCee/IDEA/compact/IDEA_o1_v04/VertexComplete_o1_v04.xml)
 
+        outerVertexPitch_x = 0.020      # [mm]
+        outerVertexPitch_y = 0.020      # [mm]
         outerVertexResolution_x = 0.003 # [mm], assume 3 µm resolution for DRD3 OCTOPUS sensors
         outerVertexResolution_y = 0.003 # [mm], assume 3 µm resolution for DRD3 OCTOPUS sensors
         outerVertexResolution_t = 5     # [ns], assume 5 ns timing resolution from time-over-threshold for DRD3 OCTOPUS sensors
-
         outerVertexBarrelNlayers = 2
 
+        vertexDisksNlayers = 3
+
         # silicon wrapper hits parameters
-        siWrapperResolution_x = 0.050 / math.sqrt(12)  # [mm], assume 50 µm pitch for the silicon wrapper (hybrid LGADs or monolithic sensor with gain), leading to a binary resolution of 50/sqrt(12) µm
-        siWrapperResolution_y = 0.050 / math.sqrt(12)  # [mm], assume 50 µm pitch for the silicon wrapper (hybrid LGADs or monolithic sensor with gain), leading to a binary resolution of 50/sqrt(12) µm
+        siWrapperPitch_x = 0.050      # [mm], assume 50 µm pitch for the silicon wrapper (hybrid LGADs or monolithic sensor with gain)
+        siWrapperPitch_y = 0.050      # [mm], assume 50 µm pitch for the silicon wrapper (hybrid LGADs or monolithic sensor with gain)
+        siWrapperResolution_x = siWrapperPitch_x / math.sqrt(12)  # [mm], assume binary readout
+        siWrapperResolution_y = siWrapperPitch_y / math.sqrt(12)  # [mm], assume binary readout
         siWrapperResolution_t = 0.040                  # [ns], assume 40 ps timing resolution per hit
+        siWrapperStavesPerLayer = 2   # number of staves per layer for the silicon wrapper
 
         # Define arguments for digitizers
         vxd_barrel_digi_args = {
@@ -903,9 +921,9 @@ def run_digi_reco(path_to_detector, detectors_to_use, wire_tracker):
 
         vxd_endcap_digi_args = {
             "IsStrip": False,
-            "ResolutionU": [outerVertexResolution_x]*3,
-            "ResolutionV": [outerVertexResolution_y]*3,
-            "ResolutionT": [outerVertexResolution_t]*3,
+            "ResolutionU": [outerVertexResolution_x]*vertexDisksNlayers,
+            "ResolutionV": [outerVertexResolution_y]*vertexDisksNlayers,
+            "ResolutionT": [outerVertexResolution_t]*vertexDisksNlayers,
             "SimTrackHitCollectionName": ["VertexEndcapCollection"],
             "SimTrkHitRelCollection": ["VTXDSimDigiLinks"],
             "SubDetectorName": "VertexDisks",
@@ -916,9 +934,9 @@ def run_digi_reco(path_to_detector, detectors_to_use, wire_tracker):
 
         siWr_barrel_digi_args = {
             "IsStrip": False,
-            "ResolutionU": [siWrapperResolution_x]*2,
-            "ResolutionV": [siWrapperResolution_y]*2,
-            "ResolutionT": [siWrapperResolution_t]*2,
+            "ResolutionU": [siWrapperResolution_x]*siWrapperNlayers*siWrapperStavesPerLayer,
+            "ResolutionV": [siWrapperResolution_y]*siWrapperNlayers*siWrapperStavesPerLayer,
+            "ResolutionT": [siWrapperResolution_t]*siWrapperNlayers*siWrapperStavesPerLayer,
             "SimTrackHitCollectionName": ["SiWrBCollection"],
             "SimTrkHitRelCollection": ["SiWrBSimDigiLinks"],
             "SubDetectorName": "SiWrB",
@@ -929,9 +947,9 @@ def run_digi_reco(path_to_detector, detectors_to_use, wire_tracker):
 
         siWr_endcap_digi_args = {
             "IsStrip": False,
-            "ResolutionU": [siWrapperResolution_x]*2,
-            "ResolutionV": [siWrapperResolution_y]*2,
-            "ResolutionT": [siWrapperResolution_t]*2,
+            "ResolutionU": [siWrapperResolution_x]*siWrapperNlayers*siWrapperStavesPerLayer,
+            "ResolutionV": [siWrapperResolution_y]*siWrapperNlayers*siWrapperStavesPerLayer,
+            "ResolutionT": [siWrapperResolution_t]*siWrapperNlayers*siWrapperStavesPerLayer,
             "SimTrackHitCollectionName": ["SiWrDCollection"],
             "SimTrkHitRelCollection": ["SiWrDSimDigiLinks"],
             "SubDetectorName": "SiWrD",
@@ -941,7 +959,7 @@ def run_digi_reco(path_to_detector, detectors_to_use, wire_tracker):
         }
 
 
-        if useLegacyVTXDigitizer:
+        if siDigitizer == "vtxdigitizer":
             # digitize silicon hits through VTXdigitizer (smearing truth hits)
             from Configurables import VTXdigitizer
             vtxb_digitizer = VTXdigitizer("VTXBdigitizer",
@@ -1000,7 +1018,7 @@ def run_digi_reco(path_to_detector, detectors_to_use, wire_tracker):
                                            )
             TopAlg += [siwrd_digitizer]
 
-        else:
+        elif siDigitizer == "ddplanardigi":
             # digitize vertex hits through "native" DDPlanarDigi
             from Configurables import DDPlanarDigi
 
@@ -1026,6 +1044,84 @@ def run_digi_reco(path_to_detector, detectors_to_use, wire_tracker):
                 "SiWrEndcapDigitizer",
                 **siWr_endcap_digi_args,
                 OutputLevel=INFO
+            )
+
+            TopAlg += [ VXDBarrelDigitizer ]
+            TopAlg += [ VXDEndcapDigitizer ]
+            TopAlg += [ SiWrBarrelDigitizer ]
+            TopAlg += [ SiWrEndcapDigitizer ]
+
+        elif siDigitizer == "vtxdigitizerdetailed":
+
+            # use projection-based digitiser
+            # note: in order to work, barrel detector need ZPlanarData extension and disks need ZDiskPetalsData extension
+            # both containing layer information
+            # from which the sensor thickness is determined
+            # see also https://github.com/key4hep/k4geo/blob/e1ba7bc3e0d7291ebe3f6a02abfa784f879e36cb/detector/tracker/VertexEndcap_o1_v06_geo.cpp#L117
+            from Configurables import VTXdigitizerDetailed
+
+            VXDBarrelDigitizer = VTXdigitizerDetailed(
+                "VXDBarrelDigitizer",
+                inputSimHits="VertexBarrelCollection",
+                outputDigiHits="VTXBDigis",
+                outputSimDigiAssociation="VTXBSimDigiLinks",
+                detectorName="Vertex",  # compound detector: inner and outer vertex barrels both write to VertexBarrelCollection
+                PixSizePhi=[innerVertexPitch_x]*innerVertexNlayers + [outerVertexPitch_x]*outerVertexBarrelNlayers,  # FIXME check x/y vs phi/theta
+                PixSizeTheta=[innerVertexPitch_y]*innerVertexNlayers + [outerVertexPitch_y]*outerVertexBarrelNlayers,  # FIXME check x/y vs phi/theta
+                tResolution=vxd_barrel_digi_args["ResolutionT"],
+                Threshold=0.0,  # FIXME add proper threshold
+                ThresholdSmearing=0.0,  # FIXME add proper threshold smearing
+                OutputLevel=INFO,
+                DebugHistos=True,
+                DebugFileName="Debug_VTXBarrelDigitizer.root",
+            )
+
+            VXDEndcapDigitizer = VTXdigitizerDetailed(
+                "VXDEndcapDigitizer",
+                inputSimHits="VertexEndcapCollection",
+                outputDigiHits="VTXDDigis",
+                outputSimDigiAssociation="VTXDSimDigiLinks",
+                detectorName="VertexDisks",
+                PixSizePhi=[outerVertexPitch_x]*vertexDisksNlayers,  # FIXME check x/y vs phi/theta
+                PixSizeTheta=[outerVertexPitch_y]*vertexDisksNlayers,  # FIXME check x/y vs phi/theta
+                tResolution=vxd_endcap_digi_args["ResolutionT"],
+                Threshold=0.0,  # FIXME add proper threshold
+                ThresholdSmearing=0.0,  # FIXME add proper threshold smearing
+                OutputLevel=INFO,
+                DebugHistos=False,
+                DebugFileName="Debug_VTXEndcapDigitizer.root",
+            )
+
+            SiWrBarrelDigitizer = VTXdigitizerDetailed(
+                "SiWrBarrelDigitizer",
+                inputSimHits="SiWrBCollection",
+                outputDigiHits="SiWrBDigis",
+                outputSimDigiAssociation="SiWrBSimDigiLinks",
+                detectorName="SiWrB",
+                PixSizePhi=[siWrapperPitch_x]*siWrapperNlayers*siWrapperStavesPerLayer,  # FIXME check x/y vs phi/theta
+                PixSizeTheta=[siWrapperPitch_y]*siWrapperNlayers*siWrapperStavesPerLayer,  # FIXME check x/y vs phi/theta
+                tResolution=siWr_barrel_digi_args["ResolutionT"],
+                Threshold=0.0,  # FIXME add proper threshold
+                ThresholdSmearing=0.0,  # FIXME add proper threshold smearing
+                OutputLevel=INFO,
+                DebugHistos=False,
+                DebugFileName="Debug_SiWrBarrelDigitizer.root",
+            )
+
+            SiWrEndcapDigitizer = VTXdigitizerDetailed(
+                "SiWrEndcapDigitizer",
+                inputSimHits="SiWrDCollection",
+                outputDigiHits="SiWrDDigis",
+                outputSimDigiAssociation="SiWrDSimDigiLinks",
+                detectorName="SiWrD",
+                PixSizePhi=[siWrapperPitch_x]*siWrapperNlayers*siWrapperStavesPerLayer,  # FIXME check x/y vs phi/theta
+                PixSizeTheta=[siWrapperPitch_y]*siWrapperNlayers*siWrapperStavesPerLayer,  # FIXME check x/y vs phi/theta
+                tResolution=siWr_endcap_digi_args["ResolutionT"],
+                Threshold=0.0,  # FIXME add proper threshold
+                ThresholdSmearing=0.0,  # FIXME add proper threshold smearing
+                OutputLevel=INFO,
+                DebugHistos=False,
+                DebugFileName="Debug_SiWrEndcapDigitizer.root",
             )
 
             TopAlg += [ VXDBarrelDigitizer ]
@@ -1077,7 +1173,8 @@ def run_digi_reco(path_to_detector, detectors_to_use, wire_tracker):
                                               TooManyTracks=100000,
                                               trackPurity=0.7,
                                               ECalBarrelFaceSystemID=IDs["ECAL_Barrel"],
-                                              ECalEndcapFaceSystemID=IDs["ECAL_Endcap"])
+                                              ECalEndcapFaceSystemID=IDs["ECAL_Endcap"],
+                                              OutputLevel=DEBUG)
 
         # the following parameters have not yet been tuned to ALLEGRO
         parameters = {
@@ -1107,8 +1204,8 @@ def run_digi_reco(path_to_detector, detectors_to_use, wire_tracker):
         # Run consistency checks first
         if not runTrkHitDigitization:
             raise RuntimeError("To run the track finder, the tracker hits digitization must be enabled.")
-        if useLegacyVTXDigitizer:
-            raise RuntimeError("The track finder requires DDPlanarDigi digitization of silicon detector hits.")
+        if siDigitizer == "vtxdigitizer":
+            raise RuntimeError("The track finder does not support VTXdigitizer digitization of silicon detector hits.")
 
         # Load the GGTF, following example from:
         # k4RecTracker/Tracking/test/testTrackFinder/runTestTrackFinder.py
