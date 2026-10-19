@@ -901,28 +901,31 @@ def run_digi_reco(path_to_detector, detectors_to_use, wire_tracker):
         # segmentations (barrels: x = phi, y = z; disks: x = r, y = phi)
         innerVertexPitch_x = geoConstants["VTXIB_pitch_phi"]
         innerVertexPitch_y = geoConstants["VTXIB_pitch_z"]
+        innerVertexNlayers = 3          # Set this to 4 when using the ultra-light inner vertex detector and to 5 when using FCC-SEED (set in $K4GEO/FCCee/IDEA/compact/IDEA_o1_v04/VertexComplete_o1_v04.xml)
         if debug:
+            print("Inner vertex barrel number of layers:", innerVertexNlayers)
             print("Inner vertex barrel pitch x (phi) [mm]:", innerVertexPitch_x)
             print("Inner vertex barrel pitch y (z) [mm]:", innerVertexPitch_y)
         innerVertexResolution_x = 0.003 # [mm], assume 3 µm resolution for DRD3 OCTOPUS sensors
         innerVertexResolution_y = 0.003 # [mm], assume 3 µm resolution for DRD3 OCTOPUS sensors
         innerVertexResolution_t = 5     # [ns], assume 5 ns timing resolution from time-over-threshold for DRD3 OCTOPUS sensors
-        innerVertexNlayers = 3          # Set this to 4 when using the ultra-light inner vertex detector and to 5 when using FCC-SEED (set in $K4GEO/FCCee/IDEA/compact/IDEA_o1_v04/VertexComplete_o1_v04.xml)
 
         outerVertexPitch_x = geoConstants["VTXOB_pitch_phi"]
         outerVertexPitch_y = geoConstants["VTXOB_pitch_z"]
+        outerVertexBarrelNlayers = 2
         if debug:
+            print("Outer vertex barrel number of layers:", outerVertexBarrelNlayers)
             print("Outer vertex barrel pitch x (phi) [mm]:", outerVertexPitch_x)
             print("Outer vertex barrel pitch y (z) [mm]:", outerVertexPitch_y)
         outerVertexResolution_x = 0.003 # [mm], assume 3 µm resolution for DRD3 OCTOPUS sensors
         outerVertexResolution_y = 0.003 # [mm], assume 3 µm resolution for DRD3 OCTOPUS sensors
         outerVertexResolution_t = 5     # [ns], assume 5 ns timing resolution from time-over-threshold for DRD3 OCTOPUS sensors
-        outerVertexBarrelNlayers = 2
 
         vertexDisksNlayers = 3
         vertexDisksPitch_x = geoConstants["VTXD_pitch_r"]
         vertexDisksPitch_y = geoConstants["VTXD_pitch_phi"]
         if debug:
+            print("Vertex disks number of layers:", vertexDisksNlayers)
             print("Vertex disks pitch x (r) [mm]:", vertexDisksPitch_x)
             print("Vertex disks pitch y (phi) [mm]:", vertexDisksPitch_y)
 
@@ -934,6 +937,11 @@ def run_digi_reco(path_to_detector, detectors_to_use, wire_tracker):
         siWrBarrelPitch_y = [geoConstants[f"SiWrB_pitch_z{layer}"] for layer in range(siWrapperNlayers)]
         siWrDisksPitch_x = [geoConstants[f"SiWrD_pitch_r{layer}"] for layer in range(siWrapperNlayers)]
         siWrDisksPitch_y = [geoConstants[f"SiWrD_pitch_phi{layer}"] for layer in range(siWrapperNlayers)]
+        if debug:
+            print("SiWr barrel pitch x (phi) [mm]:", siWrBarrelPitch_x)
+            print("SiWr barrel pitch y (z) [mm]:", siWrBarrelPitch_y)
+            print("SiWr disks pitch x (r) [mm]:", siWrDisksPitch_x)
+            print("SiWr disks pitch y (phi) [mm]:", siWrDisksPitch_y)
         # assume binary readout
         siWrBarrelResolution_x = [pitch / math.sqrt(12) for pitch in siWrBarrelPitch_x]
         siWrBarrelResolution_y = [pitch / math.sqrt(12) for pitch in siWrBarrelPitch_y]
