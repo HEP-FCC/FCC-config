@@ -11,12 +11,13 @@
 # Specialised steering files only need to set path_to_detector, detectors_to_use,
 # and a wire_tracker SimpleNamespace, then call run_digi_reco.
 
-from doctest import debug
-
-from tabnanny import verbose
-
 from Gaudi.Configuration import INFO, WARNING, DEBUG
 from GaudiKernel.PhysicalConstants import pi
+
+# debug printouts and verbosity: module-level so that they are also seen by the helper functions below,
+# set from the --debug and --verbose options in run_digi_reco
+debug = False
+verbose = False
 
 
 # ---------------------------------------------------------------------------
@@ -650,6 +651,7 @@ def run_digi_reco(path_to_detector, detectors_to_use, wire_tracker):
     runTrkFitter = opts.runTrkFitter                    # run track fitter on tracks
     runConformalTracking = opts.runConformalTracking    # run conformal tracking on digitized tracker hits
     runTrkValidation = opts.runTrkValidation            # run tracking validation
+    global debug, verbose
     debug = opts.debug                                  # print some debug statements
     verbose = opts.verbose                              # as debug and in addition set the output level of all algorithms to DEBUG
 
