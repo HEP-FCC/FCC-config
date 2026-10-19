@@ -11,6 +11,10 @@
 # Specialised steering files only need to set path_to_detector, detectors_to_use,
 # and a wire_tracker SimpleNamespace, then call run_digi_reco.
 
+from doctest import debug
+
+from tabnanny import verbose
+
 from Gaudi.Configuration import INFO, WARNING, DEBUG
 from GaudiKernel.PhysicalConstants import pi
 
@@ -56,6 +60,8 @@ def add_parser_args(parser):
     parser.add_argument("--runTrkFitter", type=str2bool, nargs="?", help="Run track fitter on tracks found by GGTF", const=True, default=False)
     parser.add_argument("--runConformalTracking", type=str2bool, nargs="?", help="Run conformal tracking on digitized tracker hits", const=True, default=False)
     parser.add_argument("--runTrkValidation", type=str2bool, nargs="?", help="Run tracking validation", const=True, default=False)
+    parser.add_argument("--debug", type=str2bool, nargs="?", help="Print debug information", const=True, default=False)
+    parser.add_argument("--verbose", type=str2bool, nargs="?", help="Set the output level of all algorithms to DEBUG", const=True, default=False)
 
 
 # ---------------------------------------------------------------------------
@@ -117,10 +123,11 @@ def setupSWClusters(inputCells,
         cells.append(v)
         caloIDs.append(cfg.IDs[k])
     # DEBUG
-    print("Input cells")
-    print(cells)
-    print("Calo IDs")
-    print(caloIDs)
+    if debug:
+        print("Input cells")
+        print(cells)
+        print("Calo IDs")
+        print(caloIDs)
     # note: caloIDs is optional, needed only when createClusterCellCollection=True to save in metadata the mapping between
     # cell collections and systemID
     towerTool = CaloTowerToolFCCee(outputClusters + "TowerTool",
@@ -643,8 +650,11 @@ def run_digi_reco(path_to_detector, detectors_to_use, wire_tracker):
     runTrkFitter = opts.runTrkFitter                    # run track fitter on tracks
     runConformalTracking = opts.runConformalTracking    # run conformal tracking on digitized tracker hits
     runTrkValidation = opts.runTrkValidation            # run tracking validation
+    debug = opts.debug                                  # print some debug statements
+    verbose = opts.verbose                              # as debug and in addition set the output level of all algorithms to DEBUG
 
     # ensure consistency among options
+    if verbose: debug = True
     if runTrkValidation: addRecoTracks = True           # track validation needs tracks
     if addRecoTracks: runTrkFitter = True               # tracks need track fitting
     if runTrkFitter: runTrkFinder = True                # track fitter needs track finder
@@ -782,8 +792,8 @@ def run_digi_reco(path_to_detector, detectors_to_use, wire_tracker):
     # if K4GEO is empty, this should use relative path to working directory
     from Configurables import GeoSvc
     geoservice = GeoSvc("GeoSvc",
-                        OutputLevel=INFO
-                        # OutputLevel=DEBUG  # set to DEBUG to print dd4hep::DEBUG messages in k4geo C++ drivers
+                        # DEBUG also prints the dd4hep::DEBUG messages of the k4geo C++ drivers
+                        OutputLevel=DEBUG if verbose else INFO
                         )
 
     geoservice.detectors = [
@@ -825,9 +835,9 @@ def run_digi_reco(path_to_detector, detectors_to_use, wire_tracker):
         key = detIDName[6:-2] if detIDName == 'DetID_Muon_Endcap_1' else detIDName[6:]
         IDs[key] = int(geoConstants[detIDName])
 
-    # debug
-    print("Subdetector IDs:")
-    print(IDs)
+    if debug:
+        print("Subdetector IDs:")
+        print(IDs)
 
     siWrapperNlayers = int(geoConstants['SiWr_nLayers'])
     print("Number of SiWr layers from DectDimensions.xml:", siWrapperNlayers)
@@ -891,6 +901,9 @@ def run_digi_reco(path_to_detector, detectors_to_use, wire_tracker):
         # segmentations (barrels: x = phi, y = z; disks: x = r, y = phi)
         innerVertexPitch_x = geoConstants["VTXIB_pitch_phi"]
         innerVertexPitch_y = geoConstants["VTXIB_pitch_z"]
+        if debug:
+            print("Inner vertex barrel pitch x (phi) [mm]:", innerVertexPitch_x)
+            print("Inner vertex barrel pitch y (z) [mm]:", innerVertexPitch_y)
         innerVertexResolution_x = 0.003 # [mm], assume 3 µm resolution for DRD3 OCTOPUS sensors
         innerVertexResolution_y = 0.003 # [mm], assume 3 µm resolution for DRD3 OCTOPUS sensors
         innerVertexResolution_t = 5     # [ns], assume 5 ns timing resolution from time-over-threshold for DRD3 OCTOPUS sensors
@@ -898,6 +911,9 @@ def run_digi_reco(path_to_detector, detectors_to_use, wire_tracker):
 
         outerVertexPitch_x = geoConstants["VTXOB_pitch_phi"]
         outerVertexPitch_y = geoConstants["VTXOB_pitch_z"]
+        if debug:
+            print("Outer vertex barrel pitch x (phi) [mm]:", outerVertexPitch_x)
+            print("Outer vertex barrel pitch y (z) [mm]:", outerVertexPitch_y)
         outerVertexResolution_x = 0.003 # [mm], assume 3 µm resolution for DRD3 OCTOPUS sensors
         outerVertexResolution_y = 0.003 # [mm], assume 3 µm resolution for DRD3 OCTOPUS sensors
         outerVertexResolution_t = 5     # [ns], assume 5 ns timing resolution from time-over-threshold for DRD3 OCTOPUS sensors
@@ -906,6 +922,9 @@ def run_digi_reco(path_to_detector, detectors_to_use, wire_tracker):
         vertexDisksNlayers = 3
         vertexDisksPitch_x = geoConstants["VTXD_pitch_r"]
         vertexDisksPitch_y = geoConstants["VTXD_pitch_phi"]
+        if debug:
+            print("Vertex disks pitch x (r) [mm]:", vertexDisksPitch_x)
+            print("Vertex disks pitch y (phi) [mm]:", vertexDisksPitch_y)
 
         # silicon wrapper hits parameters
         siWrapperResolution_t = 0.040                  # [ns], assume 40 ps timing resolution per hit
@@ -1088,7 +1107,7 @@ def run_digi_reco(path_to_detector, detectors_to_use, wire_tracker):
                 Threshold=0.0,  # FIXME add proper threshold
                 ThresholdSmearing=0.0,  # FIXME add proper threshold smearing
                 OutputLevel=INFO,
-                DebugHistos=True,
+                DebugHistos=False,
                 DebugFileName="Debug_VTXBarrelDigitizer.root",
             )
 
@@ -1190,7 +1209,7 @@ def run_digi_reco(path_to_detector, detectors_to_use, wire_tracker):
                                               trackPurity=0.7,
                                               ECalBarrelFaceSystemID=IDs["ECAL_Barrel"],
                                               ECalEndcapFaceSystemID=IDs["ECAL_Endcap"],
-                                              OutputLevel=DEBUG)
+                                              OutputLevel=INFO)
 
         # the following parameters have not yet been tuned to ALLEGRO
         parameters = {
@@ -2091,5 +2110,5 @@ def run_digi_reco(path_to_detector, detectors_to_use, wire_tracker):
 
     for algo in applicationMgr.TopAlg:
         algo.AuditExecute = True
-        # for debug
-        # algo.OutputLevel = DEBUG
+        if verbose:
+            algo.OutputLevel = DEBUG
