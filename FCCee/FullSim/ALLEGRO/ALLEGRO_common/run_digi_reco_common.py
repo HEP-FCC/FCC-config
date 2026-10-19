@@ -791,40 +791,46 @@ def run_digi_reco(path_to_detector, detectors_to_use, wire_tracker):
     ]
     ExtSvc += [geoservice]
 
-    # retrieve subdetector IDs and some other constants from DectDimensions.xml
+    # retrieve subdetector IDs and some other constants from DectDimensions.xml:
+    # geoConstants["NAME"] evaluates the expression of the constant NAME, including units (lengths are returned in
+    # mm) and references to other constants
+    import math
     import xml.etree.ElementTree as ET
-    tree = ET.parse(path_to_detector + 'DectDimensions.xml')
-    root = tree.getroot()
+
+    class GeoConstants(dict):
+        def __init__(self, expressions):
+            super().__init__(mm=1., cm=10., m=1000., um=1.e-3, micrometer=1.e-3, nm=1.e-6,
+                             pi=math.pi, sqrt=math.sqrt, sin=math.sin, cos=math.cos, tan=math.tan)
+            self.expressions = expressions
+
+        def __missing__(self, name):
+            if name not in self.expressions:
+                raise RuntimeError(f"Constant {name} not found in {path_to_detector}DectDimensions.xml")
+            try:
+                value = eval(self.expressions[name], {"__builtins__": {}}, self)
+            except Exception as e:
+                raise RuntimeError(f"Could not evaluate constant {name} = '{self.expressions[name]}' "
+                                   f"from {path_to_detector}DectDimensions.xml: {e}") from e
+            self[name] = value
+            return value
+
+    root = ET.parse(path_to_detector + 'DectDimensions.xml').getroot()
+    geoConstants = GeoConstants({constant.get('name'): constant.get('value') for constant in root.iter('constant')})
+
+    # subdetector IDs, e.g. IDs["VXD_Barrel"] for DetID_VXD_Barrel (DetID_Muon_Endcap_1 is stored as IDs["Muon_Endcap"])
     IDs = {}
-    siWrapperNlayers = 0
-    for constant in root.find('define').findall('constant'):
-        if (
-            constant.get('name') == 'DetID_VXD_Barrel'
-            or constant.get('name') == 'DetID_VXD_Disks'
-            or constant.get('name') == wire_tracker.det_id_key
-            or constant.get('name') == 'DetID_SiWr_Barrel'
-            or constant.get('name') == 'DetID_SiWr_Disks'
-            or constant.get('name') == 'DetID_ECAL_Barrel'
-            or constant.get('name') == 'DetID_ECAL_Endcap'
-            or constant.get('name') == 'DetID_HCAL_Barrel'
-            or constant.get('name') == 'DetID_HCAL_Endcap'
-            or constant.get('name') == 'DetID_Muon_Barrel'
-        ):
-            IDs[constant.get("name")[6:]] = int(constant.get('value'))
-        if (constant.get('name') == 'DetID_Muon_Endcap_1'):
-            IDs[constant.get("name")[6:-2]] = int(constant.get('value'))
-        if (constant.get('name') == 'SiWr_nLayers'):
-            siWrapperNlayers = int(constant.get('value'))
+    for detIDName in ['DetID_VXD_Barrel', 'DetID_VXD_Disks', wire_tracker.det_id_key, 'DetID_SiWr_Barrel',
+                      'DetID_SiWr_Disks', 'DetID_ECAL_Barrel', 'DetID_ECAL_Endcap', 'DetID_HCAL_Barrel',
+                      'DetID_HCAL_Endcap', 'DetID_Muon_Barrel', 'DetID_Muon_Endcap_1']:
+        key = detIDName[6:-2] if detIDName == 'DetID_Muon_Endcap_1' else detIDName[6:]
+        IDs[key] = int(geoConstants[detIDName])
 
     # debug
     print("Subdetector IDs:")
     print(IDs)
 
-    if siWrapperNlayers == 0:
-        print("Could not read number of SiWr layers from DectDimensions.xml, will default to 1")
-        siWrapperNlayers = 1
-    else:
-        print("Number of SiWr layers from DectDimensions.xml:", siWrapperNlayers)
+    siWrapperNlayers = int(geoConstants['SiWr_nLayers'])
+    print("Number of SiWr layers from DectDimensions.xml:", siWrapperNlayers)
 
     # Input/Output handling
     from k4FWCore import IOSvc
@@ -881,29 +887,39 @@ def run_digi_reco(path_to_detector, detectors_to_use, wire_tracker):
         import math
         # different sensors for inner and outer barrel/disks layers (see https://indico.cern.ch/event/1244371/contributions/5350233)
         # but assume DRD3 OCTOPUS resolutions (see https://indico.cern.ch/event/1702794/contributions/7161947/attachments/3320556/5945016/ALLEGRO_ID_INTRODUCTION_28July.pdf)
-        innerVertexPitch_x = 0.020      # [mm]
-        innerVertexPitch_y = 0.020      # [mm]
+        # pixel pitches [mm] from DectDimensions.xml: x and y follow grid_size_x and grid_size_y of the readout
+        # segmentations (barrels: x = phi, y = z; disks: x = r, y = phi)
+        innerVertexPitch_x = geoConstants["VTXIB_pitch_phi"]
+        innerVertexPitch_y = geoConstants["VTXIB_pitch_z"]
         innerVertexResolution_x = 0.003 # [mm], assume 3 µm resolution for DRD3 OCTOPUS sensors
         innerVertexResolution_y = 0.003 # [mm], assume 3 µm resolution for DRD3 OCTOPUS sensors
         innerVertexResolution_t = 5     # [ns], assume 5 ns timing resolution from time-over-threshold for DRD3 OCTOPUS sensors
         innerVertexNlayers = 3          # Set this to 4 when using the ultra-light inner vertex detector and to 5 when using FCC-SEED (set in $K4GEO/FCCee/IDEA/compact/IDEA_o1_v04/VertexComplete_o1_v04.xml)
 
-        outerVertexPitch_x = 0.020      # [mm]
-        outerVertexPitch_y = 0.020      # [mm]
+        outerVertexPitch_x = geoConstants["VTXOB_pitch_phi"]
+        outerVertexPitch_y = geoConstants["VTXOB_pitch_z"]
         outerVertexResolution_x = 0.003 # [mm], assume 3 µm resolution for DRD3 OCTOPUS sensors
         outerVertexResolution_y = 0.003 # [mm], assume 3 µm resolution for DRD3 OCTOPUS sensors
         outerVertexResolution_t = 5     # [ns], assume 5 ns timing resolution from time-over-threshold for DRD3 OCTOPUS sensors
         outerVertexBarrelNlayers = 2
 
         vertexDisksNlayers = 3
+        vertexDisksPitch_x = geoConstants["VTXD_pitch_r"]
+        vertexDisksPitch_y = geoConstants["VTXD_pitch_phi"]
 
         # silicon wrapper hits parameters
-        siWrapperPitch_x = 0.050      # [mm], assume 50 µm pitch for the silicon wrapper (hybrid LGADs or monolithic sensor with gain)
-        siWrapperPitch_y = 0.050      # [mm], assume 50 µm pitch for the silicon wrapper (hybrid LGADs or monolithic sensor with gain)
-        siWrapperResolution_x = siWrapperPitch_x / math.sqrt(12)  # [mm], assume binary readout
-        siWrapperResolution_y = siWrapperPitch_y / math.sqrt(12)  # [mm], assume binary readout
         siWrapperResolution_t = 0.040                  # [ns], assume 40 ps timing resolution per hit
-        siWrapperStavesPerLayer = 2   # number of staves per layer for the silicon wrapper
+        # one pitch per layer, indexed by the layer field of the cellID: in the barrel, both staves of a layer have
+        # the same layer ID (the id of the <layer> element in the k4geo xml)
+        siWrBarrelPitch_x = [geoConstants[f"SiWrB_pitch_phi{layer}"] for layer in range(siWrapperNlayers)]
+        siWrBarrelPitch_y = [geoConstants[f"SiWrB_pitch_z{layer}"] for layer in range(siWrapperNlayers)]
+        siWrDisksPitch_x = [geoConstants[f"SiWrD_pitch_r{layer}"] for layer in range(siWrapperNlayers)]
+        siWrDisksPitch_y = [geoConstants[f"SiWrD_pitch_phi{layer}"] for layer in range(siWrapperNlayers)]
+        # assume binary readout
+        siWrBarrelResolution_x = [pitch / math.sqrt(12) for pitch in siWrBarrelPitch_x]
+        siWrBarrelResolution_y = [pitch / math.sqrt(12) for pitch in siWrBarrelPitch_y]
+        siWrDisksResolution_x = [pitch / math.sqrt(12) for pitch in siWrDisksPitch_x]
+        siWrDisksResolution_y = [pitch / math.sqrt(12) for pitch in siWrDisksPitch_y]
 
         # Define arguments for digitizers
         vxd_barrel_digi_args = {
@@ -934,9 +950,9 @@ def run_digi_reco(path_to_detector, detectors_to_use, wire_tracker):
 
         siWr_barrel_digi_args = {
             "IsStrip": False,
-            "ResolutionU": [siWrapperResolution_x]*siWrapperNlayers*siWrapperStavesPerLayer,
-            "ResolutionV": [siWrapperResolution_y]*siWrapperNlayers*siWrapperStavesPerLayer,
-            "ResolutionT": [siWrapperResolution_t]*siWrapperNlayers*siWrapperStavesPerLayer,
+            "ResolutionU": siWrBarrelResolution_x,
+            "ResolutionV": siWrBarrelResolution_y,
+            "ResolutionT": [siWrapperResolution_t]*len(siWrBarrelResolution_x),
             "SimTrackHitCollectionName": ["SiWrBCollection"],
             "SimTrkHitRelCollection": ["SiWrBSimDigiLinks"],
             "SubDetectorName": "SiWrB",
@@ -947,9 +963,9 @@ def run_digi_reco(path_to_detector, detectors_to_use, wire_tracker):
 
         siWr_endcap_digi_args = {
             "IsStrip": False,
-            "ResolutionU": [siWrapperResolution_x]*siWrapperNlayers*siWrapperStavesPerLayer,
-            "ResolutionV": [siWrapperResolution_y]*siWrapperNlayers*siWrapperStavesPerLayer,
-            "ResolutionT": [siWrapperResolution_t]*siWrapperNlayers*siWrapperStavesPerLayer,
+            "ResolutionU": siWrDisksResolution_x,
+            "ResolutionV": siWrDisksResolution_y,
+            "ResolutionT": [siWrapperResolution_t]*len(siWrDisksResolution_x),
             "SimTrackHitCollectionName": ["SiWrDCollection"],
             "SimTrkHitRelCollection": ["SiWrDSimDigiLinks"],
             "SubDetectorName": "SiWrD",
@@ -1082,8 +1098,8 @@ def run_digi_reco(path_to_detector, detectors_to_use, wire_tracker):
                 outputDigiHits="VTXDDigis",
                 outputSimDigiAssociation="VTXDSimDigiLinks",
                 detectorName="VertexDisks",
-                PixSizePhi=[outerVertexPitch_x]*vertexDisksNlayers,  # FIXME check x/y vs phi/theta
-                PixSizeTheta=[outerVertexPitch_y]*vertexDisksNlayers,  # FIXME check x/y vs phi/theta
+                PixSizePhi=[vertexDisksPitch_x]*vertexDisksNlayers,  # FIXME check x/y vs phi/theta
+                PixSizeTheta=[vertexDisksPitch_y]*vertexDisksNlayers,  # FIXME check x/y vs phi/theta
                 tResolution=vxd_endcap_digi_args["ResolutionT"],
                 Threshold=0.0,  # FIXME add proper threshold
                 ThresholdSmearing=0.0,  # FIXME add proper threshold smearing
@@ -1098,8 +1114,8 @@ def run_digi_reco(path_to_detector, detectors_to_use, wire_tracker):
                 outputDigiHits="SiWrBDigis",
                 outputSimDigiAssociation="SiWrBSimDigiLinks",
                 detectorName="SiWrB",
-                PixSizePhi=[siWrapperPitch_x]*siWrapperNlayers*siWrapperStavesPerLayer,  # FIXME check x/y vs phi/theta
-                PixSizeTheta=[siWrapperPitch_y]*siWrapperNlayers*siWrapperStavesPerLayer,  # FIXME check x/y vs phi/theta
+                PixSizePhi=siWrBarrelPitch_x,  # FIXME check x/y vs phi/theta
+                PixSizeTheta=siWrBarrelPitch_y,  # FIXME check x/y vs phi/theta
                 tResolution=siWr_barrel_digi_args["ResolutionT"],
                 Threshold=0.0,  # FIXME add proper threshold
                 ThresholdSmearing=0.0,  # FIXME add proper threshold smearing
@@ -1114,8 +1130,8 @@ def run_digi_reco(path_to_detector, detectors_to_use, wire_tracker):
                 outputDigiHits="SiWrDDigis",
                 outputSimDigiAssociation="SiWrDSimDigiLinks",
                 detectorName="SiWrD",
-                PixSizePhi=[siWrapperPitch_x]*siWrapperNlayers*siWrapperStavesPerLayer,  # FIXME check x/y vs phi/theta
-                PixSizeTheta=[siWrapperPitch_y]*siWrapperNlayers*siWrapperStavesPerLayer,  # FIXME check x/y vs phi/theta
+                PixSizePhi=siWrDisksPitch_x,  # FIXME check x/y vs phi/theta
+                PixSizeTheta=siWrDisksPitch_y,  # FIXME check x/y vs phi/theta
                 tResolution=siWr_endcap_digi_args["ResolutionT"],
                 Threshold=0.0,  # FIXME add proper threshold
                 ThresholdSmearing=0.0,  # FIXME add proper threshold smearing
