@@ -15,11 +15,14 @@ def str2bool(value):
     raise argparse.ArgumentTypeError("Boolean value expected.")
 
 parser.add_argument("--addTruthTracks", type=str2bool, nargs="?", help="Add reco-level tracks (smeared truth tracks)", const=True, default=False)
+parser.add_argument("--addRecoTracks", type=str2bool, nargs="?", help="Add reco-level tracks (GGTF track finding + Genfit fit)", const=True, default=True)
+parser.add_argument("--trackingModel", type=str, help="Path to the GGTF ONNX model (downloaded only if the file does not exist)", default="SimpleGatrIDEAv3o1.onnx")
 parser.add_argument("--runTrkValidation", type=str2bool, nargs="?", help="Run tracking validation", const=True, default=False)
 opts = parser.parse_known_args()[0]
 addTruthTracks = opts.addTruthTracks
-addRecoTracks = True
+addRecoTracks = opts.addRecoTracks
 runTrkValidation = opts.runTrkValidation
+if runTrkValidation: addRecoTracks = True  # track validation needs tracks
 
 # Loading the input SIM file, defining output file
 from k4FWCore import IOSvc
@@ -182,10 +185,12 @@ if addRecoTracks:
     # Load the Geometric Graph Track Finder (GGTF).
     from Configurables import GGTFTrackFinder
 
-    url = "https://key4hep.web.cern.ch/testFiles/k4RecTracker/SimpleGatrIDEAv3o1.onnx"
-    filename = "SimpleGatrIDEAv3o1.onnx"
-    subprocess.run(["wget", url, "-O", filename], check=True)
-    absolute_path = os.path.abspath(filename)
+    absolute_path = os.path.abspath(opts.trackingModel)
+    if not os.path.isfile(absolute_path):
+        url = "https://fccsw.web.cern.ch/fccsw/filesForSimDigiReco/IDEA/IDEA_o1_v03/SimpleGatrIDEAv3o1.onnx"
+        # download next to the target and rename, so a failed download leaves no partial model behind
+        subprocess.run(["wget", "-nv", url, "-O", absolute_path + ".part"], check=True)
+        os.replace(absolute_path + ".part", absolute_path)
 
     trackFinder = GGTFTrackFinder(
         "GGTFTrackFinder",
