@@ -125,10 +125,9 @@ def setupSWClusters(inputCells,
         caloIDs.append(cfg.IDs[k])
     # DEBUG
     if debug:
-        print("Input cells")
-        print(cells)
-        print("Calo IDs")
-        print(caloIDs)
+        print("Clustering parameters for Create" + outputClusters + ":")
+        print("Input cells:", cells)
+        print("Calo IDs:", caloIDs)
     # note: caloIDs is optional, needed only when createClusterCellCollection=True to save in metadata the mapping between
     # cell collections and systemID
     towerTool = CaloTowerToolFCCee(outputClusters + "TowerTool",
@@ -2139,7 +2138,9 @@ def run_digi_reco(path_to_detector, detectors_to_use, wire_tracker):
         ExtSvc += [root_hist_svc]
 
     # configure the application
+    print("Scheduled algorithms:")
     print(TopAlg)
+    print("External services:")
     print(ExtSvc)
     from k4FWCore import ApplicationMgr
     applicationMgr = ApplicationMgr(
