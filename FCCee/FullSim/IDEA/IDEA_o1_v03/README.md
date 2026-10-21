@@ -22,6 +22,8 @@ ddsim --enableGun --gun.distribution uniform --gun.energy "10*GeV" --gun.particl
 wget --no-clobber https://fccsw.web.cern.ch/fccsw/filesForSimDigiReco/IDEA/DataAlgFORGEANT.root
 wget --no-clobber https://fccsw.web.cern.ch/fccsw/filesForSimDigiReco/IDEA/IDEA_o1_v03/SimpleGatrIDEAv3o1.onnx
 k4run run_digi_reco.py
+# the GGTF model is read from --trackingModel (default ./SimpleGatrIDEAv3o1.onnx, downloaded only if missing);
+# --addRecoTracks False skips the track finding and fitting
 # you can then print the rootfile content with
 podio-dump IDEA_sim_digi_reco.root  
 ```
