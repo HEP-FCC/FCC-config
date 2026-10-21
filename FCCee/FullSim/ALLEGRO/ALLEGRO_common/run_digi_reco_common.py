@@ -803,31 +803,61 @@ def run_digi_reco(path_to_detector, detectors_to_use, wire_tracker):
     ]
     ExtSvc += [geoservice]
 
-    # retrieve subdetector IDs and some other constants from DectDimensions.xml:
+    # retrieve subdetector IDs and some other constants from the detector xml files:
+    # all <constant> elements are collected starting from the main xml file(s) in detectors_to_use and recursively
+    # following their <include ref="..."/> elements (paths relative to the including file, ${VAR} expanded from the
+    # environment). As in DD4hep, the first definition of a constant is used if it is defined more than once.
     # geoConstants["NAME"] evaluates the expression of the constant NAME, including units (lengths are returned in
     # mm) and references to other constants
     import math
     import xml.etree.ElementTree as ET
 
     class GeoConstants(dict):
-        def __init__(self, expressions):
+        def __init__(self, expressions, sources):
             super().__init__(mm=1., cm=10., m=1000., um=1.e-3, micrometer=1.e-3, nm=1.e-6,
                              pi=math.pi, sqrt=math.sqrt, sin=math.sin, cos=math.cos, tan=math.tan)
             self.expressions = expressions
+            self.sources = sources
 
         def __missing__(self, name):
             if name not in self.expressions:
-                raise RuntimeError(f"Constant {name} not found in {path_to_detector}DectDimensions.xml")
+                raise RuntimeError(f"Constant {name} not found in {detectors_to_use} or the xml files they include")
             try:
                 value = eval(self.expressions[name], {"__builtins__": {}}, self)
             except Exception as e:
                 raise RuntimeError(f"Could not evaluate constant {name} = '{self.expressions[name]}' "
-                                   f"from {path_to_detector}DectDimensions.xml: {e}") from e
+                                   f"from {self.sources[name]}: {e}") from e
             self[name] = value
             return value
 
-    root = ET.parse(path_to_detector + 'DectDimensions.xml').getroot()
-    geoConstants = GeoConstants({constant.get('name'): constant.get('value') for constant in root.iter('constant')})
+    def collectConstants(xmlFile, expressions, sources, visited):
+        xmlFile = os.path.normpath(os.path.abspath(xmlFile))
+        if xmlFile in visited:
+            return
+        visited.add(xmlFile)
+        if not os.path.isfile(xmlFile):
+            # e.g. ${DD4hepINSTALL}/DDDetectors/compact/detector_types.xml if DD4hepINSTALL is not set
+            if debug:
+                print(f"WARNING: xml file {xmlFile} not found, its constants will not be available")
+            return
+        # ElementTree drops xml comments, so commented-out includes and constants are ignored
+        for element in ET.parse(xmlFile).getroot().iter():
+            if element.tag == 'constant':
+                name, value = element.get('name'), element.get('value')
+                if name not in expressions:
+                    expressions[name] = value
+                    sources[name] = xmlFile
+                elif value != expressions[name]:
+                    print(f"WARNING: constant {name} = '{value}' in {xmlFile} ignored, "
+                          f"already defined as '{expressions[name]}' in {sources[name]}")
+            elif element.tag == 'include' and element.get('ref'):
+                ref = os.path.expandvars(element.get('ref'))
+                collectConstants(os.path.join(os.path.dirname(xmlFile), ref), expressions, sources, visited)
+
+    expressions, sources = {}, {}
+    for xmlFile in geoservice.detectors:
+        collectConstants(xmlFile, expressions, sources, set())
+    geoConstants = GeoConstants(expressions, sources)
 
     # subdetector IDs, e.g. IDs["VXD_Barrel"] for DetID_VXD_Barrel (DetID_Muon_Endcap_1 is stored as IDs["Muon_Endcap"])
     IDs = {}
@@ -842,7 +872,7 @@ def run_digi_reco(path_to_detector, detectors_to_use, wire_tracker):
         print(IDs)
 
     siWrapperNlayers = int(geoConstants['SiWr_nLayers'])
-    print("Number of SiWr layers from DectDimensions.xml:", siWrapperNlayers)
+    print("Number of SiWr layers from xml:", siWrapperNlayers, "(from", geoConstants.sources['SiWr_nLayers'] + ")")
 
     # Input/Output handling
     from k4FWCore import IOSvc
@@ -899,15 +929,17 @@ def run_digi_reco(path_to_detector, detectors_to_use, wire_tracker):
         import math
         # different sensors for inner and outer barrel/disks layers (see https://indico.cern.ch/event/1244371/contributions/5350233)
         # but assume DRD3 OCTOPUS resolutions (see https://indico.cern.ch/event/1702794/contributions/7161947/attachments/3320556/5945016/ALLEGRO_ID_INTRODUCTION_28July.pdf)
-        # pixel pitches [mm] from DectDimensions.xml: x and y follow grid_size_x and grid_size_y of the readout
+        # pixel pitches [mm] from the detector xmls: x and y follow grid_size_x and grid_size_y of the readout
         # segmentations (barrels: x = phi, y = z; disks: x = r, y = phi)
         innerVertexPitch_x = geoConstants["VTXIB_pitch_phi"]
         innerVertexPitch_y = geoConstants["VTXIB_pitch_z"]
-        innerVertexNlayers = 3          # Set this to 4 when using the ultra-light inner vertex detector and to 5 when using FCC-SEED (set in $K4GEO/FCCee/IDEA/compact/IDEA_o1_v04/VertexComplete_o1_v04.xml)
+        # 3 for the IDEA inner vertex detector, 4 for the ultra-light one, 5 for FCC-SEED
+        # (selected in $K4GEO/FCCee/IDEA/compact/IDEA_o1_v04/VertexComplete_o1_v04.xml)
+        innerVertexNlayers = int(geoConstants["nInnerVertexLayers"])
         if debug:
-            print("Inner vertex barrel number of layers:", innerVertexNlayers)
-            print("Inner vertex barrel pitch x (phi) [mm]:", innerVertexPitch_x)
-            print("Inner vertex barrel pitch y (z) [mm]:", innerVertexPitch_y)
+            print("Inner vertex barrel number of layers:", innerVertexNlayers, "(from", geoConstants.sources["nInnerVertexLayers"] + ")")
+            print("Inner vertex barrel pitch x (phi) [mm]:", innerVertexPitch_x, "(from", geoConstants.sources["VTXIB_pitch_phi"] + ")")
+            print("Inner vertex barrel pitch y (z) [mm]:", innerVertexPitch_y, "(from", geoConstants.sources["VTXIB_pitch_z"] + ")")
         innerVertexResolution_x = 0.003 # [mm], assume 3 µm resolution for DRD3 OCTOPUS sensors
         innerVertexResolution_y = 0.003 # [mm], assume 3 µm resolution for DRD3 OCTOPUS sensors
         innerVertexResolution_t = 5     # [ns], assume 5 ns timing resolution from time-over-threshold for DRD3 OCTOPUS sensors
@@ -917,8 +949,8 @@ def run_digi_reco(path_to_detector, detectors_to_use, wire_tracker):
         outerVertexBarrelNlayers = 2
         if debug:
             print("Outer vertex barrel number of layers:", outerVertexBarrelNlayers)
-            print("Outer vertex barrel pitch x (phi) [mm]:", outerVertexPitch_x)
-            print("Outer vertex barrel pitch y (z) [mm]:", outerVertexPitch_y)
+            print("Outer vertex barrel pitch x (phi) [mm]:", outerVertexPitch_x, "(from", geoConstants.sources["VTXOB_pitch_phi"] + ")")
+            print("Outer vertex barrel pitch y (z) [mm]:", outerVertexPitch_y, "(from", geoConstants.sources["VTXOB_pitch_z"] + ")")
         outerVertexResolution_x = 0.003 # [mm], assume 3 µm resolution for DRD3 OCTOPUS sensors
         outerVertexResolution_y = 0.003 # [mm], assume 3 µm resolution for DRD3 OCTOPUS sensors
         outerVertexResolution_t = 5     # [ns], assume 5 ns timing resolution from time-over-threshold for DRD3 OCTOPUS sensors
@@ -928,8 +960,8 @@ def run_digi_reco(path_to_detector, detectors_to_use, wire_tracker):
         vertexDisksPitch_y = geoConstants["VTXD_pitch_phi"]
         if debug:
             print("Vertex disks number of layers:", vertexDisksNlayers)
-            print("Vertex disks pitch x (r) [mm]:", vertexDisksPitch_x)
-            print("Vertex disks pitch y (phi) [mm]:", vertexDisksPitch_y)
+            print("Vertex disks pitch x (r) [mm]:", vertexDisksPitch_x, "(from", geoConstants.sources["VTXD_pitch_r"] + ")")
+            print("Vertex disks pitch y (phi) [mm]:", vertexDisksPitch_y, "(from", geoConstants.sources["VTXD_pitch_phi"] + ")")
 
         # silicon wrapper hits parameters
         siWrapperResolution_t = 0.040                  # [ns], assume 40 ps timing resolution per hit
@@ -940,10 +972,10 @@ def run_digi_reco(path_to_detector, detectors_to_use, wire_tracker):
         siWrDisksPitch_x = [geoConstants[f"SiWrD_pitch_r{layer}"] for layer in range(siWrapperNlayers)]
         siWrDisksPitch_y = [geoConstants[f"SiWrD_pitch_phi{layer}"] for layer in range(siWrapperNlayers)]
         if debug:
-            print("SiWr barrel pitch x (phi) [mm]:", siWrBarrelPitch_x)
-            print("SiWr barrel pitch y (z) [mm]:", siWrBarrelPitch_y)
-            print("SiWr disks pitch x (r) [mm]:", siWrDisksPitch_x)
-            print("SiWr disks pitch y (phi) [mm]:", siWrDisksPitch_y)
+            print("SiWr barrel pitch x (phi) [mm]:", siWrBarrelPitch_x, "(from", geoConstants.sources["SiWrB_pitch_phi0"] + ")")
+            print("SiWr barrel pitch y (z) [mm]:", siWrBarrelPitch_y, "(from", geoConstants.sources["SiWrB_pitch_z0"] + ")")
+            print("SiWr disks pitch x (r) [mm]:", siWrDisksPitch_x, "(from", geoConstants.sources["SiWrD_pitch_r0"] + ")")
+            print("SiWr disks pitch y (phi) [mm]:", siWrDisksPitch_y, "(from", geoConstants.sources["SiWrD_pitch_phi0"] + ")")
         # assume binary readout
         siWrBarrelResolution_x = [pitch / math.sqrt(12) for pitch in siWrBarrelPitch_x]
         siWrBarrelResolution_y = [pitch / math.sqrt(12) for pitch in siWrBarrelPitch_y]
