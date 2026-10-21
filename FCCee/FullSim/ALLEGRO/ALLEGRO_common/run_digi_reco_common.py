@@ -1114,8 +1114,8 @@ def run_digi_reco(path_to_detector, detectors_to_use, wire_tracker):
                 PixSizePhi=[innerVertexPitch_x]*innerVertexNlayers + [outerVertexPitch_x]*outerVertexBarrelNlayers,  # FIXME check x/y vs phi/theta
                 PixSizeTheta=[innerVertexPitch_y]*innerVertexNlayers + [outerVertexPitch_y]*outerVertexBarrelNlayers,  # FIXME check x/y vs phi/theta
                 tResolution=vxd_barrel_digi_args["ResolutionT"],
-                Threshold=0.0,  # FIXME add proper threshold
-                ThresholdSmearing=0.0,  # FIXME add proper threshold smearing
+                Threshold=500.0,  # initial guess for ARCADIA-like sensors
+                ThresholdSmearing=50.0,  # 10% of threshold
                 OutputLevel=INFO,
                 DebugHistos=False,
                 DebugFileName="Debug_VTXBarrelDigitizer.root",
@@ -1130,8 +1130,8 @@ def run_digi_reco(path_to_detector, detectors_to_use, wire_tracker):
                 PixSizePhi=[vertexDisksPitch_x]*vertexDisksNlayers,  # FIXME check x/y vs phi/theta
                 PixSizeTheta=[vertexDisksPitch_y]*vertexDisksNlayers,  # FIXME check x/y vs phi/theta
                 tResolution=vxd_endcap_digi_args["ResolutionT"],
-                Threshold=0.0,  # FIXME add proper threshold
-                ThresholdSmearing=0.0,  # FIXME add proper threshold smearing
+                Threshold=500.0,  # initial guess for ARCADIA-like sensors
+                ThresholdSmearing=50.0,  # 10% of threshold
                 OutputLevel=INFO,
                 DebugHistos=False,
                 DebugFileName="Debug_VTXEndcapDigitizer.root",
@@ -1146,8 +1146,8 @@ def run_digi_reco(path_to_detector, detectors_to_use, wire_tracker):
                 PixSizePhi=siWrBarrelPitch_x,  # FIXME check x/y vs phi/theta
                 PixSizeTheta=siWrBarrelPitch_y,  # FIXME check x/y vs phi/theta
                 tResolution=siWr_barrel_digi_args["ResolutionT"],
-                Threshold=0.0,  # FIXME add proper threshold
-                ThresholdSmearing=0.0,  # FIXME add proper threshold smearing
+                Threshold=500.0,  # number used in the past for beam background studies
+                ThresholdSmearing=50.0,  # 10% of threshold
                 OutputLevel=INFO,
                 DebugHistos=False,
                 DebugFileName="Debug_SiWrBarrelDigitizer.root",
@@ -1162,8 +1162,8 @@ def run_digi_reco(path_to_detector, detectors_to_use, wire_tracker):
                 PixSizePhi=siWrDisksPitch_x,  # FIXME check x/y vs phi/theta
                 PixSizeTheta=siWrDisksPitch_y,  # FIXME check x/y vs phi/theta
                 tResolution=siWr_endcap_digi_args["ResolutionT"],
-                Threshold=0.0,  # FIXME add proper threshold
-                ThresholdSmearing=0.0,  # FIXME add proper threshold smearing
+                Threshold=500.0,  # number used in the past for beam background studies
+                ThresholdSmearing=50.0,  # 10% of threshold
                 OutputLevel=INFO,
                 DebugHistos=False,
                 DebugFileName="Debug_SiWrEndcapDigitizer.root",
