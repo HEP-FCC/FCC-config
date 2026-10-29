@@ -14,7 +14,7 @@ cd FCC-config/FCCee/FullSim/ALLEGRO/ALLEGRO_o1_v03/
 ## Running the simulation
 You can produce a file containing the Geant4 simulated hits in the detector with:
 ```
-ddsim --enableGun --gun.distribution uniform --gun.energy "10*GeV" --gun.particle e- --numberOfEvents 100 --outputFile ALLEGRO_sim.root --random.enableEventSeed --random.seed 42 --compactFile $K4GEO/FCCee/ALLEGRO/compact/ALLEGRO_o1_v03/ALLEGRO_o1_v03.xml 
+ddsim --enableGun --gun.distribution uniform --gun.energy "10*GeV" --gun.particle e- --numberOfEvents 100 --outputFile ALLEGRO_sim.root --random.enableEventSeed --random.seed 42 --steeringFile SteeringFile_ALLEGRO_o1_v03.py
 ```
 
 You can also retrieve a simulation file already produced from here: `https://fccsw.web.cern.ch/fccsw/filesForSimDigiReco/ALLEGRO/ALLEGRO_o1_v03/forTests/pythia_ee_z_qq_10evt_ALLEGRO_sim.root`
