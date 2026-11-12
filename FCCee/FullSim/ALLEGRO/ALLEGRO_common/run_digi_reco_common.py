@@ -1295,12 +1295,13 @@ def run_digi_reco(path_to_detector, detectors_to_use, wire_tracker):
 
         trackFinder = GGTFTrackFinder(
             "GGTFTrackFinder",
-            InputPlanarHitCollections=["VTXBDigis", "VTXDDigis", "SiWrDDigis", "SiWrBDigis"],
-            InputWireHitCollections=[wire_tracker.digi_collection],
+            InputPlanarHitCollections=["VTXBDigis", "VTXDDigis", "SiWrBDigis", "SiWrDDigis"],
+            InputWireHitCollections=["DCH_DigiCollection"],
             OutputTracksGGTF=["PrefitTracks"],
             ModelPath=modelPath,
-            Tbeta=tbeta,    # default clustering parameters
-            Td=td,       # form the example in k4RecTracker
+            EmbeddingCoordinates=3,
+            Tbeta=tbeta,
+            Td=td,
             OutputLevel=INFO,
         )
         TopAlg += [trackFinder]
