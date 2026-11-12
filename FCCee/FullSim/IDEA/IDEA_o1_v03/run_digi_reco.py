@@ -194,8 +194,8 @@ if addRecoTracks:
 
     trackFinder = GGTFTrackFinder(
         "GGTFTrackFinder",
-        InputPlanarHitCollections=["VTXBDigis", "VTXDDigis", "SiWrBDigis", "SiWrDDigis"],
-        InputWireHitCollections=["DCH_DigiCollection"],
+        InputPlanarHitCollections=["VTXBDigis", "VTXDDigis", "SiWrDDigis", "SiWrBDigis"],
+        InputWireHitCollections=["DCHDigis"],
         OutputTracksGGTF=["PrefitTracks"],
         ModelPath=absolute_path,
         EmbeddingCoordinates=3,

@@ -1295,8 +1295,8 @@ def run_digi_reco(path_to_detector, detectors_to_use, wire_tracker):
 
         trackFinder = GGTFTrackFinder(
             "GGTFTrackFinder",
-            InputPlanarHitCollections=["VTXBDigis", "VTXDDigis", "SiWrBDigis", "SiWrDDigis"],
-            InputWireHitCollections=["DCH_DigiCollection"],
+            InputPlanarHitCollections=["VTXBDigis", "VTXDDigis", "SiWrDDigis", "SiWrBDigis"],
+            InputWireHitCollections=[wire_tracker.digi_collection],
             OutputTracksGGTF=["PrefitTracks"],
             ModelPath=modelPath,
             EmbeddingCoordinates=3,
