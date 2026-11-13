@@ -198,8 +198,9 @@ if addRecoTracks:
         InputWireHitCollections=["DCHDigis"],
         OutputTracksGGTF=["PrefitTracks"],
         ModelPath=absolute_path,
-        Tbeta=0.6,
-        Td=0.3,
+        EmbeddingCoordinates=3,
+        Tbeta=0.6,  # default clustering parameters from the example in k4RecTracker
+        Td=0.3,     # default clustering parameters from the example in k4RecTracker
         OutputLevel=INFO,
     )
 
