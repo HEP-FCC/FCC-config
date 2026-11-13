@@ -1,7 +1,7 @@
 """Sanity checks on the IDEA o2 digi/reco output produced by ctest_sim_digi_reco.sh.
 
-Checks the two final products of the chain -- truth tracks and topo clusters --
-beyond simply counting them.
+Checks the final products of the chain -- truth tracks, topo clusters and Pandora
+particle-flow objects -- beyond simply counting them.
 """
 
 import sys
@@ -13,8 +13,9 @@ AT_CALORIMETER = edm4hep.TrackState.AtCalorimeter
 
 
 def check(path):
-    n_track = n_cluster = 0
+    n_track = n_cluster = n_pfo = 0
     no_calo_state = no_mc = no_hits = 0
+    pfo_charged_no_input = pfo_bad_energy = 0
 
     for frame in podio.reading.get_reader(path).get("events"):
         tracks = frame.get("TracksFromGenParticles")
@@ -32,7 +33,16 @@ def check(path):
         n_cluster += len(clusters)
         no_hits += sum(1 for cluster in clusters if len(cluster.getHits()) == 0)
 
-    print(f"truth tracks {n_track}, topo clusters {n_cluster}")
+        pfos = frame.get("PandoraPfaIdea")
+        n_pfo += len(pfos)
+        # PFOs without track and cluster are legitimate only as neutral excess emitted along a charged
+        # cluster (IdeaPfoCreationAlgorithm), so they must be neutral; every PFO has a positive energy
+        pfo_charged_no_input += sum(1 for pfo in pfos
+                                    if len(pfo.getTracks()) == 0 and len(pfo.getClusters()) == 0
+                                    and pfo.getCharge() != 0)
+        pfo_bad_energy += sum(1 for pfo in pfos if not pfo.getEnergy() > 0)
+
+    print(f"truth tracks {n_track}, topo clusters {n_cluster}, pandora PFOs {n_pfo}")
 
     checks = [
         (n_track > 0, "no truth tracks were produced"),
@@ -40,6 +50,9 @@ def check(path):
         (no_mc == 0, f"{no_mc} tracks are not associated to an MC particle"),
         (n_cluster > 0, "no topo clusters were grown"),
         (no_hits == 0, f"{no_hits} clusters have no hits"),
+        (n_pfo > 0, "no pandora PFOs were produced"),
+        (pfo_charged_no_input == 0, f"{pfo_charged_no_input} charged PFOs have neither a track nor a cluster"),
+        (pfo_bad_energy == 0, f"{pfo_bad_energy} PFOs have a non-positive energy"),
     ]
     for ok, msg in checks:
         if not ok:

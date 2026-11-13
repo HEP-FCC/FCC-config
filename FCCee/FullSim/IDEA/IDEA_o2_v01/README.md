@@ -27,7 +27,18 @@ k4run run_digi_reco.py --IOSvc.Input IDEA_sim.root --IOSvc.Output IDEA_digi_reco
 ```
 
 This runs the tracker digitization, truth tracking, the optical calorimeter digitization
-(`CreateOpticalCaloCells`) and the seed/merge/grow clustering, producing `TopoGrownClusters`.
+(`CreateOpticalCaloCells`), the seed/merge/grow clustering (`TopoGrownClusters`) and the Pandora
+PF reconstruction (`PandoraPFAIdeaAlgorithm` from k4GaudiPandora), producing the
+PFOs `PandoraPfaIdea` and their clusters `PandoraClusters`.
+
+### Particle flow (Pandora)
+
+- The Pandora steering file is `PandoraSettingsIdea.xml`. One can use another one with
+  `--pandoraSettings <file>`.
+- Two of its algorithms use ONNX models (neutral cluster ID and satellite assignment). They are
+  looked up in the **working directory** and downloaded there on the first run if missing
+  (`photonId_ParT_multi.onnx`, `group_transformer.onnx`); their md5 is checked on every run.
+- To run without particle flow, add `--skipPandora`.
 
 By default `run_digi_reco.py` sets `CI = True`, which uses the reduced barrel wedge
 (`IDEA_o2_v01_CI/IDEA_o2_v01_CI.xml`) and drops the dual-readout endcap collections. To run the full
