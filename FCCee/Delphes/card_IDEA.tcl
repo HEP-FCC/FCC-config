@@ -1,8 +1,10 @@
 # Based on cards/delphes_card_IDEA.tcl from delphes/delphes, commit b0465eeb:
 # https://github.com/delphes/delphes/blob/b0465eeba79a2ae5debffae7c0e0c5f4a1ca41ed/cards/delphes_card_IDEA.tcl
-# Changes: BeamSpotSmearing module removed.
+# Changes:
+#   - BeamSpotSmearing module removed
+#   - RandomSeed set to 0 (new random seed for every run)
 
-set RandomSeed 123
+set RandomSeed 0
 
 ####################################################################                                l
 # FCC-ee IDEA detector model
