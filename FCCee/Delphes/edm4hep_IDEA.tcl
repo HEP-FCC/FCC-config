@@ -1,7 +1,8 @@
 
 module EDM4HepOutput EDM4HepOutput {
     add ReconstructedParticleCollections EFlowTrack EFlowPhoton EFlowNeutralHadron
-    add GenParticleCollections           Particle
+    # Needed only by the standalone executables
+    # add GenParticleCollections           Particle
     add JetCollections                   Jet JetDurhamN2
     add MuonCollections                  Muon
     add ElectronCollections              Electron
