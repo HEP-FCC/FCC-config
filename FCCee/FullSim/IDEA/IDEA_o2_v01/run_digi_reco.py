@@ -1,5 +1,7 @@
 import os
 import math
+import hashlib
+import subprocess
 
 from Gaudi.Configuration import *
 from k4FWCore.parseArgs import parser
@@ -9,7 +11,18 @@ parser.add_argument(
     help="Use the reduced barrel wedge instead of the full IDEA_o2_v01 geometry (fast, low "
          "memory); the ddsim step must then be given the same compact file",
 )
-CI = parser.parse_known_args()[0].ci
+parser.add_argument(
+    "--skipPandora", action="store_true",
+    help="Do not run the Pandora particle-flow reconstruction (k4GaudiPandora)",
+)
+parser.add_argument(
+    "--pandoraSettings", type=str,
+    default=os.path.join(os.path.dirname(os.path.abspath(__file__)), "PandoraSettingsIdea.xml"),
+    help="Pandora steering file. Its ONNX models are looked up in the working directory and "
+         "downloaded there if missing",
+)
+opts = parser.parse_known_args()[0]
+CI = opts.ci
 
 detector_xml = (
     "FCCee/IDEA/compact/IDEA_o2_v01_CI/IDEA_o2_v01_CI.xml"
@@ -298,6 +311,70 @@ createTruthLinksHCAL = CreateTruthLinks(
     OutputLevel=INFO,
 )
 
+############### Particle flow (Pandora)
+pandoraAlgs = []
+if not opts.skipPandora:
+    # PandoraSettingsIdea.xml refers to its ONNX models by bare file name, i.e. relative to the
+    # working directory. Download them there if missing, and check them against their md5.
+    pandora_models = {
+        "photonId_ParT_multi.onnx": "99b8997a34bd2ad49a1bec0a3ee0e0e5",  # ClusterNeutralPid
+        "group_transformer.onnx": "1eda8f7eb4c87ce3f75b0f9ab5986eff",    # SatelliteAssignmentOnnx
+    }
+    for model, md5 in pandora_models.items():
+        if not os.path.isfile(model):
+            url = f"https://key4hep.web.cern.ch/testFiles/k4GaudiPandora/{md5}"
+            # download next to the target and rename, so a failed download leaves no partial model behind
+            subprocess.run(["wget", "-nv", url, "-O", model + ".part"], check=True)
+            os.replace(model + ".part", model)
+        with open(model, "rb") as f:
+            if hashlib.md5(f.read()).hexdigest() != md5:
+                raise RuntimeError(f"{model} does not match its md5 {md5}: remove it to download it again")
+
+    # Calorimeter description. CaloSystemIDs, CaloCollectionTypes, CaloLayerFieldNames,
+    # CaloEncodingStrings and CaloCellSizes have one entry per calorimeter system.
+    caloHitCollections = ["SCEPCal_digi_cheren", "SCEPCal_digi_scint", "DRBTScin_digi", "DRBTCher_digi"]
+    caloSystemIDs = [4, 5, 28]
+    caloCollectionTypes = ["ECAL", "ECAL", "HCAL"]
+    caloLayerFieldNames = ["depth", "depth", ""]
+    caloEncodingStrings = [
+        "system:5,phi:7,theta:11,gamma:4,epsilon:4,depth:1,cherenkov:1",
+        "system:5,phi:7,theta:11,gamma:4,epsilon:4,depth:1,cherenkov:1",
+        "system:5,stave:10,tower:-8,air:6,col:-16,row:16,clad:1,core:1,cherenkov:1",
+    ]
+    caloCellSizes = [10, 10, 2.]
+    if not CI:  # DR endcap exists only in the full geometry
+        caloHitCollections += ["DRETScinLeft_digi", "DRETCherLeft_digi",
+                               "DRETScinRight_digi", "DRETCherRight_digi"]
+        caloSystemIDs += [25]
+        caloCollectionTypes += ["HCAL"]
+        caloLayerFieldNames += [""]
+        caloEncodingStrings += ["system:5,stave:10,tower:6,air:1,col:16,row:16,clad:1,core:1,cherenkov:1"]
+        caloCellSizes += [2.]
+
+    from Configurables import PandoraPFAIdeaAlgorithm
+
+    pandoraPFA = PandoraPFAIdeaAlgorithm(
+        "PandoraPFAIdeaAlgorithm",
+        PandoraSettingsXmlFile=opts.pandoraSettings,
+        # inputs
+        inputTrackCollection="TracksFromGenParticles",
+        inputClusterCollections=["TopoGrownClusters"],
+        inputCaloHitCollections=caloHitCollections,
+        # outputs
+        outputPfoCollection="PandoraPfaIdea",
+        outputClusterCollection="PandoraClusters",
+        # calorimeter description
+        HasHcalEndcap=not CI,
+        CherenkovFieldName="cherenkov",
+        CaloSystemIDs=caloSystemIDs,
+        CaloCollectionTypes=caloCollectionTypes,
+        CaloLayerFieldNames=caloLayerFieldNames,
+        CaloEncodingStrings=caloEncodingStrings,
+        CaloCellSizes=caloCellSizes,
+        OutputLevel=INFO,
+    )
+    pandoraAlgs = [pandoraPFA]
+
 ############### Services + application
 from Configurables import UniqueIDGenSvc
 from k4FWCore import ApplicationMgr
@@ -322,7 +399,8 @@ ApplicationMgr(
         topoClusterGrower,
         createTruthLinksECAL,
         createTruthLinksHCAL,
-    ],
+    ]
+    + pandoraAlgs,
     EvtSel="NONE",
     EvtMax=-1,
     ExtSvc=[EventDataSvc("EventDataSvc"), geoservice, UniqueIDGenSvc("uidSvc")],
