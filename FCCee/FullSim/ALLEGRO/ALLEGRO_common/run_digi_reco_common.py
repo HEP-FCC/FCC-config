@@ -1299,8 +1299,9 @@ def run_digi_reco(path_to_detector, detectors_to_use, wire_tracker):
             InputWireHitCollections=[wire_tracker.digi_collection],
             OutputTracksGGTF=["PrefitTracks"],
             ModelPath=modelPath,
-            Tbeta=tbeta,    # default clustering parameters
-            Td=td,       # form the example in k4RecTracker
+            EmbeddingCoordinates=3,
+            Tbeta=tbeta,
+            Td=td,
             OutputLevel=INFO,
         )
         TopAlg += [trackFinder]
