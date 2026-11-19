@@ -36,6 +36,18 @@ def str2bool(v):
         raise argparse.ArgumentTypeError("Boolean value expected.")
 
 
+def ioOutputFile(default):
+    """Output file of IOSvc: the one given on the command line of k4run (--IOSvc.Output), if any, since k4run
+    applies the command-line options only after this configuration has been read, otherwise the default"""
+    import sys
+    for i, arg in enumerate(sys.argv):
+        if arg.startswith("--IOSvc.Output="):
+            return arg.split("=", 1)[1]
+        if arg == "--IOSvc.Output" and i + 1 < len(sys.argv):
+            return sys.argv[i + 1]
+    return default
+
+
 def add_parser_args(parser):
     """Register all common CLI arguments onto *parser* (k4FWCore parseArgs parser)."""
     parser.add_argument("--dataFolder", type=str, help="Path to calibration data folder", default="./")
@@ -60,7 +72,7 @@ def add_parser_args(parser):
     parser.add_argument("--runTrkFinder", type=str2bool, nargs="?", help="Run Geometric Graph Track Finding (GGTF) on digitized tracker hits", const=True, default=False)
     parser.add_argument("--runTrkFitter", type=str2bool, nargs="?", help="Run track fitter on tracks found by GGTF", const=True, default=False)
     parser.add_argument("--runConformalTracking", type=str2bool, nargs="?", help="Run conformal tracking on digitized tracker hits", const=True, default=False)
-    parser.add_argument("--runTrkValidation", type=str2bool, nargs="?", help="Run tracking validation", const=True, default=False)
+    parser.add_argument("--runTrkValidation", type=str2bool, nargs="?", help="Run tracking validation (of GGTF + GenFit, and of conformal tracking if enabled)", const=True, default=False)
     parser.add_argument("--debug", type=str2bool, nargs="?", help="Print debug information", const=True, default=False)
     parser.add_argument("--verbose", type=str2bool, nargs="?", help="Set the output level of all algorithms to DEBUG", const=True, default=False)
 
@@ -656,7 +668,7 @@ def run_digi_reco(path_to_detector, detectors_to_use, wire_tracker):
 
     # ensure consistency among options
     if verbose: debug = True
-    if runTrkValidation: addRecoTracks = True           # track validation needs tracks
+    if runTrkValidation and not runConformalTracking: addRecoTracks = True  # track validation needs tracks (GGTF + GenFit if conformal tracking is not run)
     if addRecoTracks: runTrkFitter = True               # tracks need track fitting
     if runTrkFitter: runTrkFinder = True                # track fitter needs track finder
     if runTrkFinder: runTrkHitDigitization = True       # track finding needs tracker hit digitization
@@ -1229,12 +1241,13 @@ def run_digi_reco(path_to_detector, detectors_to_use, wire_tracker):
         TopAlg += [wire_digitizer]
 
     if runConformalTracking:
+        conformalTracks = "ConformalSiTracks"  # output tracks of conformal tracking
         from Configurables import ConformalTracking
         conformalTracking = ConformalTracking("ConformalTracking",
                                               TrackerHitCollectionNames=["VTXBDigis", "VTXDDigis", "SiWrBDigis", "SiWrDDigis"],
                                               RelationsNames=["VTXBSimDigiLinks", "VTXDSimDigiLinks", "SiWrBSimDigiLinks", "SiWrDSimDigiLinks"],
                                               MCParticleCollectionName=["MCParticles"],
-                                              SiTrackCollectionName="ConformalSiTracks",
+                                              SiTrackCollectionName=conformalTracks,
                                               MainTrackerHitCollectionNames=[],
                                               VertexBarrelHitCollectionNames=["VTXBDigis"],
                                               VertexEndcapHitCollectionNames=["VTXDDigis"],
@@ -1330,7 +1343,8 @@ def run_digi_reco(path_to_detector, detectors_to_use, wire_tracker):
         trackFitter = GenfitTrackFitter("GenfitTrackFitter", **trk_fitter_kwargs)
         TopAlg += [trackFitter]
 
-    if runTrkValidation:
+    if runTrkValidation and runTrkFitter:
+        # validation of the tracks of GGTF + GenFit
         # perfect track fitting
         from Configurables import PerfectTrackFinder, GenfitTrackFitter
         perfect_finder = PerfectTrackFinder(
@@ -1362,7 +1376,7 @@ def run_digi_reco(path_to_detector, detectors_to_use, wire_tracker):
         TopAlg += [perfect_finder, perfect_fitter]
 
         from Configurables import TrackingValidation
-        outputFileValid = io_svc.Output.replace(".root", "_trkval.root")
+        outputFileValid = ioOutputFile(outputfile).replace(".root", "_trkval.root")
         trackValidation = TrackingValidation(
             "TrackingValidation",
             OutputFile=outputFileValid,
@@ -1381,6 +1395,62 @@ def run_digi_reco(path_to_detector, detectors_to_use, wire_tracker):
             PerfectFittedTracks=["PerfectFittedTracks"],
             OutputLevel=INFO)
         TopAlg += [trackValidation]
+
+    if runTrkValidation and runConformalTracking:
+        # validation of the tracks of conformal tracking, which uses only the silicon detectors: the reference
+        # perfect tracks are made with the silicon hits only, and fitted with GenFit
+        from Configurables import PerfectTrackFinder, GenfitTrackFitter
+        siHitSimLinks = ["VTXBSimDigiLinks", "VTXDSimDigiLinks", "SiWrBSimDigiLinks", "SiWrDSimDigiLinks"]
+        perfect_si_finder = PerfectTrackFinder(
+            "PerfectSiTrackFinder",
+            InputMCParticles=["MCParticles"],
+            InputPlanarHitCollections=siHitSimLinks,
+            InputWireHitCollections=[],
+            OutputPerfectTracks=["PerfectSiPrefitTracks"],
+            OutputLevel=INFO
+        )
+        perf_si_fitter_kwargs = dict(
+            InputTracks=["PerfectSiPrefitTracks"],
+            OutputFittedTracks=["PerfectSiFittedTracks"],
+            OutputFittedTracksWithFilteredHits=["PerfectSiFittedTracksWithFilteredHits"],
+            OutputFittedHits=["PerfectSiFittedHits"],
+            RunSingleEvaluation=True,
+            UseBrems=True,
+            BetaInit=100.0,
+            BetaFinal=0.1,
+            BetaSteps=15,
+            InitializationType=1,
+            SkipTrackOrdering=False,
+            FilterTrackHits=True,
+            WireTrackerName=wire_tracker.dchi_name,
+            OutputLevel=INFO
+        )
+        perfect_si_fitter = GenfitTrackFitter("PerfectSiTrackFitter", **perf_si_fitter_kwargs)
+
+        TopAlg += [perfect_si_finder, perfect_si_fitter]
+
+        # the tracks of conformal tracking are already fitted (track state AtIP): they are used both as finder and as
+        # fitted tracks
+        from Configurables import TrackingValidation
+        outputFileValidConformal = ioOutputFile(outputfile).replace(".root", "_trkval_conformal.root")
+        conformalTrackValidation = TrackingValidation(
+            "ConformalTrackingValidation",
+            OutputFile=outputFileValidConformal,
+            Mode=0,
+            Bz=2.0,
+            RefPointX=0.0,
+            RefPointY=0.0,
+            RefPointZ=0.0,
+            DoPerfectFit=1,
+            FinderEfficiencyDefinition=1,
+            FinderPurityThreshold=0.75,
+            MCParticles=["MCParticles"],
+            HitSimLinks=siHitSimLinks,
+            FinderTracks=[conformalTracks],
+            FittedTracks=[conformalTracks],
+            PerfectFittedTracks=["PerfectSiFittedTracks"],
+            OutputLevel=INFO)
+        TopAlg += [conformalTrackValidation]
 
     # Calorimeter digitization (merging hits into cells, EM scale calibration via sampling fractions)
 
