@@ -1397,37 +1397,24 @@ def run_digi_reco(path_to_detector, detectors_to_use, wire_tracker):
         TopAlg += [trackValidation]
 
     if runTrkValidation and runConformalTracking:
-        # validation of the tracks of conformal tracking, which uses only the silicon detectors: the reference
-        # perfect tracks are made with the silicon hits only, and fitted with GenFit
-        from Configurables import PerfectTrackFinder, GenfitTrackFitter
+        # validation of the tracks of conformal tracking, which uses only the silicon detectors. The reference
+        # perfect tracks are made by truth tracking: the digitised silicon hits are assigned to the particles with the
+        # MC truth links (perfect pattern recognition), and fitted with the same fitter as conformal tracking
+        # (DDKalTest), so that the comparison with them isolates the effect of the pattern recognition
+        from Configurables import TruthTrackFinder
         siHitSimLinks = ["VTXBSimDigiLinks", "VTXDSimDigiLinks", "SiWrBSimDigiLinks", "SiWrDSimDigiLinks"]
-        perfect_si_finder = PerfectTrackFinder(
-            "PerfectSiTrackFinder",
-            InputMCParticles=["MCParticles"],
-            InputPlanarHitCollections=siHitSimLinks,
-            InputWireHitCollections=[],
-            OutputPerfectTracks=["PerfectSiPrefitTracks"],
-            OutputLevel=INFO
+        truthTrackFinder = TruthTrackFinder(
+            "TruthTrackFinder",
+            TrackerHitCollectionNames=["VTXBDigis", "VTXDDigis", "SiWrBDigis", "SiWrDDigis"],
+            SimTrackerHitRelCollectionNames=siHitSimLinks,
+            MCParticleCollectionName=["MCParticles"],
+            SiTrackCollectionName="TruthSiTracks",
+            SiTrackRelationCollectionName="TruthSiTrackMCParticleLinks",
+            UseTruthInPrefit=False,
+            FitForward=True,
+            OutputLevel=WARNING  # at INFO level it prints a message for every particle without hits
         )
-        perf_si_fitter_kwargs = dict(
-            InputTracks=["PerfectSiPrefitTracks"],
-            OutputFittedTracks=["PerfectSiFittedTracks"],
-            OutputFittedTracksWithFilteredHits=["PerfectSiFittedTracksWithFilteredHits"],
-            OutputFittedHits=["PerfectSiFittedHits"],
-            RunSingleEvaluation=True,
-            UseBrems=True,
-            BetaInit=100.0,
-            BetaFinal=0.1,
-            BetaSteps=15,
-            InitializationType=1,
-            SkipTrackOrdering=False,
-            FilterTrackHits=True,
-            WireTrackerName=wire_tracker.dchi_name,
-            OutputLevel=INFO
-        )
-        perfect_si_fitter = GenfitTrackFitter("PerfectSiTrackFitter", **perf_si_fitter_kwargs)
-
-        TopAlg += [perfect_si_finder, perfect_si_fitter]
+        TopAlg += [truthTrackFinder]
 
         # the tracks of conformal tracking are already fitted (track state AtIP): they are used both as finder and as
         # fitted tracks
@@ -1448,7 +1435,7 @@ def run_digi_reco(path_to_detector, detectors_to_use, wire_tracker):
             HitSimLinks=siHitSimLinks,
             FinderTracks=[conformalTracks],
             FittedTracks=[conformalTracks],
-            PerfectFittedTracks=["PerfectSiFittedTracks"],
+            PerfectFittedTracks=["TruthSiTracks"],
             OutputLevel=INFO)
         TopAlg += [conformalTrackValidation]
 
