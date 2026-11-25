@@ -2098,6 +2098,7 @@ def run_digi_reco(path_to_detector, detectors_to_use, wire_tracker):
     if not saveCells:
         io_svc.outputCommands.append("drop %s" % ecalBarrelPositionedCellsName)
         io_svc.outputCommands.append("drop %s" % ecalEndcapPositionedCellsName)
+        io_svc.outputCommands.append("drop CaloHitMCParticleLinks")
         if addNoise:
             io_svc.outputCommands.append("drop %sWithNoise*" % ecalBarrelPositionedCellsName)
             io_svc.outputCommands.append("drop %sWithNoise*" % ecalEndcapPositionedCellsName)
