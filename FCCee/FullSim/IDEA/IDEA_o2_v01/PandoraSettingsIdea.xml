@@ -1,0 +1,108 @@
+<!--
+-- Copyright (c) 2020-2024 Key4hep-Project.
+--
+-- This file is part of Key4hep.
+-- See https://key4hep.github.io/key4hep-doc/ for further info.
+--
+-- Licensed under the Apache License, Version 2.0 (the "License");
+-- you may not use this file except in compliance with the License.
+-- You may obtain a copy of the License at
+--
+--     http://www.apache.org/licenses/LICENSE-2.0
+--
+-- Unless required by applicable law or agreed to in writing, software
+-- distributed under the License is distributed on an "AS IS" BASIS,
+-- WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+-- See the License for the specific language governing permissions and
+-- limitations under the License.
+  -->
+<pandora>
+    <!-- GLOBAL SETTINGS -->
+    <IsMonitoringEnabled>false</IsMonitoringEnabled>
+    <ShouldDisplayAlgorithmInfo>false</ShouldDisplayAlgorithmInfo>
+    <ShouldCollapseMCParticlesToPfoTarget>false</ShouldCollapseMCParticlesToPfoTarget>
+
+    <!-- PLUGIN REGISTRATION -->
+    <HadronicEnergyCorrectionPlugins>DualReadoutCorrection</HadronicEnergyCorrectionPlugins>
+
+    <!-- PLUGIN SETTINGS -->
+    <DualReadoutCorrection>
+        <ChiEcal>0.41</ChiEcal>
+        <ChiHcal>0.31</ChiHcal>
+    </DualReadoutCorrection>
+
+    <algorithm type = "DDExternalClustering">
+        <FlagClustersAsPhotons>false</FlagClustersAsPhotons>
+    </algorithm>
+
+    <algorithm type = "TrackClusterAssociation">
+        <LowEnergyCut>1</LowEnergyCut> <!--not used for EM clusters anyway-->
+        <MaxTrackClusterDistance>10.</MaxTrackClusterDistance>
+        <MaxSearchLayer>0</MaxSearchLayer>
+        <ParallelDistanceCut>250.</ParallelDistanceCut>
+        <MinTrackClusterCosAngle>0.</MinTrackClusterCosAngle>
+    </algorithm>
+
+    <algorithm type = "ClusterNeutralPid">
+        <ModelPath>photonId_ParT_multi.onnx</ModelPath>
+    </algorithm>
+
+    <algorithm type = "IsolatedHitPreparation">
+        <ExcludeHcalHits>true</ExcludeHcalHits>
+        <ScintEnergyThreshold>0.000763</ScintEnergyThreshold>
+        <CherEnergyThreshold>0.01535</CherEnergyThreshold>
+    </algorithm>
+
+    <algorithm type = "IsolatedHitMerging">
+        <ShouldUseCurrentClusterList>true</ShouldUseCurrentClusterList>
+        <MinHitsInCluster>0</MinHitsInCluster>
+        <MaxRecombinationDistance>0.4</MaxRecombinationDistance>
+        <MinCosOpeningAngle>0</MinCosOpeningAngle>
+        <UseCorrectedHadronicEnergy>true</UseCorrectedHadronicEnergy>
+        <UseAngularDistance>true</UseAngularDistance>
+        <IgnorePhotons>true</IgnorePhotons>
+        <IgnoreCharged>false</IgnoreCharged>
+    </algorithm>
+
+    <algorithm type = "EcalSeededClustering">
+        <OutputClusterListName>EcalSeededClusters</OutputClusterListName>
+        <UseDualReadout>true</UseDualReadout>
+        <MomentumThreshold>1.</MomentumThreshold>
+        <HardThreshold>0.0</HardThreshold>
+        <GrowThreshold>0.0</GrowThreshold>
+        <W0>4.6</W0>
+        <AdjacencyR>25.</AdjacencyR>
+    </algorithm>
+
+    <algorithm type = "ForwardPhotonId">
+    </algorithm>
+
+    <algorithm type = "IsolatedHitPreparation">
+        <ExcludeEcalHits>true</ExcludeEcalHits>
+        <ScintEnergyThreshold>0.00727</ScintEnergyThreshold>
+        <CherEnergyThreshold>0.02198</CherEnergyThreshold>
+    </algorithm>
+
+    <algorithm type = "IsolatedHitMerging">
+        <ShouldUseCurrentClusterList>true</ShouldUseCurrentClusterList>
+        <MinHitsInCluster>0</MinHitsInCluster>
+        <MaxRecombinationDistance>0.4</MaxRecombinationDistance>
+        <MinCosOpeningAngle>0</MinCosOpeningAngle>
+        <UseCorrectedHadronicEnergy>true</UseCorrectedHadronicEnergy>
+        <UseAngularDistance>true</UseAngularDistance>
+        <IgnorePhotons>true</IgnorePhotons>
+        <IgnoreCharged>false</IgnoreCharged>
+    </algorithm>
+
+    <algorithm type = "SatelliteAssignmentOnnx">
+        <ModelPath>group_transformer.onnx</ModelPath>
+        <AffinityThreshold>0.34</AffinityThreshold>
+        <GroupNeutral>true</GroupNeutral>
+        <NeutralAffinityThreshold>0.72</NeutralAffinityThreshold>
+    </algorithm>
+
+    <algorithm type = "CreatePfo">
+        <OutputPfoListName>PfoIdea</OutputPfoListName>
+        <NeutralHadEnergyScale>1.0</NeutralHadEnergyScale>
+    </algorithm>
+</pandora>
