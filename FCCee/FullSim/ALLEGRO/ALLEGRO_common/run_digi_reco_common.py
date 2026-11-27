@@ -912,6 +912,7 @@ def run_digi_reco(path_to_detector, detectors_to_use, wire_tracker):
                                                         OutputMCRecoTrackParticleAssociation=["TracksFromGenParticlesAssociation"],
                                                         ExtrapolateToECal=True,
                                                         KeepOnlyBestExtrapolation=False,
+                                                        MinimumParticleMomentum=0.1, # GeV
                                                         TrackerIDs=[IDs["VXD_Barrel"],
                                                                     IDs["VXD_Disks"],
                                                                     IDs[wire_tracker.id_name],
