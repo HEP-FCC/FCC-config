@@ -1281,6 +1281,23 @@ def run_digi_reco(path_to_detector, detectors_to_use, wire_tracker):
                 "flags": ["HighPTFit", "VertexToTracker"],
                 "functions": ["CombineCollections", "BuildNewTracks"],
             },
+            # attach the Si wrapper hits to the tracks built in the previous step: a candidate that includes the
+            # wrapper hit often fails the chi2 selection of the previous step, since the conformal fit does not
+            # account for the multiple scattering between the vertex detector and the wrapper
+            "SiWrapperExtension": {
+                "collections": ["SiWrBDigis", "SiWrDDigis"],
+                "params": {
+                    "MaxCellAngle": 0.1,
+                    "MaxCellAngleRZ": 0.1,
+                    "Chi2Cut": 2000,
+                    "MinClustersOnTrack": 3,
+                    "MaxDistance": 0.05,
+                    "SlopeZRange": 10.0,
+                    "HighPTCut": 1.0,
+                },
+                "flags": ["HighPTFit", "VertexToTracker"],
+                "functions": ["CombineCollections", "ExtendTracks"],
+            },
         }
 
         from conformal_tracking_utils import configure_conformal_tracking_steps
