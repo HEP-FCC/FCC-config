@@ -1253,8 +1253,13 @@ def run_digi_reco(path_to_detector, detectors_to_use, wire_tracker):
                                               VertexEndcapHitCollectionNames=["VTXDDigis"],
                                               DebugPlots=True,
                                               DebugTiming=False,
+                                              # tracks with fewer hits than this after the fit are also fitted in the
+                                              # opposite direction, and the fit with more hits is kept: an inside-out fit
+                                              # can lose the Si wrapper hit when its prediction falls outside the sensor.
+                                              # With 6, barrel tracks with all their hits (5 vertex + 1 Si wrapper) are
+                                              # not refitted; larger values give the same tracks for more CPU time
+                                              MaxHitInvertedFit=6,
                                               # the following parameters have not yet been tuned to ALLEGRO
-                                              MaxHitInvertedFit=0,
                                               MinClustersOnTrackAfterFit=3,
                                               RetryTooManyTracks=False,
                                               SortTreeResults=True,
@@ -1280,6 +1285,23 @@ def run_digi_reco(path_to_detector, detectors_to_use, wire_tracker):
                 },
                 "flags": ["HighPTFit", "VertexToTracker"],
                 "functions": ["CombineCollections", "BuildNewTracks"],
+            },
+            # attach the Si wrapper hits to the tracks built in the previous step: a candidate that includes the
+            # wrapper hit often fails the chi2 selection of the previous step, since the conformal fit does not
+            # account for the multiple scattering between the vertex detector and the wrapper
+            "SiWrapperExtension": {
+                "collections": ["SiWrBDigis", "SiWrDDigis"],
+                "params": {
+                    "MaxCellAngle": 0.1,
+                    "MaxCellAngleRZ": 0.1,
+                    "Chi2Cut": 2000,
+                    "MinClustersOnTrack": 3,
+                    "MaxDistance": 0.05,
+                    "SlopeZRange": 10.0,
+                    "HighPTCut": 1.0,
+                },
+                "flags": ["HighPTFit", "VertexToTracker"],
+                "functions": ["CombineCollections", "ExtendTracks"],
             },
         }
 
