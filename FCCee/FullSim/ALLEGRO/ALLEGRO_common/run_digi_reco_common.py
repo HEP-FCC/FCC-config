@@ -2098,7 +2098,6 @@ def run_digi_reco(path_to_detector, detectors_to_use, wire_tracker):
     if not saveCells:
         io_svc.outputCommands.append("drop %s" % ecalBarrelPositionedCellsName)
         io_svc.outputCommands.append("drop %s" % ecalEndcapPositionedCellsName)
-        io_svc.outputCommands.append("drop CaloHitMCParticleLinks")
         if addNoise:
             io_svc.outputCommands.append("drop %sWithNoise*" % ecalBarrelPositionedCellsName)
             io_svc.outputCommands.append("drop %sWithNoise*" % ecalEndcapPositionedCellsName)
@@ -2107,11 +2106,17 @@ def run_digi_reco(path_to_detector, detectors_to_use, wire_tracker):
         if runHCal:
             io_svc.outputCommands.append("drop %s" % hcalBarrelPositionedCellsName)
             io_svc.outputCommands.append("drop %s" % hcalEndcapPositionedCellsName)
+        if runMuon:
+            io_svc.outputCommands.append("drop %s" % muonBarrelPositionedCellsName)
+            io_svc.outputCommands.append("drop %s" % muonEndcapPositionedCellsName)
     if not saveClusterCells:
         io_svc.outputCommands.append("drop *Calo*Cluster*Cells*")
     # drop hits<->cells links if either of the two collections are not saved
     if not saveHits or not saveCells:
         io_svc.outputCommands.append("drop *SimCaloHitLinks")
+    # drop cells<->MCParticles links if cells are not saved
+    if not saveCells:
+        io_svc.outputCommands.append("drop CaloHitMCParticleLinks")
 
     # if we decorate the clusters, we can drop the non-decorated ones
     if addShapeParameters:
