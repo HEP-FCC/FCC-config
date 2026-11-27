@@ -1253,8 +1253,13 @@ def run_digi_reco(path_to_detector, detectors_to_use, wire_tracker):
                                               VertexEndcapHitCollectionNames=["VTXDDigis"],
                                               DebugPlots=True,
                                               DebugTiming=False,
+                                              # tracks with fewer hits than this after the fit are also fitted in the
+                                              # opposite direction, and the fit with more hits is kept: an inside-out fit
+                                              # can lose the Si wrapper hit when its prediction falls outside the sensor.
+                                              # With 6, barrel tracks with all their hits (5 vertex + 1 Si wrapper) are
+                                              # not refitted; larger values give the same tracks for more CPU time
+                                              MaxHitInvertedFit=6,
                                               # the following parameters have not yet been tuned to ALLEGRO
-                                              MaxHitInvertedFit=0,
                                               MinClustersOnTrackAfterFit=3,
                                               RetryTooManyTracks=False,
                                               SortTreeResults=True,
